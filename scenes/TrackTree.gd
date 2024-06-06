@@ -13,12 +13,28 @@ static var _icon_size := 16
 @export var ttm_tex : Texture2D
 @export var tween_tex : Texture2D
 
+
+
+
+
+########################################################################
+# TODO: 1. Create custom "Animation" Resource and "Track" Class
+#		-> 	Transfer all of the examples over
+# TODO: 2. Adapt _ready to generate the TreeItems from Animation instance.
+# TODO: ~~3. Experiment with a custom draw for CELL_MODE_CUSTOM~~
+#       -> 	The columns are not resizable by hand, rather use the separate panel
+#			for drawing the actual clip-boxes
+# TODO: 4. Draw the clips in the separate panel using the Animation instance
+# TODO: 5. Draw a custom HScrollBar aka our Timeline
+########################################################################
+
+
 func _ready() -> void:
 
 	# COLUMN & ROOT SETUP
 
 	columns = len(_columns)
-	#column_titles_visible = true
+	column_titles_visible = true
 
 	for col_id in range(columns):
 		set_column_title(col_id, _columns[col_id])
@@ -142,8 +158,6 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 		next = get_next_selected(next)
 	set_drag_preview(v)
 	return items
-
-
 
 
 func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
