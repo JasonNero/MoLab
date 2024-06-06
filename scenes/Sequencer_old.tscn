@@ -1,0 +1,115 @@
+[gd_scene load_steps=3 format=3 uid="uid://byexcj8f3j4w0"]
+
+[ext_resource type="PackedScene" uid="uid://b5pneqhc7amhy" path="res://scenes/clip_widget.tscn" id="1_14vwy"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hkv60"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.309804, 0.309804, 0.309804, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="Sequencer" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 1
+
+[node name="BasicControls" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxFlat_hkv60")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="BasicControls"]
+clip_contents = false
+layout_mode = 2
+follow_focus = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="BasicControls/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="BasicControls/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Motion Tracks"
+horizontal_alignment = 1
+
+[node name="TrackPanel" type="Panel" parent="BasicControls/ScrollContainer/VBoxContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(900, 48)
+layout_mode = 2
+mouse_filter = 1
+
+[node name="ClipPanelWidget" parent="BasicControls/ScrollContainer/VBoxContainer/TrackPanel" instance=ExtResource("1_14vwy")]
+layout_mode = 0
+offset_left = 100.0
+offset_right = 960.0
+start = 100
+end = 960
+inPoint = 100
+outPoint = 600
+
+[node name="TrackPanel2" type="Panel" parent="BasicControls/ScrollContainer/VBoxContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(900, 48)
+layout_mode = 2
+
+[node name="ClipPanelWidget" parent="BasicControls/ScrollContainer/VBoxContainer/TrackPanel2" instance=ExtResource("1_14vwy")]
+layout_mode = 0
+
+[node name="TrackPanel3" type="Panel" parent="BasicControls/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(900, 48)
+layout_mode = 2
+
+[node name="ClipPanelWidget" parent="BasicControls/ScrollContainer/VBoxContainer/TrackPanel3" instance=ExtResource("1_14vwy")]
+layout_mode = 0
+
+[node name="TrackPanel4" type="Panel" parent="BasicControls/ScrollContainer/VBoxContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(900, 48)
+layout_mode = 2
+
+[node name="ClipPanelWidget" parent="BasicControls/ScrollContainer/VBoxContainer/TrackPanel4" instance=ExtResource("1_14vwy")]
+layout_mode = 0
+
+[node name="TrackPanel5" type="Panel" parent="BasicControls/ScrollContainer/VBoxContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(900, 48)
+layout_mode = 2
+
+[node name="ClipPanelWidget" parent="BasicControls/ScrollContainer/VBoxContainer/TrackPanel5" instance=ExtResource("1_14vwy")]
+layout_mode = 0
+
+[node name="TrackPanel6" type="Panel" parent="BasicControls/ScrollContainer/VBoxContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(900, 48)
+layout_mode = 2
+
+[node name="ClipPanelWidget" parent="BasicControls/ScrollContainer/VBoxContainer/TrackPanel6" instance=ExtResource("1_14vwy")]
+layout_mode = 0
+
+[node name="TrackPanel7" type="Panel" parent="BasicControls/ScrollContainer/VBoxContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(900, 48)
+layout_mode = 2
+
+[node name="ClipPanelWidget" parent="BasicControls/ScrollContainer/VBoxContainer/TrackPanel7" instance=ExtResource("1_14vwy")]
+layout_mode = 0
