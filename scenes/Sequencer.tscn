@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://dxdbp3d5t4f28" path="res://icons/Stop.png" id="3_qhgue"]
 [ext_resource type="Texture2D" uid="uid://bn2kjy7h7vk8e" path="res://icons/Play.png" id="4_f5mm4"]
 [ext_resource type="Texture2D" uid="uid://cl6uyhyp8i2cx" path="res://icons/PlayStart.png" id="5_bj58l"]
-[ext_resource type="Script" path="res://scenes/TrackTree.gd" id="6_ldfau"]
+[ext_resource type="Script" path="res://scripts/TrackTree.gd" id="6_tw30q"]
 [ext_resource type="Texture2D" uid="uid://bpafgc1rqgxtf" path="res://icons/Folder.png" id="7_qr5w6"]
 [ext_resource type="Texture2D" uid="uid://ceyx6qtd408xs" path="res://icons/FontItem.png" id="8_6e0xm"]
 [ext_resource type="Texture2D" uid="uid://bu232vjuq7bpl" path="res://icons/Blend.png" id="8_f134t"]
@@ -89,7 +89,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 3
 hide_root = true
-script = ExtResource("6_ldfau")
+script = ExtResource("6_tw30q")
 bvh_tex = ExtResource("7_qr5w6")
 ttm_tex = ExtResource("8_6e0xm")
 tween_tex = ExtResource("8_f134t")
