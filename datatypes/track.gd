@@ -9,9 +9,9 @@ extends Resource
 @export var blend_out : int
 
 
-#func _init(name, in_point, out_point, blend_in, blend_out) -> void:
-	#self.name = name
-	#self.in_point = in_point
-	#self.out_point = out_point
-	#self.blend_in = blend_in
-	#self.blend_out = blend_out
+func _init(name, in_point, out_point, blend_in, blend_out) -> void:
+	self.name = name
+	self.in_point = in_point
+	self.out_point = out_point
+	self.blend_in = blend_in
+	self.blend_out = blend_out
