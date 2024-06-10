@@ -9,13 +9,23 @@ static var _column_names := [
 static var _icon_size := 16
 static var _zoom := 3.0
 
-@export var bvh_tex: Texture2D
-@export var ttm_tex: Texture2D
-@export var tween_tex: Texture2D
-@export var anim: TrackAnimation
+var anim: TrackAnimation
 
-@onready var track_v_box: VBoxContainer = %TrackVBox
-@onready var track_panel: Panel = %TrackPanel
+@export var bvh_tex: Texture2D = preload("res://icons/Folder.png")
+@export var ttm_tex: Texture2D = preload("res://icons/FontItem.png")
+@export var tween_tex: Texture2D = preload("res://icons/Blend.png")
+
+@export var bvh_color: Color = Color("#114153")
+@export var ttm_color: Color = Color("#264115")
+@export var tween_color: Color = Color("#134137")
+
+var default_style: StyleBox
+var bvh_style: StyleBox
+var ttm_style: StyleBox
+var tween_style: StyleBox
+
+@onready var track_panel = %TrackPanel
+
 
 ########################################################################
 # TODO: Draw the clips in the separate panel using the Animation instance
@@ -28,6 +38,17 @@ func _ready() -> void:
 		print("No or empty TrackAnimation, using placeholder")
 		anim = _get_placeholder_anim()
 	# ResourceSaver.save(anim, "res://tmp/trackanim.tres")
+
+	var temp_btn = Button.new()
+	default_style = temp_btn.get_theme_stylebox("normal").duplicate()
+	temp_btn.queue_free()
+
+	bvh_style = default_style.duplicate()
+	bvh_style.bg_color = bvh_color
+	ttm_style = default_style.duplicate()
+	ttm_style.bg_color = ttm_color
+	tween_style = default_style.duplicate()
+	tween_style.bg_color = tween_color
 
 	_build_ui()
 	_connect_signals()
@@ -50,9 +71,21 @@ func _get_track_icon(track: Track) -> Texture2D:
 	elif track is TweenTrack:
 		return tween_tex
 	else:
-		return get_theme_icon("close")
+		return null
+
+func _get_track_style(track: Track) -> StyleBox:
+	if track is BVHTrack:
+		return bvh_style
+	elif track is TTMTrack:
+		return ttm_style
+	elif track is TweenTrack:
+		return tween_style
+	else:
+		return default_style
 
 func _build_ui():
+
+	# TREE UI
 	columns = len(_column_names)
 	column_titles_visible = false
 
@@ -74,6 +107,8 @@ func _build_ui():
 	root.set_collapsed_recursive(true)
 	root.collapsed = false
 
+
+	# TRACK UI
 	for track_id in range(len(anim.tracks)):
 		var track = anim.tracks[track_id]
 		var item = get_root().get_child(track_id)
@@ -86,16 +121,28 @@ func _build_ui():
 		track_dummy.expand_icon = true
 		track_dummy.set_position(Vector2(track.in_point, item_rect.position.y) * Vector2(_zoom, 1))
 		track_dummy.set_size(Vector2(track.out_point - track.in_point, 27) * Vector2(_zoom, 1))
+
+		track_dummy.add_theme_stylebox_override("normal", _get_track_style(track))
+		track_dummy.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		track_dummy.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		track_panel.add_child(track_dummy)
+
 
 
 func _connect_signals():
 	item_collapsed.connect(_refresh_panel)
 
 
-
 func _refresh_panel(item):
 	print("refresh called for ", item)
+
+
+	# Update minimum size for scrollbar
+	var root = get_root()
+	var last_item_rect = get_item_area_rect(root.get_child(root.get_child_count()-1))
+	var min_size = last_item_rect.position + last_item_rect.size
+	print("Setting minimum size to ", min_size)
+	track_panel.custom_minimum_size = min_size
 
 
 func _setup_track_options(
