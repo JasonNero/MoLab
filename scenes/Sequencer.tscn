@@ -83,7 +83,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Tree" type="Tree" parent="MarginContainer/VBoxContainer/GridContainer/HSplitContainer"]
+[node name="TrackTree" type="Tree" parent="MarginContainer/VBoxContainer/GridContainer/HSplitContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -94,10 +94,22 @@ bvh_tex = ExtResource("7_qr5w6")
 ttm_tex = ExtResource("8_6e0xm")
 tween_tex = ExtResource("8_f134t")
 
-[node name="Panel" type="Panel" parent="MarginContainer/VBoxContainer/GridContainer/HSplitContainer"]
+[node name="TrackPanel" type="Panel" parent="MarginContainer/VBoxContainer/GridContainer/HSplitContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
+
+[node name="TrackContainer" type="PanelContainer" parent="MarginContainer/VBoxContainer/GridContainer/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="TrackVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/GridContainer/HSplitContainer/TrackContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 1
 
 [node name="VScrollBar" type="VScrollBar" parent="MarginContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
