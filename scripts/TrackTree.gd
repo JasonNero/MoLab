@@ -1,4 +1,3 @@
-#@tool
 class_name TrackTree
 extends Tree
 
@@ -11,13 +10,13 @@ static var _zoom := 3.0
 
 var anim: TrackAnimation
 
-@export var bvh_tex: Texture2D = preload("res://icons/Folder.png")
-@export var ttm_tex: Texture2D = preload("res://icons/FontItem.png")
-@export var tween_tex: Texture2D = preload("res://icons/Blend.png")
+var bvh_tex: Texture2D = preload("res://icons/Folder.png")
+var ttm_tex: Texture2D = preload("res://icons/FontItem.png")
+var tween_tex: Texture2D = preload("res://icons/Blend.png")
 
-@export var bvh_color: Color = Color("#114153")
-@export var ttm_color: Color = Color("#264115")
-@export var tween_color: Color = Color("#134137")
+var bvh_color: Color = Color("#114153")
+var ttm_color: Color = Color("#264115")
+var tween_color: Color = Color("#134137")
 
 var default_style: StyleBox
 var bvh_style: StyleBox
@@ -28,8 +27,9 @@ var tween_style: StyleBox
 
 
 ########################################################################
-# TODO: Draw the clips in the separate panel using the Animation instance
-# TODO: Draw a custom HScrollBar aka our Timeline
+# TODO: Refactor into separate scripts for TrackTree and TrackPanel
+# TODO: Introduce "time", connecting the Timeline
+# TODO: Draw a time-indicator over/onto the TrackPanel
 ########################################################################
 
 
@@ -100,13 +100,12 @@ func _build_ui():
 		var child: TreeItem = create_item(root)
 		child.set_icon(0, _get_track_icon(track))
 		child.set_icon_max_width(0, _icon_size)
-		child.set_text(1, track.name)
+		child.set_text(0, track.name)
 		_setup_track_options(child, track)
 
 	# collapse all and then uncollapse the hidden root
 	root.set_collapsed_recursive(true)
 	root.collapsed = false
-
 
 	# TRACK UI
 	for track_id in range(len(anim.tracks)):
@@ -136,6 +135,7 @@ func _connect_signals():
 func _refresh_panel(item):
 	print("refresh called for ", item)
 
+	# TODO: Re-position the tracks according to the collapse-state of the tree
 
 	# Update minimum size for scrollbar
 	var root = get_root()
