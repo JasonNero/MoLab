@@ -1,0 +1,8 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://cyjh5uyspkac1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hkxir"]
+content_margin_top = 32.0
+bg_color = Color(0.121569, 0.121569, 0.121569, 1)
+
+[resource]
+HScrollBar/styles/scroll = SubResource("StyleBoxFlat_hkxir")

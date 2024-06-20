@@ -5,150 +5,43 @@ static var _column_names := [
 	"Track Name",
 	"",
 ]
-static var _icon_size := 16
-static var _zoom := 3.0
-
-var anim: TrackAnimation
-
-var bvh_tex: Texture2D = preload("res://icons/Folder.png")
-var ttm_tex: Texture2D = preload("res://icons/FontItem.png")
-var tween_tex: Texture2D = preload("res://icons/Blend.png")
-
-var bvh_color: Color = Color("#114153")
-var ttm_color: Color = Color("#264115")
-var tween_color: Color = Color("#134137")
-
-var default_style: StyleBox
-var bvh_style: StyleBox
-var ttm_style: StyleBox
-var tween_style: StyleBox
-
-@onready var track_panel = %TrackPanel
-
+static var icon_size := 16
 
 ########################################################################
-# TODO: Refactor into separate scripts for TrackTree and TrackPanel
+# TODO: Custom root_item_selected signal to select the corresponding panel item in Sequencer
 # TODO: Introduce "time", connecting the Timeline
 # TODO: Draw a time-indicator over/onto the TrackPanel
 ########################################################################
 
-
 func _ready() -> void:
-	if not anim or len(anim.tracks) == 0:
-		print("No or empty TrackAnimation, using placeholder")
-		anim = _get_placeholder_anim()
-	# ResourceSaver.save(anim, "res://tmp/trackanim.tres")
-
-	var temp_btn = Button.new()
-	default_style = temp_btn.get_theme_stylebox("normal").duplicate()
-	temp_btn.queue_free()
-
-	bvh_style = default_style.duplicate()
-	bvh_style.bg_color = bvh_color
-	ttm_style = default_style.duplicate()
-	ttm_style.bg_color = ttm_color
-	tween_style = default_style.duplicate()
-	tween_style.bg_color = tween_color
-
-	_build_ui()
-	_connect_signals()
-
-
-func _get_placeholder_anim() -> TrackAnimation:
-	var _anim = TrackAnimation.new()
-	_anim.tracks.append(BVHTrack.new("Capoeira Choreo", 0, 80, 0, 0, "anim/capoeira.bvh"))
-	_anim.tracks.append(TTMTrack.new("Jump", 20, 60, 5, 5, "The athlete jumps", TTMTrack.MODELTYPE.DEFAULT))
-	_anim.tracks.append(TTMTrack.new("Fall", 50, 80, 10, 10, "A person stumbles and falls", TTMTrack.MODELTYPE.EXPERIMENTAL))
-	_anim.tracks.append(BVHTrack.new("Tango Dance", 90, 200, 0, 20, "anim/capoeira.bvh"))
-	_anim.tracks.append(TweenTrack.new("Transition", 70, 100, 10, 10, TweenTrack.MODELTYPE.EXPERIMENTAL))
-	return _anim
-
-func _get_track_icon(track: Track) -> Texture2D:
-	if track is BVHTrack:
-		return bvh_tex
-	elif track is TTMTrack:
-		return ttm_tex
-	elif track is TweenTrack:
-		return tween_tex
-	else:
-		return null
-
-func _get_track_style(track: Track) -> StyleBox:
-	if track is BVHTrack:
-		return bvh_style
-	elif track is TTMTrack:
-		return ttm_style
-	elif track is TweenTrack:
-		return tween_style
-	else:
-		return default_style
-
-func _build_ui():
-
-	# TREE UI
 	columns = len(_column_names)
 	column_titles_visible = false
 
 	for col_id in range(columns):
 		set_column_title(col_id, _column_names[col_id])
 
-	var root: TreeItem = create_item()
-	root.set_text(0, "ROOT")
 	hide_root = true
 
-	for track in anim.tracks:
-		var child: TreeItem = create_item(root)
-		child.set_icon(0, _get_track_icon(track))
-		child.set_icon_max_width(0, _icon_size)
-		child.set_text(0, track.name)
-		_setup_track_options(child, track)
+func get_or_create_root() -> TreeItem:
+	var root: TreeItem = get_root()
+	if not root:
+		root = create_item()
+	return root
 
-	# collapse all and then uncollapse the hidden root
-	root.set_collapsed_recursive(true)
-	root.collapsed = false
+## Return the size of all TreeItems combined.
+func get_full_size() -> Vector2:
+	var last_item_rect = get_item_area_rect(get_or_create_root().get_child( - 1))
+	var full_size = last_item_rect.position + last_item_rect.size
+	return full_size
 
-	# TRACK UI
-	for track_id in range(len(anim.tracks)):
-		var track = anim.tracks[track_id]
-		var item = get_root().get_child(track_id)
-		var item_rect: Rect2 = get_item_area_rect(item)
-		print("Creating dummy like ", item_rect)
+func add_track_item(track: Track, collapsed=true) -> TreeItem:
+	var root: TreeItem = get_or_create_root()
 
-		var track_dummy := Button.new()
-		# track_dummy.text = track.name
-		track_dummy.icon = _get_track_icon(track)
-		track_dummy.expand_icon = true
-		track_dummy.set_position(Vector2(track.in_point, item_rect.position.y) * Vector2(_zoom, 1))
-		track_dummy.set_size(Vector2(track.out_point - track.in_point, 27) * Vector2(_zoom, 1))
+	var item: TreeItem = create_item(root)
+	item.set_icon(0, Globals._get_track_icon(track))
+	item.set_icon_max_width(0, icon_size)
+	item.set_text(0, track.name)
 
-		track_dummy.add_theme_stylebox_override("normal", _get_track_style(track))
-		track_dummy.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		track_dummy.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		track_panel.add_child(track_dummy)
-
-
-
-func _connect_signals():
-	item_collapsed.connect(_refresh_panel)
-
-
-func _refresh_panel(item):
-	print("refresh called for ", item)
-
-	# TODO: Re-position the tracks according to the collapse-state of the tree
-
-	# Update minimum size for scrollbar
-	var root = get_root()
-	var last_item_rect = get_item_area_rect(root.get_child(root.get_child_count()-1))
-	var min_size = last_item_rect.position + last_item_rect.size
-	print("Setting minimum size to ", min_size)
-	track_panel.custom_minimum_size = min_size
-
-
-func _setup_track_options(
-		item: TreeItem,
-		track: Track,
-	):
 	# Base Track Options
 	var track_options: TreeItem = create_item(item)
 	track_options.set_text(0, "Track Options")
@@ -173,11 +66,10 @@ func _setup_track_options(
 	elif track is TweenTrack:
 		_setup_tween_options(item, track)
 
+	item.set_collapsed_recursive(collapsed)
+	return item
 
-func _setup_bvh_options(
-		item: TreeItem,
-		track: BVHTrack,
-	):
+func _setup_bvh_options(item: TreeItem, track: BVHTrack):
 	var bvh_options: TreeItem = create_item(item)
 	bvh_options.set_text(0, "BVH Options")
 
@@ -186,24 +78,20 @@ func _setup_bvh_options(
 	bvh_options_file.set_text(1, track.file)
 	bvh_options_file.set_editable(1, true)
 
-func _setup_tween_options(
-		item: TreeItem,
-		track: TweenTrack,
-	):
+func _setup_tween_options(item: TreeItem, track: TweenTrack):
 	var gen_options: TreeItem = create_item(item)
 	gen_options.set_text(0, "Generation Options")
 
 	var gen_options_model: TreeItem = create_item(gen_options)
 	gen_options_model.set_text(0, "Model")
 	gen_options_model.set_cell_mode(1, TreeItem.CELL_MODE_RANGE)
-	gen_options_model.set_text(1, ",".join(TweenTrack.MODELTYPE.keys()))
-	# TODO: Figure out how to set the correct item
+
+	var keys = TweenTrack.MODELTYPE.keys()
+	keys.push_front(keys.pop_at(track.model)) # Put the selected mode first
+	gen_options_model.set_text(1, ",".join(keys))
 	gen_options_model.set_editable(1, true)
 
-func _setup_ttm_options(
-		item: TreeItem,
-		track: TTMTrack
-	):
+func _setup_ttm_options(item: TreeItem, track: TTMTrack):
 	var gen_options: TreeItem = create_item(item)
 	gen_options.set_text(0, "Generation Options")
 
@@ -215,12 +103,18 @@ func _setup_ttm_options(
 	var gen_options_model: TreeItem = create_item(gen_options)
 	gen_options_model.set_text(0, "Model")
 	gen_options_model.set_cell_mode(1, TreeItem.CELL_MODE_RANGE)
-	gen_options_model.set_text(1, ",".join(TTMTrack.MODELTYPE.keys()))
-	# TODO: Figure out how to set the correct item
+
+	var keys = TTMTrack.MODELTYPE.keys()
+	keys.push_front(keys.pop_at(track.model)) # Put the selected mode first
+	gen_options_model.set_text(1, ",".join(keys))
 	gen_options_model.set_editable(1, true)
 
+# ####################################################################################
 # Drag&Drop adapted from:
 # https://forum.godotengine.org/t/dragging-treeitems-within-tree-control-node/42393/2
+
+# TODO: This throws off the items in the panel since the order changed
+#		-> Keep track of their IDs instead?
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	var items := []

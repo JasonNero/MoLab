@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="TrackAnimation" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://datatypes/track_animation.gd" id="1_qmyks"]
+[ext_resource type="Script" path="res://datatypes/bvh_track.gd" id="2_ug1p2"]
+[ext_resource type="Script" path="res://datatypes/ttm_track.gd" id="3_ft2od"]
+[ext_resource type="Script" path="res://datatypes/tween_track.gd" id="4_ori1a"]
+
+[sub_resource type="Resource" id="Resource_7x10p"]
+script = ExtResource("2_ug1p2")
+file = "anim/capoeira.bvh"
+name = "Capoeira Choreo"
+in_point = 0
+out_point = 80
+blend_in = 0
+blend_out = 0
+
+[sub_resource type="Resource" id="Resource_k78vp"]
+script = ExtResource("3_ft2od")
+text = "The athlete jumps"
+model = 0
+name = "Jump"
+in_point = 20
+out_point = 60
+blend_in = 5
+blend_out = 5
+
+[sub_resource type="Resource" id="Resource_6u4gw"]
+script = ExtResource("3_ft2od")
+text = "A person stumbles and falls"
+model = 2
+name = "Fall"
+in_point = 50
+out_point = 80
+blend_in = 10
+blend_out = 10
+
+[sub_resource type="Resource" id="Resource_bjmkk"]
+script = ExtResource("2_ug1p2")
+file = "anim/capoeira.bvh"
+name = "Tango Dance"
+in_point = 90
+out_point = 200
+blend_in = 0
+blend_out = 20
+
+[sub_resource type="Resource" id="Resource_sjqxi"]
+script = ExtResource("4_ori1a")
+model = 2
+name = "Transition"
+in_point = 70
+out_point = 100
+blend_in = 10
+blend_out = 10
+
+[resource]
+script = ExtResource("1_qmyks")
+tracks = Array[Resource("res://datatypes/track.gd")]([SubResource("Resource_7x10p"), SubResource("Resource_k78vp"), SubResource("Resource_6u4gw"), SubResource("Resource_bjmkk"), SubResource("Resource_sjqxi")])
