@@ -15,23 +15,22 @@ class npy2obj:
         self.motions = self.motions[None][0]
         self.rot2xyz = Rotation2xyz(device='cpu')
         self.faces = self.rot2xyz.smpl_model.faces
-        self.bs, self.njoints, self.nfeats, self.nframes = self.motions['motion'].shape
+        self.bs, _, self.njoints, self.nfeats, self.nframes = self.motions['motion'].shape
         self.opt_cache = {}
         self.sample_idx = sample_idx
         self.total_num_samples = self.motions['num_samples']
         self.rep_idx = rep_idx
-        self.absl_idx = self.rep_idx*self.total_num_samples + self.sample_idx
-        self.num_frames = self.motions['motion'][self.absl_idx].shape[-1]
+        self.num_frames = self.motions['motion'][self.rep_idx, self.sample_idx].shape[-1]
         self.j2s = joints2smpl(num_frames=self.num_frames, device_id=device, cuda=cuda)
 
         if self.nfeats == 3:
             print(f'Running SMPLify For sample [{sample_idx}], repetition [{rep_idx}], it may take a few minutes.')
-            motion_tensor, opt_dict = self.j2s.joint2smpl(self.motions['motion'][self.absl_idx].transpose(2, 0, 1))  # [nframes, njoints, 3]
+            motion_tensor, opt_dict = self.j2s.joint2smpl(self.motions['motion'][self.rep_idx, self.sample_idx].transpose(2, 0, 1))  # [nframes, njoints, 3]
             self.motions['motion'] = motion_tensor.cpu().numpy()
         elif self.nfeats == 6:
-            self.motions['motion'] = self.motions['motion'][[self.absl_idx]]
+            self.motions['motion'] = self.motions['motion'][[self.rep_idx, self.sample_idx]]
         self.bs, self.njoints, self.nfeats, self.nframes = self.motions['motion'].shape
-        self.real_num_frames = self.motions['lengths'][self.absl_idx]
+        self.real_num_frames = self.motions['lengths'][self.rep_idx, self.sample_idx]
 
         self.vertices = self.rot2xyz(torch.tensor(self.motions['motion']), mask=None,
                                      pose_rep='rot6d', translation=True, glob=True,
@@ -50,7 +49,7 @@ class npy2obj:
     def get_trimesh(self, sample_i, frame_i):
         return Trimesh(vertices=self.get_vertices(sample_i, frame_i),
                        faces=self.faces)
-    
+
     def get_traj_sphere(self, mesh):
         # import pdb; pdb.set_trace()
         root_posi = np.copy(mesh.vertices).mean(0) # (6000, 3)
@@ -70,7 +69,7 @@ class npy2obj:
         with open(ground_save_path, 'w') as fw:
             ground_sph_mesh.export(fw, 'obj')
         return save_path
-    
+
     def save_npy(self, save_path):
         data_dict = {
             'motion': self.motions['motion'][0, :, :, :self.real_num_frames],
