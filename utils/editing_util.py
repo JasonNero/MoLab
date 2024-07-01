@@ -45,7 +45,7 @@ def joint_to_full_mask(joint_mask, mode='pos_rot_vel'):
     #       hence the mps->cpu->mps conversion.
     # TODO: Find a better solution
 
-    if mask_comp.device == 'mps':
+    if joint_mask.device == 'mps':
         mask = torch.stack(mask_comp, dim=0).cpu().any(dim=0).to(joint_mask.device) # [1, seqlen, bs, 263]
     else:
         mask = torch.stack(mask_comp, dim=0).any(dim=0) # [1, seqlen, bs, 263]
