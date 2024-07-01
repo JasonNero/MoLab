@@ -6,7 +6,7 @@ from data_loaders.humanml.common.quaternion import *
 from human_body_prior.tools.omni_tools import copy2cpu as c2c
 from data_loaders.amass.utils.helper_functions import estimate_angular_velocity, estimate_linear_velocity
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu"))
 
 fps = 30
 root_transform = True

@@ -40,7 +40,16 @@ def joint_to_full_mask(joint_mask, mode='pos_rot_vel'):
     if mode == 'pos_rot_vel':
         mask_comp.append(bool_matmul(joint_mask, torch.tensor(humanml_utils.MAT_VEL)))
 
-    mask = torch.stack(mask_comp, dim=0).any(dim=0) # [1, seqlen, bs, 263]
+    # HACK: The following commented line would result in an AssertionError on MPS
+    #       ("Runtime canonicalization must simplify reduction axes to minor 4 dimensions.")
+    #       hence the mps->cpu->mps conversion.
+    # TODO: Find a better solution
+
+    if mask_comp.device == 'mps':
+        mask = torch.stack(mask_comp, dim=0).cpu().any(dim=0).to(joint_mask.device) # [1, seqlen, bs, 263]
+    else:
+        mask = torch.stack(mask_comp, dim=0).any(dim=0) # [1, seqlen, bs, 263]
+
     return mask.permute(2, 3, 0, 1) # [bs, 263, 1, seqlen]
 
 

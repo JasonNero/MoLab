@@ -20,7 +20,7 @@ class ForwardKinematicsLayer(nn.Module):
         super().__init__()
         self.b_idxs = None
         if device is None:
-            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            self.device = torch.device('cuda' if torch.cuda.is_available() else ('mps' if torch.backends.mps.is_available() else 'cpu'))
         else:
             self.device = device
 

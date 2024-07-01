@@ -7,7 +7,7 @@ from tqdm import tqdm
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_path", type=str, required=True, help='stick figure mp4 file to be rendered.')
-    parser.add_argument("--cuda", type=bool, default=True, help='')
+    parser.add_argument("--cuda", type=bool, default=True, help='', action=argparse.BooleanOptionalAction)
     parser.add_argument("--device", type=int, default=0, help='')
     parser.add_argument("--sample", type=int, default=0, help='')
     params = parser.parse_args()
