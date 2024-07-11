@@ -1,9 +1,9 @@
-import visualization.Animation as Animation
+import Animation as Animation
 
-from visualization.InverseKinematics import BasicInverseKinematics, BasicJacobianIK, InverseKinematics
-from visualization.Quaternions import Quaternions
-import visualization.BVH as BVH
-from visualization.remove_fs import *
+from InverseKinematics import BasicInverseKinematics, BasicJacobianIK, InverseKinematics
+from Quaternions import Quaternions
+import BVH as BVH
+from remove_fs import *
 
 from utils.plot_script import plot_3d_motion
 from utils import paramUtil
@@ -11,7 +11,7 @@ from common.skeleton import Skeleton
 
 import torch
 from torch import nn
-from visualization.utils.quat import ik_rot, between, fk, ik
+from utils.quat import ik_rot, between, fk, ik
 from tqdm import tqdm
 
 

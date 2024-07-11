@@ -8,7 +8,7 @@ from os.path import join as pjoin
 
 
 # from visualization import BVH
-from visualization.InverseKinematics import JacobianInverseKinematics, BasicInverseKinematics
+from InverseKinematics import JacobianInverseKinematics, BasicInverseKinematics
 # from scripts.motion_process_bvh import *
 # from visualization.Animation import *
 
