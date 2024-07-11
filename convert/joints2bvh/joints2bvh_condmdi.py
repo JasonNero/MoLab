@@ -4,11 +4,11 @@ from pathlib import Path
 import numpy as np
 import tqdm
 
-import visualization.Animation as Animation
-import visualization.BVH as BVH
-from visualization.InverseKinematics import BasicInverseKinematics
-from visualization.Quaternions import Quaternions
-from visualization.remove_fs import remove_fs
+import Animation as Animation
+import BVH as BVH
+from InverseKinematics import BasicInverseKinematics
+from Quaternions import Quaternions
+from remove_fs import remove_fs
 
 template_path = Path(__file__).parent / "data" / "template.bvh"
 
