@@ -51,21 +51,25 @@ class DatasetConfig:
     augment_type: str = 'none'
     std_scale_shift: Tuple[float] = (1.0, 0.0)
     drop_redundant: bool = False
+    minimal: bool = False
 
 
 def get_dataset(conf: DatasetConfig):
     DATA = get_dataset_class(conf.name)
     if conf.name in ["humanml", "kit"]:
-        dataset = DATA(split=conf.split,
-                       num_frames=conf.num_frames,
-                       mode=conf.hml_mode,
-                       use_abs3d=conf.use_abs3d,
-                       traject_only=conf.traject_only,
-                       use_random_projection=conf.use_random_projection,
-                       random_projection_scale=conf.random_projection_scale,
-                       augment_type=conf.augment_type,
-                       std_scale_shift=conf.std_scale_shift,
-                       drop_redundant=conf.drop_redundant)
+        dataset = DATA(
+            split=conf.split,
+            num_frames=conf.num_frames,
+            mode=conf.hml_mode,
+            use_abs3d=conf.use_abs3d,
+            traject_only=conf.traject_only,
+            use_random_projection=conf.use_random_projection,
+            random_projection_scale=conf.random_projection_scale,
+            augment_type=conf.augment_type,
+            std_scale_shift=conf.std_scale_shift,
+            drop_redundant=conf.drop_redundant,
+            minimal=True,
+        )
     elif conf.name == "amass":
         dataset = DATA(split=conf.split)
     else:

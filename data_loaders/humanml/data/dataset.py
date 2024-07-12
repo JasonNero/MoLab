@@ -233,20 +233,23 @@ class Text2MotionDatasetV2(data.Dataset):
     Args:
         std_multiplier: multiply the std by this value; maybe useful for diffusion models by keeping the range of data managable
     """
-    def __init__(self,
-                 opt,
-                 mean,
-                 std,
-                 split_file,
-                 w_vectorizer,
-                 use_rand_proj=False,
-                 proj_matrix_dir=None,
-                 traject_only=False,
-                 mode='train',
-                 random_proj_scale=10.0,
-                 augment_type='none',
-                 std_scale_shift=(1., 0.),  # Test random projection
-                 drop_redundant=False):
+    def __init__(
+            self,
+            opt,
+            mean,
+            std,
+            split_file,
+            w_vectorizer,
+            use_rand_proj=False,
+            proj_matrix_dir=None,
+            traject_only=False,
+            mode='train',
+            random_proj_scale=10.0,
+            augment_type='none',
+            std_scale_shift=(1., 0.),  # Test random projection
+            drop_redundant=False,
+            minimal=False,
+        ):
         self.opt = opt
         self.w_vectorizer = w_vectorizer
         self.max_length = 20
@@ -263,7 +266,31 @@ class Text2MotionDatasetV2(data.Dataset):
 
         self.std_scale_shift = std_scale_shift
         self.drop_redundant = drop_redundant
+        self.minimal = minimal
 
+        self.data_dict = {}
+
+        if minimal:
+            length_list, data_dict, name_list = [], {}, []
+        else:
+            length_list, data_dict, name_list = self.load_split(
+                opt, split_file, min_motion_len)
+
+        self.mean = mean
+        self.std = std
+
+        self.length_arr = np.array(length_list)
+        self.data_dict = data_dict
+        self.name_list = name_list
+        self.reset_max_len(self.max_length)
+
+        if use_rand_proj:
+            self.init_random_projection(proj_matrix_dir,
+                                        scale=random_proj_scale)
+
+    def load_split(self, opt, split_file, min_motion_len):
+        """Load the dataset using the supplied split file.
+        """
         data_dict = {}
         id_list = []
         with cs.open(split_file, 'r') as f:
@@ -339,17 +366,7 @@ class Text2MotionDatasetV2(data.Dataset):
         name_list, length_list = zip(
             *sorted(zip(new_name_list, length_list), key=lambda x: x[1]))
 
-        self.mean = mean
-        self.std = std
-
-        self.length_arr = np.array(length_list)
-        self.data_dict = data_dict
-        self.name_list = name_list
-        self.reset_max_len(self.max_length)
-
-        if use_rand_proj:
-            self.init_random_projection(proj_matrix_dir,
-                                        scale=random_proj_scale)
+        return length_list, data_dict, name_list
 
     def reset_max_len(self, length):
         assert length <= self.max_motion_length
@@ -1025,19 +1042,22 @@ class TextOnlyDataset(data.Dataset):
 
 # A wrapper class for t2m original dataset for MDM purposes
 class HumanML3D(data.Dataset):
-    def __init__(self,
-                 mode,
-                 datapath='./dataset/humanml_opt.txt',
-                 split="train",
-                 use_abs3d=False,
-                 traject_only=False,
-                 use_random_projection=False,
-                 random_projection_scale=None,
-                 augment_type='none',
-                 std_scale_shift=(1., 0.),
-                 drop_redundant=False,
-                 num_frames=None,
-                 **kwargs):
+    def __init__(
+            self,
+            mode,
+            datapath='./dataset/humanml_opt.txt',
+            split="train",
+            use_abs3d=False,
+            traject_only=False,
+            use_random_projection=False,
+            random_projection_scale=None,
+            augment_type='none',
+            std_scale_shift=(1., 0.),
+            drop_redundant=False,
+            num_frames=None,
+            minimal=False,
+            **kwargs,
+        ):
         self.mode = mode
 
         self.dataset_name = 't2m'
@@ -1058,7 +1078,6 @@ class HumanML3D(data.Dataset):
         opt.save_root = pjoin(abs_base_path, opt.save_root)
         opt.meta_dir = './dataset'
         self.opt = opt
-        print('Loading dataset %s ...' % opt.dataset_name)
 
         self.absolute_3d = use_abs3d
         self.traject_only = traject_only
@@ -1067,6 +1086,7 @@ class HumanML3D(data.Dataset):
         self.augment_type = augment_type
         self.std_scale_shift = std_scale_shift
         self.drop_redundant = drop_redundant
+        self.minimal = minimal
 
         if self.use_rand_proj:
             if self.random_proj_scale == 10:
@@ -1168,14 +1188,17 @@ class HumanML3D(data.Dataset):
                 random_proj_scale=self.random_proj_scale,
                 augment_type=self.augment_type,
                 std_scale_shift=self.std_scale_shift,
-                drop_redundant=self.drop_redundant,)
+                drop_redundant=self.drop_redundant,
+                minimal=self.minimal,
+            )
             # End test
             self.num_actions = 1  # dummy placeholder
 
-        assert len(self.t2m_dataset) > 1, 'You loaded an empty dataset, ' \
-                                          'it is probably because your data dir has only texts and no motions.\n' \
-                                          'To train and evaluate MDM you should get the FULL data as described ' \
-                                          'in the README file.'
+        if not minimal:
+            assert len(self.t2m_dataset) > 1, 'You loaded an empty dataset, ' \
+                                            'it is probably because your data dir has only texts and no motions.\n' \
+                                            'To train and evaluate MDM you should get the FULL data as described ' \
+                                            'in the README file.'
 
         # Load necessay variables for converting raw motion to processed data
         data_dir = './dataset/000021.npy'
