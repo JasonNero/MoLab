@@ -68,7 +68,7 @@ def get_dataset(conf: DatasetConfig):
             augment_type=conf.augment_type,
             std_scale_shift=conf.std_scale_shift,
             drop_redundant=conf.drop_redundant,
-            minimal=True,
+            minimal=conf.minimal,
         )
     elif conf.name == "amass":
         dataset = DATA(split=conf.split)

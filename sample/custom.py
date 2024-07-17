@@ -98,7 +98,7 @@ def build_output_path(args) -> Path:
     return model_results_path / out_name
 
 
-def load_dataset(args, max_frames, split="test", num_workers=1):
+def get_minimal_dataloader(args, max_frames, split="test", num_workers=1):
     conf = DatasetConfig(
         name=args.dataset,
         batch_size=args.batch_size,
@@ -112,8 +112,9 @@ def load_dataset(args, max_frames, split="test", num_workers=1):
         augment_type="none",
         std_scale_shift=args.std_scale_shift,
         drop_redundant=args.drop_redundant,
+        minimal=True,
     )
-    data = get_dataset_loader(conf, num_workers=num_workers)
+    data = get_dataset_loader(conf, num_workers=num_workers, shuffle=False)
     return data
 
 
@@ -147,10 +148,10 @@ def infer():
 
     # returns a DataLoader with the Text2MotionDatasetV2 dataset
     print(f"Loading '{split}' split of '{args.dataset}' dataset ...")
-    data = load_dataset(args, max_frames, split=split)
+    dataloader = get_minimal_dataloader(args, max_frames, split=split)
 
     print("Creating model and diffusion ...")
-    model, diffusion = create_model_and_diffusion(args, data)
+    model, diffusion = create_model_and_diffusion(args, dataloader)
 
     ###########################################################################
     # * Load Model Checkpoint
@@ -210,7 +211,7 @@ def infer():
     assert max_frames == input_motions.shape[-1]
 
     # Arguments
-    model_kwargs["y"]["text"] = texts or model_kwargs["y"]["text"]
+    model_kwargs["y"]["text"] = texts
     model_kwargs["y"]["diffusion_steps"] = args.diffusion_steps
 
     # Add inpainting mask according to args
@@ -265,10 +266,10 @@ def infer():
     # * Sampling
     ###########################################################################
 
+    sample_fn = diffusion.p_sample_loop
+
     for rep_i in range(args.num_repetitions):
         print(f"### Start sampling [repetition #{rep_i}/{args.num_repetitions}]")
-
-        sample_fn = diffusion.p_sample_loop
 
         sample = sample_fn(
             model,
@@ -287,7 +288,7 @@ def infer():
         if model.data_rep == "hml_vec":
             n_joints = 22 if (sample.shape[1] in [263, 264]) else 21
             sample = sample.cpu().permute(0, 2, 3, 1)
-            sample = data.dataset.t2m_dataset.inv_transform(sample).float()
+            sample = dataloader.dataset.t2m_dataset.inv_transform(sample).float()
             sample = recover_from_ric(sample, n_joints, abs_3d=args.abs_3d)
             sample = sample.view(-1, *sample.shape[2:]).permute(
                 0, 2, 3, 1
@@ -312,7 +313,7 @@ def infer():
     # Unnormalize observed motions and recover XYZ *positions*
     if model.data_rep == "hml_vec":
         input_motions = input_motions.cpu().permute(0, 2, 3, 1)
-        input_motions = data.dataset.t2m_dataset.inv_transform(input_motions).float()
+        input_motions = dataloader.dataset.t2m_dataset.inv_transform(input_motions).float()
         input_motions = recover_from_ric(input_motions, n_joints, abs_3d=args.abs_3d)
         input_motions = input_motions.view(-1, *input_motions.shape[2:]).permute(
             0, 2, 3, 1
