@@ -306,7 +306,7 @@ def load_dataset(args, max_frames, split='test'):
         std_scale_shift=args.std_scale_shift,
         drop_redundant=args.drop_redundant,
     )
-    data = get_dataset_loader(conf)
+    data = get_dataset_loader(conf, num_workers=1)
     return data
 
 
