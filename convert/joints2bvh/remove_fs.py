@@ -1,16 +1,6 @@
-import os
-import sys
 import numpy as np
-import torch
-import argparse
 
-from os.path import join as pjoin
-
-
-# from visualization import BVH
-from InverseKinematics import JacobianInverseKinematics, BasicInverseKinematics
-# from scripts.motion_process_bvh import *
-# from visualization.Animation import *
+from .InverseKinematics import BasicInverseKinematics, JacobianInverseKinematics
 
 
 def softmax(x, **kw):

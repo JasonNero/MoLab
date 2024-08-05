@@ -2,7 +2,7 @@ import operator
 
 import numpy as np
 
-from Quaternions import Quaternions
+from .Quaternions import Quaternions
 
 
 class Animation:
