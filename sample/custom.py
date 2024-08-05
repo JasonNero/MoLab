@@ -10,6 +10,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+import tqdm
 
 from convert.joints2bvh import BVH, Animation, joints2bvh
 from data_loaders.get_data import DatasetConfig, get_dataset_loader
@@ -298,9 +299,7 @@ def infer():
 
     sample_fn = diffusion.p_sample_loop
 
-    for rep_i in range(args.num_repetitions):
-        print(f"### Start sampling [repetition #{rep_i}/{args.num_repetitions}]")
-
+    for rep_i in tqdm.trange(args.num_repetitions, desc="Sampling Repetitions"):
         sample = sample_fn(
             model,
             (args.batch_size, model.njoints, model.nfeats, max_frames),
@@ -337,9 +336,6 @@ def infer():
             text_key = "text" if "text" in model_kwargs["y"] else "action_text"
             all_text += model_kwargs["y"][text_key]
 
-        print(f"created {len(all_motions) * args.batch_size} samples")
-        # Sampling is done!
-
     ###########################################################################
     # * Post-Processing Inputs
     ###########################################################################
@@ -365,7 +361,6 @@ def infer():
 
     ###########################################################################
     # * Save Results
-    # TODO: Directly save BVHs using the `Joint2BVHConvertor`
     ###########################################################################
 
     out_path.mkdir(parents=True, exist_ok=True)
@@ -393,6 +388,36 @@ def infer():
 
     with (out_path / "results_len.txt").open("w") as fw:
         fw.write("\n".join([str(l) for l in all_lengths]))
+
+    converter = joints2bvh.Joint2BVHConvertor()
+
+    for i_sample in tqdm.trange(args.num_samples, desc="Saving Input BVHs"):
+        # Input Motion
+        length = all_lengths[0, i_sample]
+        motion = all_observed_motions[i_sample, :, :, :length]  # Crop
+        motion = motion.transpose(2, 0, 1)  # Put frames first
+
+        save_path = out_path / f"sample{i_sample:02d}_input.bvh"
+        converter.convert(
+            motion,
+            save_path,
+            iterations=10,
+            foot_ik=False,
+        )
+
+    for i_rep in tqdm.trange(args.num_repetitions, desc="Saving Sample BVHs"):
+        for i_sample in range(args.num_samples):
+            length = all_lengths[i_rep, i_sample]
+            motion = all_motions[i_rep, i_sample, :, :, :length]  # Crop
+            motion = motion.transpose(2, 0, 1)  # Put frames first
+
+            save_path = out_path / f"sample{i_sample:02d}_rep{i_rep:02d}.bvh"
+            converter.convert(
+                motion,
+                save_path,
+                iterations=10,
+                foot_ik=False,
+            )
 
     if args.dataset == "humanml":
         plot_conditional_samples(
