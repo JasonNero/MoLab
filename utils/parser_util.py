@@ -434,6 +434,12 @@ class CondSyntOptions:
         })
 
 
+@dataclass
+class CustomSyntArgs:
+    bvh_path: str = field(
+        default='',
+        metadata={"help": "Path to BVH file to be used as input."})
+
 
 @dataclass
 class EvaluationOptions:
@@ -510,8 +516,19 @@ class CondSyntArgs(BaseOptions, DataOptions, ModelOptions, DiffusionOptions,
     pass
 
 
+@dataclass
+class CustomSyntArgs(CondSyntArgs, CustomSyntArgs):
+    pass
+
+
 def cond_synt_args(model_path=None) -> CondSyntArgs:
     parser= HfArgumentParser(CondSyntArgs)
+    args = parse_and_load_from_model(parser, model_path)
+    return args
+
+
+def custom_synt_args(model_path=None) -> CustomSyntArgs:
+    parser= HfArgumentParser(CustomSyntArgs)
     args = parse_and_load_from_model(parser, model_path)
     return args
 

@@ -11,20 +11,24 @@ from pathlib import Path
 import numpy as np
 import torch
 
+from convert.joints2bvh import BVH, Animation, joints2bvh
 from data_loaders.get_data import DatasetConfig, get_dataset_loader
-from data_loaders.humanml.scripts.motion_process import recover_from_ric
+from data_loaders.humanml.scripts.motion_process import (
+    process_file,
+    recover_from_ric,
+    recover_root_rot_pos,
+)
 from data_loaders.humanml.utils.plotting import plot_conditional_samples
-from data_loaders.tensors import collate
 from model.cfg_sampler import ClassifierFreeSampleModel
 from utils import dist_util
 from utils.editing_util import get_keyframes_mask
 from utils.fixseed import fixseed
 from utils.model_util import create_model_and_diffusion, load_saved_model
-from utils.parser_util import CondSyntArgs, cond_synt_args
+from utils.parser_util import CondSyntArgs, custom_synt_args
 
 
 def parse_args() -> CondSyntArgs:
-    args = cond_synt_args()
+    args = custom_synt_args()
     fixseed(args.seed)
 
     # Only humanml dataset and the absolute root representation is supported
@@ -40,10 +44,7 @@ def parse_args() -> CondSyntArgs:
     # If it doesn't, and you still want to sample more prompts, run this script with different seeds
     # (specify through the --seed flag)
 
-    return args
-
-
-def get_texts(args) -> list:
+    # Parse list of texts from args
     if args.text_prompt != "":
         texts = [args.text_prompt]
         args.num_samples = 1
@@ -57,13 +58,14 @@ def get_texts(args) -> list:
         texts = [""] * args.num_samples
         args.guidance_param = 0.0  # Force unconditioned generation
     else:
-        # use text from the test set
-        texts = []
-    return texts
+        raise ValueError("No text supplied!")
+    args.texts = texts
+
+    return args
 
 
 def build_output_path(args) -> Path:
-    checkpoint_name = Path(args.model_path).stem
+    checkpoint_name = Path(args.model_path).parent.name
     model_results_path = Path("save/results") / checkpoint_name
     niter = Path(args.model_path).stem.replace("model", "")
 
@@ -118,6 +120,29 @@ def get_minimal_dataloader(args, max_frames, split="test", num_workers=1):
     return data
 
 
+def get_abs_data_from_bvh(filepath: Path) -> torch.Tensor:
+    """Load a BVH file and convert it to HML3D_abs format."""
+    animation = BVH.load(filepath)
+    joint_positions = torch.from_numpy(Animation.positions_global(animation))
+
+    # Reorder joints to undo the reordering of Joints2BVHConvertor
+    joint_positions = joint_positions[:, joints2bvh.re_order_inv]
+
+    # compute relative (original) HML3D representation
+    rel_data, ground_positions, positions, l_velocity = process_file(
+        joint_positions, 0.002
+    )
+    # replace relative with absolute root information
+    r_rot_quat, r_pos, rot_ang = recover_root_rot_pos(
+        torch.from_numpy(rel_data), return_rot_ang=True
+    )
+    abs_data = rel_data.copy()
+    abs_data[:, 0] = rot_ang
+    abs_data[:, [1, 2]] = r_pos[:, [0, 2]]
+
+    return torch.from_numpy(abs_data).float()
+
+
 def infer():
     args = parse_args()
 
@@ -126,20 +151,14 @@ def infer():
         if args.dataset in ["kit", "humanml"]
         else (200 if args.dataset == "trajectories" else 60)
     )
-    fps = 12.5 if args.dataset == "kit" else 20
-    n_frames = min(max_frames, int(args.motion_length * fps))
 
     if args.output_dir:
         out_path = Path(args.output_dir)
     else:
         out_path = build_output_path(args)
 
-    texts = get_texts(args)
-
     ###########################################################################
-    # * Load Dataset and Model
-    # TODO: Remove the need for a full local dataset.
-    #       Only supply mean/std somehow.
+    # * Load Minimal Dataset and Model
     ###########################################################################
 
     # Sampling a single batch from the testset, with exactly args.num_samples
@@ -171,36 +190,43 @@ def infer():
 
     ###########################################################################
     # * Prepare Kwargs for Sampling
-    # TODO: Build a custom `y` aka `model_kwargs` from user input
-    #       (see synthesize.py for an example)
     ###########################################################################
 
-    # this is basically `x, y = next(dataset)`
-    # input_motions, model_kwargs = next(iter(data))
+    # Load BVH and convert it to hml3d format
+    bvh_motion = get_abs_data_from_bvh(Path(args.bvh_path))
 
-    # TODO: add `text` and the corresponding `tokens` to collate args
-    collate_args = [
-        {"inp": torch.zeros(n_frames), "tokens": None, "lengths": n_frames}
-    ] * args.num_samples
-    collate_args = [dict(arg, text=txt) for arg, txt in zip(collate_args, texts)]
-    input_motions, model_kwargs = collate(collate_args)
+    # Pad or crop to `max_frames`
+    if bvh_motion.shape[0] < max_frames:
+        frame = torch.zeros(max_frames, bvh_motion.shape[1])
+        frame[: bvh_motion.shape[0]] = bvh_motion
+        bvh_motion = frame
+        n_frames = max_frames
+    elif bvh_motion.shape[0] > max_frames:
+        n_frames = bvh_motion.shape[0]
+        bvh_motion = bvh_motion[:max_frames]
 
-    # TODO: This is still missing custom input_motions from user input
-    #       - Load BVH and convert it to hml3d format
-    #           - This should give `input_motions`
-    #       - Build my own keyframe mask (`obs_mask`)
+    # Normalize the motion
+    input_motions = dataloader.dataset.t2m_dataset.transform_th(bvh_motion)
 
-    print(f"Putting input motions on device '{dist_util.dev()}' ...")
-    input_motions = input_motions.to(
-        dist_util.dev()
-    )  # [nsamples, njoints=263/1, nfeats=1/3, nframes=196/200]
-    input_masks = model_kwargs["y"]["mask"]  # [nsamples, 1, 1, nframes]
-    input_lengths = model_kwargs["y"]["lengths"]  # [nsamples]
+    # (max_frames, 263) -> (nsamples, 263, 1, max_frames)
+    input_motions = input_motions.repeat(args.num_samples, 1, 1, 1)
+    input_motions = input_motions.permute(0, 3, 1, 2)
+    input_motions = input_motions.to(dist_util.dev())
+
+    model_kwargs = {
+        "y": {
+            "lengths": torch.tensor([n_frames] * args.num_samples).to(dist_util.dev()),
+        }
+    }
+
+    # TODO: Implement sparse keyframe conditioning
+    #       - Get the list of keyframes (and joints) from the input motion
+    #       - Generate a custom keyframes mask
 
     model_kwargs["obs_x0"] = input_motions
     model_kwargs["obs_mask"], obs_joint_mask = get_keyframes_mask(
         data=input_motions,
-        lengths=input_lengths,
+        lengths=model_kwargs["y"]["lengths"],
         edit_mode=args.edit_mode,
         feature_mode=args.editable_features,
         trans_length=args.transition_length,
@@ -211,11 +237,12 @@ def infer():
     assert max_frames == input_motions.shape[-1]
 
     # Arguments
-    model_kwargs["y"]["text"] = texts
+    model_kwargs["y"]["text"] = args.texts
     model_kwargs["y"]["diffusion_steps"] = args.diffusion_steps
 
     # Add inpainting mask according to args
-    if args.zero_keyframe_loss:  # if loss is 0 over keyframes durint training, then must impute keyframes during inference
+    if args.zero_keyframe_loss:
+        # if loss is 0 over keyframes durint training, then must impute keyframes during inference
         model_kwargs["y"]["imputate"] = 1
         model_kwargs["y"]["stop_imputation_at"] = 0
         model_kwargs["y"]["replacement_distribution"] = "conditional"
@@ -224,18 +251,21 @@ def infer():
             "obs_mask"
         ]  # used to do [nsamples, nframes] --> [nsamples, njoints, nfeats, nframes]
         model_kwargs["y"]["reconstruction_guidance"] = False
-    elif args.imputate:  # if loss was present over keyframes during training, we may use imputation at inference time
+    elif args.imputate:
+        # if loss was present over keyframes during training, we may use imputation at inference time
         model_kwargs["y"]["imputate"] = 1
         model_kwargs["y"]["stop_imputation_at"] = args.stop_imputation_at
         model_kwargs["y"]["replacement_distribution"] = "conditional"
         model_kwargs["y"]["inpainted_motion"] = model_kwargs["obs_x0"]
         model_kwargs["y"]["inpainting_mask"] = model_kwargs["obs_mask"]
-        if args.reconstruction_guidance:  # if loss was present over keyframes during training, we may use guidance at inference time
+        if args.reconstruction_guidance:
+            # if loss was present over keyframes during training, we may use guidance at inference time
             model_kwargs["y"]["reconstruction_guidance"] = args.reconstruction_guidance
             model_kwargs["y"]["reconstruction_weight"] = args.reconstruction_weight
             model_kwargs["y"]["gradient_schedule"] = args.gradient_schedule
             model_kwargs["y"]["stop_recguidance_at"] = args.stop_recguidance_at
-    elif args.reconstruction_guidance:  # if loss was present over keyframes during training, we may use guidance at inference time
+    elif args.reconstruction_guidance:
+        # if loss was present over keyframes during training, we may use guidance at inference time
         model_kwargs["y"]["inpainted_motion"] = model_kwargs["obs_x0"]
         model_kwargs["y"]["inpainting_mask"] = model_kwargs["obs_mask"]
         model_kwargs["y"]["reconstruction_guidance"] = args.reconstruction_guidance
@@ -284,6 +314,10 @@ def infer():
             const_noise=False,
         )  # [nsamples, njoints, nfeats, nframes]
 
+        ###########################################################################
+        # * Post-Processing Samples
+        ###########################################################################
+
         # Unnormalize samples and recover XYZ *positions*
         if model.data_rep == "hml_vec":
             n_joints = 22 if (sample.shape[1] in [263, 264]) else 21
@@ -307,13 +341,15 @@ def infer():
         # Sampling is done!
 
     ###########################################################################
-    # * Post-Processing (observed motions here; sample above)
+    # * Post-Processing Inputs
     ###########################################################################
 
     # Unnormalize observed motions and recover XYZ *positions*
     if model.data_rep == "hml_vec":
         input_motions = input_motions.cpu().permute(0, 2, 3, 1)
-        input_motions = dataloader.dataset.t2m_dataset.inv_transform(input_motions).float()
+        input_motions = dataloader.dataset.t2m_dataset.inv_transform(
+            input_motions
+        ).float()
         input_motions = recover_from_ric(input_motions, n_joints, abs_3d=args.abs_3d)
         input_motions = input_motions.view(-1, *input_motions.shape[2:]).permute(
             0, 2, 3, 1
@@ -329,6 +365,7 @@ def infer():
 
     ###########################################################################
     # * Save Results
+    # TODO: Directly save BVHs using the `Joint2BVHConvertor`
     ###########################################################################
 
     out_path.mkdir(parents=True, exist_ok=True)
@@ -352,9 +389,7 @@ def infer():
         },
     )
     with (out_path / "results.txt").open("w") as fw:
-        fw.write(
-            "\n".join(all_text)
-        )  # TODO: Fix this for datasets other thah trajectories
+        fw.write("\n".join(all_text))
 
     with (out_path / "results_len.txt").open("w") as fw:
         fw.write("\n".join([str(l) for l in all_lengths]))
