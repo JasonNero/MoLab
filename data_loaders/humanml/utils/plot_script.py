@@ -37,7 +37,7 @@ def test_plot_circle():
     y_c = 0.1
     z_c = 1
     r = 2
-    
+
     theta = np.linspace(0, 2 * np.pi, 300) # 300 points on the circle
     x = x_c + r * np.sin(theta)
     y = y_c + theta * 0.0
@@ -45,7 +45,7 @@ def test_plot_circle():
     import pdb; pdb.set_trace()
     ax.plot3D(x, y, z, color="red")
     plt.show()
-    
+
     return
 
 
@@ -74,10 +74,10 @@ def plot_3d_motion(save_path, kinematic_tree, joints, title, dataset, figsize=(3
         xz_plane = Poly3DCollection([verts])
         xz_plane.set_facecolor((0.5, 0.5, 0.5, 0.5))
         ax.add_collection3d(xz_plane)
-    
+
     def plot_trajectory(trajec_idx):
         ax.plot3D([0 - trajec_idx[0], 0 - trajec_idx[0]], [0.2, 0.2], [0 - trajec_idx[1], 1 - trajec_idx[1]], color="red") # (x,y,z)
-    
+
     def plot_ref_axes(trajec_idx):
         '''
         trajec_idx contains (x,z) coordinate of the root of the current frame.
@@ -98,7 +98,7 @@ def plot_3d_motion(save_path, kinematic_tree, joints, title, dataset, figsize=(3
         pp = [(bb[0] * 1.3, bb[1] * 1.3) for (aa, bb) in kframes]
         for i in range(len(pp)):
             ax.plot3D([pp[i][0] - trajec_idx[0], pp[i][0] - trajec_idx[0]], [0.0, 0.1], [pp[i][1] - trajec_idx[1], pp[i][1] - trajec_idx[1]], color="blue") # (x,y,z)
-    
+
     def plot_obstacles(trajec_idx):
         for i in range(len(obs_scale)):
             x_c = obs_scale[i][0][0] - trajec_idx[0]
@@ -126,7 +126,7 @@ def plot_3d_motion(save_path, kinematic_tree, joints, title, dataset, figsize=(3
                           target_pose[target_frame, chain, 1],
                           target_pose[target_frame, chain, 2] - cur_root_loc[2],
                           linewidth=linewidth, color=color)
-    
+
 
     # (seq_len, joints_num, 3)
     data = joints.copy().reshape(len(joints), -1, 3)
@@ -181,8 +181,7 @@ def plot_3d_motion(save_path, kinematic_tree, joints, title, dataset, figsize=(3
 
     def update(index):
         #         print(index)
-        ax.lines = []
-        ax.collections = []
+        ax.clear()
         ax.view_init(elev=120, azim=-90)
         ax.dist = 7.5
         #         ax =
@@ -203,9 +202,9 @@ def plot_3d_motion(save_path, kinematic_tree, joints, title, dataset, figsize=(3
         # TODO: if GMD:
         # Now only use orange color. Blue color is used for ground truth condition
         # used_colors = colors_orange
-        
+
         used_colors = colors_blue if index in gt_frames else colors
-        
+
         for i, (chain, color) in enumerate(zip(kinematic_tree, used_colors)):
             if i < 5:
                 linewidth = 4.0
@@ -225,10 +224,10 @@ def plot_3d_motion(save_path, kinematic_tree, joints, title, dataset, figsize=(3
                       color=used_colors[0])
 
         # plot_ref_axes(trajec[index])
-        
+
         plot_root_horizontal()
-        
-        
+
+
         plot_target_pose(target_pose, gt_frames, data_copy[index, 0, :], colors_blue, kinematic_tree)
 
         plt.axis('off')
