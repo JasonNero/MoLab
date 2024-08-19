@@ -3,8 +3,21 @@ from os.path import join as pjoin
 from data_loaders.humanml.common.skeleton import Skeleton
 import numpy as np
 import os
-from data_loaders.humanml.common.quaternion import *
-from data_loaders.humanml.utils.paramUtil import *
+from data_loaders.humanml.common.quaternion import (
+    qbetween_np,
+    qrot_np,
+    qmul_np,
+    qinv_np,
+    quaternion_to_cont6d_np,
+    qfix,
+    qrot,
+    qinv,
+    quaternion_to_cont6d,
+)
+from data_loaders.humanml.utils.paramUtil import (
+    t2m_raw_offsets,
+    t2m_kinematic_chain,
+)
 
 import torch
 from tqdm import tqdm
@@ -45,6 +58,70 @@ def uniform_skeleton(positions, target_offset, n_raw_offsets, kinematic_chain):
     src_skel.set_offset(target_offset)
     new_joints = src_skel.forward_kinematics_np(quat_params, tgt_root_pos)
     return new_joints
+
+
+def preprocess_motion(positions: np.ndarray):
+    """Performs the following preprocessing steps:
+    - Put the motion on the floor
+    - Align the motion to start at the origin
+    - Align the motion to face the Z+ axis
+
+    NOTE: This does NOT uniform or re-target the skeleton (compared to `process_file`).
+
+    Args:
+        positions (np.ndarray): Joint positions with shape (seq_len, joints_num, 3).
+
+    Returns:
+        positions (np.ndarray): Preprocessed joint positions.
+        floor_height (float): Translation applied to put the motion on the floor.
+        root_pose_init_xz (np.ndarray): Translation applied to start at the origin.
+        root_quat_init (np.ndarray): Rotation applied to face the Z+ axis.
+    """
+    positions = positions.detach().numpy()
+
+    '''Put on Floor (Translation)'''
+    floor_height = positions.min(axis=0).min(axis=0)[1]
+    positions[:, :, 1] -= floor_height
+
+    '''XZ at origin (Translation)'''
+    root_pos_init = positions[0]
+    root_pose_init_xz = root_pos_init[0] * np.array([1, 0, 1])
+    positions = positions - root_pose_init_xz
+
+    '''All initially face Z+ (Rotation)'''
+    r_hip, l_hip, sdr_r, sdr_l = face_joint_indx
+    across1 = root_pos_init[r_hip] - root_pos_init[l_hip]
+    across2 = root_pos_init[sdr_r] - root_pos_init[sdr_l]
+    across = across1 + across2
+    across = across / np.sqrt((across ** 2).sum(axis=-1))[..., np.newaxis]
+
+    # forward (3,), rotate around y-axis
+    forward_init = np.cross(np.array([[0, 1, 0]]), across, axis=-1)
+    # forward (3,)
+    forward_init = forward_init / np.sqrt((forward_init ** 2).sum(axis=-1))[..., np.newaxis]
+
+    target = np.array([[0, 0, 1]])
+    root_quat_init = qbetween_np(forward_init, target)
+    root_quat_init = np.ones(positions.shape[:-1] + (4,)) * root_quat_init
+
+    positions = qrot_np(root_quat_init, positions)
+
+    return positions, floor_height, root_pose_init_xz, root_quat_init
+
+
+def postprocess_motion(
+        positions: np.ndarray,
+        floor_height: float,
+        root_pose_init_xz: np.ndarray,
+        root_quat_init: np.ndarray
+    ):
+    """Undo the preprocessing steps applied by `preprocess_motion`.
+    """
+    positions = positions.copy()
+    positions = qrot_np(qinv_np(root_quat_init), positions)
+    positions += root_pose_init_xz
+    positions[:, :, 1] += floor_height
+    return positions
 
 
 def extract_features(positions, feet_thre, n_raw_offsets, kinematic_chain, face_joint_indx, fid_r, fid_l):
@@ -418,17 +495,17 @@ def recover_root_rot_pos(data, abs_3d=False, return_rot_ang=False):
     r_rot_quat[..., 2] = torch.sin(r_rot_ang)
 
     r_pos = torch.zeros(data.shape[:-1] + (3,)).to(data.device)
-    
+
     if abs_3d:
         '''r_pos is absolute and not depends on Y-axis rotation. And already summed'''
         # (x,z) [0,2] <= (x,z) [1,2]
         r_pos[..., :, [0, 2]] = data[..., :, 1:3]
-    else:    
+    else:
         '''Add Y-axis rotation to root position'''
         # (x,z) [0,2] <= (x,z) [1,2]
         # adding zero at 0 index
         # data   [+1, -2, -3, +5, xx]
-        # r_pose [0, +1, -2, -3, +5]    
+        # r_pose [0, +1, -2, -3, +5]
         # r_pos[..., 1be:, [0, 2]] = data[..., :-1, 1:3]
         r_pos[..., 1:, [0, 2]] = data[..., :-1, 1:3].float()
         r_pos = qrot(qinv(r_rot_quat), r_pos)

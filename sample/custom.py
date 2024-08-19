@@ -15,11 +15,13 @@ import tqdm
 from convert.joints2bvh import BVH, Animation, joints2bvh
 from data_loaders.get_data import DatasetConfig, get_dataset_loader
 from data_loaders.humanml.scripts.motion_process import (
-    process_file,
+    preprocess_motion,
+    postprocess_motion,
+    extract_features,
     recover_from_ric,
     recover_root_rot_pos,
 )
-from data_loaders.humanml.utils.plotting import plot_conditional_samples
+from data_loaders.humanml.utils import paramUtil
 from model.cfg_sampler import ClassifierFreeSampleModel
 from utils import dist_util
 from utils.editing_util import get_keyframes_mask
@@ -124,15 +126,33 @@ def get_minimal_dataloader(args, max_frames, split="test", num_workers=1):
 def get_abs_data_from_bvh(filepath: Path) -> torch.Tensor:
     """Load a BVH file and convert it to HML3D_abs format."""
     animation = BVH.load(filepath)
+
+    # TODO: Define all assumptions about the input BVH file as `asserts`
+    assert animation.positions.shape[1] == 22, "Incorrect number of joints in BVH file"
+
+    # Get global joint positions
     joint_positions = torch.from_numpy(Animation.positions_global(animation))
 
     # Reorder joints to undo the reordering of Joints2BVHConvertor
     joint_positions = joint_positions[:, joints2bvh.re_order_inv]
 
+    positions, pre_y, pre_xz, pre_rot = preprocess_motion(joint_positions)
+
+    fid_r, fid_l = [8, 11], [7, 10]  # Right/Left foot
+    face_joint_indx = [2, 1, 17, 16]  # Face direction, r_hip, l_hip, sdr_r, sdr_l
+    foot_threshold = 0.002
+
     # compute relative (original) HML3D representation
-    rel_data, ground_positions, positions, l_velocity = process_file(
-        joint_positions, 0.002
+    rel_data = extract_features(
+        positions,
+        foot_threshold,
+        torch.from_numpy(paramUtil.t2m_raw_offsets),
+        paramUtil.t2m_kinematic_chain,
+        face_joint_indx,
+        fid_r,
+        fid_l,
     )
+
     # replace relative with absolute root information
     r_rot_quat, r_pos, rot_ang = recover_root_rot_pos(
         torch.from_numpy(rel_data), return_rot_ang=True
@@ -141,7 +161,7 @@ def get_abs_data_from_bvh(filepath: Path) -> torch.Tensor:
     abs_data[:, 0] = rot_ang
     abs_data[:, [1, 2]] = r_pos[:, [0, 2]]
 
-    return torch.from_numpy(abs_data).float()
+    return torch.from_numpy(abs_data).float(), pre_y, pre_xz, pre_rot
 
 
 def infer():
@@ -194,7 +214,7 @@ def infer():
     ###########################################################################
 
     # Load BVH and convert it to hml3d format
-    bvh_motion = get_abs_data_from_bvh(Path(args.bvh_path))
+    bvh_motion, pre_y, pre_xz, pre_rot = get_abs_data_from_bvh(Path(args.bvh_path))
 
     # Pad or crop to `max_frames`
     if bvh_motion.shape[0] < max_frames:
@@ -214,9 +234,12 @@ def infer():
     input_motions = input_motions.permute(0, 3, 1, 2)
     input_motions = input_motions.to(dist_util.dev())
 
+    # TODO: Check the other sampling scripts how to initialize the mask.
+    #       It seems to be used only when `args.imputate` is True.
     model_kwargs = {
         "y": {
             "lengths": torch.tensor([n_frames] * args.num_samples).to(dist_util.dev()),
+            "mask": torch.ones((args.num_samples, 1, 1, max_frames), device=dist_util.dev())
         }
     }
 
@@ -287,6 +310,7 @@ def infer():
             * args.keyframe_guidance_param
         )
 
+    all_samples = []
     all_motions = []
     all_lengths = []
     all_text = []
@@ -322,12 +346,12 @@ def infer():
             n_joints = 22 if (sample.shape[1] in [263, 264]) else 21
             sample = sample.cpu().permute(0, 2, 3, 1)
             sample = dataloader.dataset.t2m_dataset.inv_transform(sample).float()
-            sample = recover_from_ric(sample, n_joints, abs_3d=args.abs_3d)
-            sample = sample.view(-1, *sample.shape[2:]).permute(
+            motion = recover_from_ric(sample, n_joints, abs_3d=args.abs_3d)
+            motion = motion.view(-1, *motion.shape[2:]).permute(
                 0, 2, 3, 1
             )  # batch_size, n_joints=22, 3, n_frames
-
-        all_motions.append(sample.cpu().numpy())
+        all_samples.append(sample.cpu().numpy())
+        all_motions.append(motion.cpu().numpy())
         all_lengths.append(model_kwargs["y"]["lengths"].cpu().numpy())
 
         if args.unconstrained:
@@ -353,6 +377,7 @@ def infer():
         input_motions = input_motions.cpu().numpy()
         inpainting_mask = obs_joint_mask.cpu().numpy()
 
+    all_samples = np.stack(all_samples)
     all_motions = np.stack(all_motions)  # [num_rep, num_samples, 22, 3, n_frames]
     all_text = np.stack(all_text)  # [num_rep, num_samples]
     all_lengths = np.stack(all_lengths)  # [num_rep, num_samples]
@@ -374,6 +399,7 @@ def infer():
     np.save(
         npy_path,
         {
+            "sample": all_samples,
             "motion": all_motions,
             "text": all_text,
             "lengths": all_lengths,
@@ -381,6 +407,9 @@ def infer():
             "num_repetitions": args.num_repetitions,
             "observed_motion": all_observed_motions,
             "observed_mask": all_observed_masks,
+            "pre_y": pre_y,
+            "pre_xz": pre_xz,
+            "pre_rot": pre_rot,
         },
     )
     with (out_path / "results.txt").open("w") as fw:
@@ -397,6 +426,8 @@ def infer():
         motion = all_observed_motions[i_sample, :, :, :length]  # Crop
         motion = motion.transpose(2, 0, 1)  # Put frames first
 
+        motion = postprocess_motion(motion, pre_y, pre_xz, pre_rot)
+
         save_path = out_path / f"sample{i_sample:02d}_input.bvh"
         converter.convert(
             motion,
@@ -411,6 +442,8 @@ def infer():
             motion = all_motions[i_rep, i_sample, :, :, :length]  # Crop
             motion = motion.transpose(2, 0, 1)  # Put frames first
 
+            motion = postprocess_motion(motion, pre_y, pre_xz, pre_rot)
+
             save_path = out_path / f"sample{i_sample:02d}_rep{i_rep:02d}.bvh"
             converter.convert(
                 motion,
@@ -419,19 +452,19 @@ def infer():
                 foot_ik=False,
             )
 
-    if args.dataset == "humanml":
-        plot_conditional_samples(
-            motion=all_motions,
-            lengths=all_lengths,
-            texts=all_text,
-            observed_motion=all_observed_motions,
-            observed_mask=all_observed_masks,
-            num_samples=args.num_samples,
-            num_repetitions=args.num_repetitions,
-            out_path=out_path,
-            edit_mode=args.edit_mode,  # FIXME: only works for selected edit modes
-            stop_imputation_at=0,
-        )
+    # if args.dataset == "humanml":
+    #     plot_conditional_samples(
+    #         motion=all_motions,
+    #         lengths=all_lengths,
+    #         texts=all_text,
+    #         observed_motion=all_observed_motions,
+    #         observed_mask=all_observed_masks,
+    #         num_samples=args.num_samples,
+    #         num_repetitions=args.num_repetitions,
+    #         out_path=out_path,
+    #         edit_mode=args.edit_mode,  # FIXME: only works for selected edit modes
+    #         stop_imputation_at=0,
+    #     )
 
 
 if __name__ == "__main__":

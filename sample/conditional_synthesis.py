@@ -194,6 +194,7 @@ def main():
         model_kwargs['y']['gradient_schedule'] = args.gradient_schedule
         model_kwargs['y']['stop_recguidance_at'] = args.stop_recguidance_at
 
+    all_samples = []
     all_motions = []
     all_lengths = []
     all_text = []
@@ -231,10 +232,11 @@ def main():
             n_joints = 22 if (sample.shape[1] in [263, 264]) else 21
             sample = sample.cpu().permute(0, 2, 3, 1)
             sample = data.dataset.t2m_dataset.inv_transform(sample).float()
-            sample = recover_from_ric(sample, n_joints, abs_3d=args.abs_3d)
-            sample = sample.view(-1, *sample.shape[2:]).permute(0, 2, 3, 1) # batch_size, n_joints=22, 3, n_frames
+            motion = recover_from_ric(sample, n_joints, abs_3d=args.abs_3d)
+            motion = motion.view(-1, *motion.shape[2:]).permute(0, 2, 3, 1) # batch_size, n_joints=22, 3, n_frames
 
-        all_motions.append(sample.cpu().numpy())
+        all_samples.append(sample.cpu().numpy())
+        all_motions.append(motion.cpu().numpy())
         all_lengths.append(model_kwargs['y']['lengths'].cpu().numpy())
 
         if args.unconstrained:
@@ -255,6 +257,7 @@ def main():
         input_motions = input_motions.cpu().numpy()
         inpainting_mask = obs_joint_mask.cpu().numpy()
 
+    all_samples = np.stack(all_samples) # [num_rep, num_samples, 263, n_frames]
     all_motions = np.stack(all_motions) # [num_rep, num_samples, 22, 3, n_frames]
     all_text = np.stack(all_text) # [num_rep, num_samples]
     all_lengths = np.stack(all_lengths) # [num_rep, num_samples]
@@ -269,10 +272,19 @@ def main():
 
     npy_path = os.path.join(out_path, f'results.npy')
     print(f"saving results file to [{npy_path}]")
-    np.save(npy_path,
-            {'motion': all_motions, 'text': all_text, 'lengths': all_lengths,
-             'num_samples': args.num_samples, 'num_repetitions': args.num_repetitions,
-             'observed_motion': all_observed_motions, 'observed_mask': all_observed_masks})
+    np.save(
+        npy_path,
+        {
+            'sample': all_samples,
+            'motion': all_motions,
+            'text': all_text,
+            'lengths': all_lengths,
+            'num_samples': args.num_samples,
+            'num_repetitions': args.num_repetitions,
+            'observed_motion': all_observed_motions,
+            'observed_mask': all_observed_masks
+        }
+    )
     with open(npy_path.replace('.npy', '.txt'), 'w') as fw:
         fw.write('\n'.join(all_text)) # TODO: Fix this for datasets other thah trajectories
     with open(npy_path.replace('.npy', '_len.txt'), 'w') as fw:
