@@ -4,6 +4,7 @@
 
 import functools
 from typing import Optional
+import warnings
 
 import torch
 import torch.nn.functional as F
@@ -525,6 +526,8 @@ def rotation_6d_to_matrix(d6: torch.Tensor) -> torch.Tensor:
     IEEE Conference on Computer Vision and Pattern Recognition, 2019.
     Retrieved from http://arxiv.org/abs/1812.07035
     """
+    #! The original paper drops the last column instead of the last row
+    warnings.warn("Using non-original 6D Rotation", RuntimeWarning, stacklevel=2)
 
     a1, a2 = d6[..., :3], d6[..., 3:]
     b1 = F.normalize(a1, dim=-1)
@@ -549,4 +552,7 @@ def matrix_to_rotation_6d(matrix: torch.Tensor) -> torch.Tensor:
     IEEE Conference on Computer Vision and Pattern Recognition, 2019.
     Retrieved from http://arxiv.org/abs/1812.07035
     """
+    #! The original paper drops the last column instead of the last row
+    warnings.warn("Using non-original 6D Rotation", RuntimeWarning, stacklevel=2)
+
     return matrix[..., :2, :].clone().reshape(*matrix.size()[:-2], 6)

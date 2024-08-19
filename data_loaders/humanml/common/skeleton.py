@@ -1,5 +1,8 @@
+import warnings
 from data_loaders.humanml.common.quaternion import *
 import scipy.ndimage.filters as filters
+import torch
+import numpy as np
 
 class Skeleton(object):
     def __init__(self, offset, kinematic_tree, device):
@@ -52,10 +55,17 @@ class Skeleton(object):
 
     # face_joint_idx should follow the order of right hip, left hip, right shoulder, left shoulder
     # joints (batch_size, joints_num, 3)
-    def inverse_kinematics_np(self, joints, face_joint_idx, smooth_forward=False):
+    def inverse_kinematics_np(self, joints, face_joint_idx, smooth_forward=False, fixed=False):
         assert len(face_joint_idx) == 4
         '''Get Forward Direction'''
-        l_hip, r_hip, sdr_r, sdr_l = face_joint_idx
+        if not fixed:
+            warnings.warn("Using legacy/incorrect order of face_joint_idx", RuntimeWarning, stacklevel=2)
+            # Original but wrong order
+            # see https://github.com/EricGuo5513/HumanML3D/issues/119
+            l_hip, r_hip, sdr_r, sdr_l = face_joint_idx
+        else:
+            r_hip, l_hip, sdr_r, sdr_l = face_joint_idx
+
         across1 = joints[:, r_hip] - joints[:, l_hip]
         across2 = joints[:, sdr_r] - joints[:, sdr_l]
         across = across1 + across2
@@ -82,7 +92,13 @@ class Skeleton(object):
         quat_params[:, 0] = root_quat
         # quat_params[0, 0] = np.array([[1.0, 0.0, 0.0, 0.0]])
         for chain in self._kinematic_tree:
-            R = root_quat
+            if not fixed:
+                warnings.warn("Using legacy/incorrect starting rotation for arm chains", RuntimeWarning, stacklevel=2)
+                # Original but incorrect starting rotation for arm chains
+                # see https://github.com/EricGuo5513/HumanML3D/issues/119
+                R = root_quat
+            else:
+                R = quat_params[:, chain[0]]
             for j in range(len(chain) - 1):
                 # (batch, 3)
                 u = self._raw_offset_np[chain[j+1]][np.newaxis,...].repeat(len(joints), axis=0)
