@@ -75,7 +75,7 @@ def preprocess_motion(positions: np.ndarray):
         positions (np.ndarray): Preprocessed joint positions.
         floor_height (float): Translation applied to put the motion on the floor.
         root_pose_init_xz (np.ndarray): Translation applied to start at the origin.
-        root_quat_init (np.ndarray): Rotation applied to face the Z+ axis.
+        quat_between (np.ndarray): Rotation applied to face the Z+ axis.
     """
     positions = positions.detach().numpy()
 
@@ -101,22 +101,24 @@ def preprocess_motion(positions: np.ndarray):
     forward_init = forward_init / np.sqrt((forward_init ** 2).sum(axis=-1))[..., np.newaxis]
 
     target = np.array([[0, 0, 1]])
-    root_quat_init = qbetween_np(forward_init, target)
-    root_quat_init = np.ones(positions.shape[:-1] + (4,)) * root_quat_init
+    quat_between = qbetween_np(forward_init, target)
 
+    root_quat_init = np.ones(positions.shape[:-1] + (4,)) * quat_between
     positions = qrot_np(root_quat_init, positions)
 
-    return positions, floor_height, root_pose_init_xz, root_quat_init
+    return positions, floor_height, root_pose_init_xz, quat_between
 
 
 def postprocess_motion(
         positions: np.ndarray,
         floor_height: float,
         root_pose_init_xz: np.ndarray,
-        root_quat_init: np.ndarray
+        quat_between: np.ndarray
     ):
     """Undo the preprocessing steps applied by `preprocess_motion`.
     """
+    root_quat_init = np.ones(positions.shape[:-1] + (4,)) * quat_between
+
     positions = positions.copy()
     positions = qrot_np(qinv_np(root_quat_init), positions)
     positions += root_pose_init_xz
