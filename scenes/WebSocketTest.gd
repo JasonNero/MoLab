@@ -8,9 +8,9 @@ var socket = WebSocketPeer.new()
 
 func _ready():
 	print("Connecting to WebSocket URL: ", websocket_url)
-	# socket.set_inbound_buffer_size(16777216)
-	# socket.set_outbound_buffer_size(16777216)
-	# socket.set_max_queued_packets(128)
+	socket.set_inbound_buffer_size(16777216)
+	socket.set_outbound_buffer_size(16777216)
+	socket.set_max_queued_packets(128)
 
 	# Initiate connection to the given URL.
 	var err = socket.connect_to_url(websocket_url)
