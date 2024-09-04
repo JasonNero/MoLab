@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://bna0c1t5re2pk"]
+[gd_scene load_steps=4 format=3 uid="uid://bna0c1t5re2pk"]
 
 [ext_resource type="PackedScene" uid="uid://b871xxj0dvj8w" path="res://scenes/Main3D.tscn" id="1_803a3"]
 [ext_resource type="PackedScene" uid="uid://3cmvat50tv12" path="res://scenes/Sequencer.tscn" id="2_wdk01"]
+[ext_resource type="Script" path="res://scenes/WebSocketTest.gd" id="3_jme1y"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -37,3 +38,6 @@ render_target_update_mode = 4
 layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 3.0
+
+[node name="WebSocketTest" type="Node" parent="."]
+script = ExtResource("3_jme1y")
