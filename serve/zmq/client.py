@@ -1,8 +1,3 @@
-#
-#   Request-reply client in Python
-#   Connects REQ socket to tcp://localhost:5559
-#   Sends "Hello" to server, expects "World" back
-#
 import sys
 
 import zmq
@@ -18,7 +13,7 @@ try:
     print("Sending request...")
     socket.send_json({
         "bvh_path": "sample/dummy.bvh",
-        "text_prompt": "zeromq walks into a bar"
+        "text_prompt": f"{name} walks into a bar"
     })
     message = socket.recv()
     print(f"Received reply:\n{message}")

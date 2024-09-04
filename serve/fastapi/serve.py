@@ -3,10 +3,18 @@ import json
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import numpy as np
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 from serve.inference_worker import InferenceArgs, ModelArgs, MotionInferenceWorker
+
+MOCK = True
+
+mocked_result = np.load(
+    "save/results/condmdi_random_joints/condsamples000750000__benchmark_clip_T=40_CI=0_CRG=0_KGP=1.0_seed10/results.npy",
+    allow_pickle=True,
+).item()
 
 
 @asynccontextmanager
@@ -58,18 +66,26 @@ async def websocket_endpoint(websocket: WebSocket):
 
             inference_args = InferenceArgs(**data)
 
-            result = await asyncio.get_event_loop().run_in_executor(
-                None, worker.infer, inference_args
-            )
-            result = {k: v.tolist() if hasattr(v, "tolist") else v for k, v in result.items()}
+            if MOCK:
+                result = mocked_result
+            else:
+                result = await asyncio.get_event_loop().run_in_executor(
+                    None, worker.infer, inference_args
+                )
+            result = {
+                k: v.tolist() if hasattr(v, "tolist") else v for k, v in result.items()
+            }
 
             print(f"Finished:\n{inference_args}")
             await websocket.send_text(f"Finished:\n{inference_args}")
             await websocket.send_json(result)
     except WebSocketDisconnect as e:
+        print(f"WebSocket closed. {e.code}: {e.reason}")
         print(e)
 
 
 if __name__ == "__main__":
     # uvicorn.run(app, host="0.0.0.0", port=8000)
     uvicorn.run(app, host="127.0.0.1", port=8000)
+
+    # TODO: Allow Ctrl+C to stop the worker inside the event loop

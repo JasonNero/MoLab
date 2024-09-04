@@ -1,7 +1,3 @@
-# Simple request-reply broker
-#
-# Author: Lev Givon <lev(at)columbia(dot)edu>
-
 import zmq
 
 # Prepare our context and sockets

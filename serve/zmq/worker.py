@@ -1,18 +1,20 @@
-#
-#   Request-reply service in Python
-#   Connects REP socket to tcp://localhost:5560
-#   Expects "Hello" from client, replies with "World"
-#
 import json
 from pathlib import Path
 
+import numpy as np
 import zmq
-import sys
-sys.path.append(Path(__file__).parent.parent.parent.as_posix())
 
-from serve.inference_worker import InferenceArgs, ModelArgs, MotionInferenceWorker
+from ..inference_worker import InferenceArgs, ModelArgs, MotionInferenceWorker
 
-def setup_model():
+MOCK = True
+
+mocked_result = np.load(
+    "save/results/condmdi_random_joints/condsamples000750000__benchmark_clip_T=40_CI=0_CRG=0_KGP=1.0_seed10/results.npy",
+    allow_pickle=True,
+).item()
+
+
+def setup_model() -> MotionInferenceWorker:
     model_path = Path("./save/condmdi_random_joints/model000750000.pt")
     assert model_path.is_file(), f"Model checkpoint not found at [{model_path}]"
 
@@ -44,8 +46,13 @@ if __name__ == "__main__":
         while True:
             data = socket.recv_json()
             print(f"Received request: {data}")
-            result = worker.infer(InferenceArgs(**data))
-            result = {k: v.tolist() if hasattr(v, "tolist") else v for k, v in result.items()}
+            if MOCK:
+                result = mocked_result
+            else:
+                result = worker.infer(InferenceArgs(**data))
+            result = {
+                k: v.tolist() if hasattr(v, "tolist") else v for k, v in result.items()
+            }
             socket.send_json(result)
     except KeyboardInterrupt:
         worker.stop()
