@@ -68,6 +68,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
             if MOCK:
                 result = mocked_result
+                # Wait 6s to simulate at least some inference time
+                await asyncio.sleep(6)
             else:
                 result = await asyncio.get_event_loop().run_in_executor(
                     None, worker.infer, inference_args
