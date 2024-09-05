@@ -343,11 +343,12 @@ def cont6d_to_matrix_np(cont6d):
 
 def matrix_to_cont6d(mat):
     assert mat.shape[-2:] == (3, 3), "The last two dimensions must be 3x3"
-    return mat[..., :, :2].T.clone().reshape(*mat.size()[:-2], 6)
+    return torch.cat([mat[..., 0], mat[..., 1]], dim=-1)
 
 
 def matrix_to_cont6d_np(mat):
-    return matrix_to_cont6d(torch.from_numpy(mat)).numpy()
+    assert mat.shape[-2:] == (3, 3), "The last two dimensions must be 3x3"
+    return np.concatenate([mat[..., 0], mat[..., 1]], axis=-1)
 
 
 def qpow(q0, t, dtype=torch.float):

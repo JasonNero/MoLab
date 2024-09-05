@@ -27,10 +27,10 @@ from utils import dist_util
 from utils.editing_util import get_keyframes_mask
 from utils.fixseed import fixseed
 from utils.model_util import create_model_and_diffusion, load_saved_model
-from utils.parser_util import CondSyntArgs, custom_synt_args
+from utils.parser_util import CustomSyntArgs, custom_synt_args
 
 
-def parse_args() -> CondSyntArgs:
+def parse_args() -> CustomSyntArgs:
     args = custom_synt_args()
     fixseed(args.seed)
 
