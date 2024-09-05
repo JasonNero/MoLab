@@ -7,7 +7,7 @@ import numpy as np
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
-from serve.inference_worker import InferenceArgs, ModelArgs, MotionInferenceWorker
+from serve.inference_worker import InferenceArgs, InferenceResults, ModelArgs, MotionInferenceWorker
 
 MOCK = True
 
@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
     global worker
     worker = MotionInferenceWorker("worker", model_args)
 
-    yield
+    yield  # Startup done, waiting for shutdown
 
     worker.stop()
 
@@ -56,8 +56,8 @@ async def resolve_args(args: dict):
     return InferenceArgs(**args)
 
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+@app.websocket("/infer")
+async def inference(websocket: WebSocket):
     await websocket.accept()
     try:
         while True:
@@ -65,29 +65,33 @@ async def websocket_endpoint(websocket: WebSocket):
             print(f"Received:\n{data}")
 
             inference_args = InferenceArgs(**data)
+            result: InferenceResults = await asyncio.get_event_loop().run_in_executor(
+                None, worker.infer, inference_args
+            )
 
-            if MOCK:
-                result = mocked_result
-                # Wait 6s to simulate at least some inference time
-                await asyncio.sleep(6)
-            else:
-                result = await asyncio.get_event_loop().run_in_executor(
-                    None, worker.infer, inference_args
-                )
-            result = {
-                k: v.tolist() if hasattr(v, "tolist") else v for k, v in result.items()
-            }
-
-            print(f"Finished:\n{inference_args}")
-            await websocket.send_text(f"Finished:\n{inference_args}")
-            await websocket.send_json(result)
+            print(f"Finished:\n{data}")
+            await websocket.send_json(result.model_dump())
     except WebSocketDisconnect as e:
-        print(f"WebSocket closed. {e.code}: {e.reason}")
-        print(e)
+        print(f"WebSocket closed: [{e.code}] {e.reason}")
+
+
+@app.websocket("/mock")
+async def mocked_inference(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            data = await websocket.receive_json()
+            print(f"Received:\n{data}")
+
+            await asyncio.sleep(6)  # Wait 6s to simulate at least some inference time
+            result = InferenceResults(motions=mocked_result["motion"].tolist())
+
+            print(f"Finished:\n{data}")
+            await websocket.send_json(result.model_dump())
+    except WebSocketDisconnect as e:
+        print(f"WebSocket closed: [{e.code}] {e.reason}")
 
 
 if __name__ == "__main__":
     # uvicorn.run(app, host="0.0.0.0", port=8000)
     uvicorn.run(app, host="127.0.0.1", port=8000)
-
-    # TODO: Allow Ctrl+C to stop the worker inside the event loop

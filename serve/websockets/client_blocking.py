@@ -7,7 +7,7 @@ import json
 from websockets.sync.client import connect
 
 def test():
-    with connect("ws://localhost:8000/ws", max_size=2**21) as websocket:
+    with connect("ws://localhost:8000/infer", max_size=2**21) as websocket:
         data = {
             "bvh_path": "sample/dummy.bvh",
             "text_prompt": "Autodesk walks into a bar"
@@ -16,8 +16,6 @@ def test():
         websocket.send(json.dumps(data))
         print("Waiting for response...")
 
-        message = websocket.recv()
-        print(f"Received:\n{message}")
         message = websocket.recv()
         print(f"Received:\n{message}")
 

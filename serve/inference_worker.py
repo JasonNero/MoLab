@@ -1,11 +1,12 @@
 import json
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
 import torch
 import tqdm
+from pydantic import BaseModel
 
 from convert.joints2bvh import BVH, Animation, joints2bvh
 from data_loaders.get_data import DatasetConfig, get_dataset_loader
@@ -61,16 +62,19 @@ class InferenceArgs(GenerateOptions, CondSyntOptions, CustomSyntOptions):
     """Contains Mostly Inference Options:
     - `GenerateOptions` (Motion Length, Input Text/Action)
     - `CondSynthOptions` (Edit Mode, Editable Features, Imputate, Reconstruction Guidance)
+    - `CustomSyntOptions` (BVH Path)
     """
 
-    pass
+    # A mapping frame indices to poses (J, 3).
+    # Using a dictionary allows for temporal sparsity while
+    # using `nan` as values allows for sparse keyframes to be defined.
+    keyframes: dict = field(default_factory=dict)  # Technically: dict[int, np.ndarray]
 
 
-@dataclass
-class AllArgs(ModelArgs, InferenceArgs):
-    """Contains all arguments for the conditional synthesis."""
+class InferenceResults(BaseModel):
+    """Contains Inference Results. Uses Pydantic for serialization."""
 
-    pass
+    motions: list  # Technically: list[np.ndarray]
 
 
 def get_abs_data_from_bvh(filepath: Path) -> torch.Tensor:
@@ -243,7 +247,9 @@ class MotionInferenceWorker:
         self.stop()
         self.start()
 
-    def infer(self, infer_config: InferenceArgs, save_results: bool = True):
+    def infer(
+        self, infer_config: InferenceArgs, save_results: bool = False
+    ) -> InferenceResults:
         """Infer using model args and save results to output directory.
 
         Args:
@@ -453,7 +459,7 @@ class MotionInferenceWorker:
                     sample, n_joints, abs_3d=self.model_config.abs_3d
                 )
                 # Reshape to (batch_size, n_joints=22, 3, n_frames)
-                motion = motion.view(-1, *motion.shape[2:]).permute(0, 2, 3, 1)
+                motion = motion.view(-1, *motion.shape[2:])
             all_samples.append(sample.cpu().numpy())
             all_motions.append(motion.cpu().numpy())
             all_lengths.append(model_kwargs["y"]["lengths"].cpu().numpy())
@@ -461,7 +467,7 @@ class MotionInferenceWorker:
             all_text += model_kwargs["y"]["text"]
 
         ###########################################################################
-        # * Post-Processing Inputs
+        # * Post-Processing Inputs and Save/Return Results
         ###########################################################################
 
         # Unnormalize observed motions and recover XYZ *positions*
@@ -473,62 +479,35 @@ class MotionInferenceWorker:
             input_motions = recover_from_ric(
                 input_motions, n_joints, abs_3d=self.model_config.abs_3d
             )
-            input_motions = input_motions.view(-1, *input_motions.shape[2:]).permute(
-                0, 2, 3, 1
-            )
+            input_motions = input_motions.view(-1, *input_motions.shape[2:])
             input_motions = input_motions.cpu().numpy()
-            inpainting_mask = obs_joint_mask.cpu().numpy()
+            inpainting_mask = obs_joint_mask.permute(0, 3, 1, 2).cpu().numpy()
 
         all_samples = np.stack(all_samples)
-        all_motions = np.stack(all_motions)  # [num_rep, num_samples, 22, 3, n_frames]
+        all_motions = np.stack(all_motions)  # [num_rep, num_samples, n_frames, 22, 3]
         all_text = np.stack(all_text)  # [num_rep, num_samples]
         all_lengths = np.stack(all_lengths)  # [num_rep, num_samples]
-        all_observed_motions = input_motions  # [num_samples, 22, 3, n_frames]
+        all_observed_motions = input_motions  # [n_frames, num_samples, 22, 3]
         all_observed_masks = inpainting_mask
 
-        results_dict = {
-            "sample": all_samples,
-            "motion": all_motions,
-            "text": all_text,
-            "lengths": all_lengths,
-            "num_samples": self.model_config.num_samples,
-            "num_repetitions": self.model_config.num_repetitions,
-            "observed_motion": all_observed_motions,
-            "observed_mask": all_observed_masks,
-            "pre_y": pre_y,
-            "pre_xz": pre_xz,
-            "pre_rot": pre_rot,
-        }
+        out_path = self.get_output_path(infer_config)
+        out_path.mkdir(parents=True, exist_ok=True)
 
-        if save_results:
-            out_path = self.get_output_path(infer_config)
-            out_path.mkdir(parents=True, exist_ok=True)
+        # Write run arguments to json file an save in out_path
+        with (out_path / "infer_args.json").open("w") as fw:
+            json.dump(vars(infer_config), fw, indent=4, sort_keys=True)
 
-            # Write run arguments to json file an save in out_path
-            with (out_path / "infer_args.json").open("w") as fw:
-                json.dump(vars(infer_config), fw, indent=4, sort_keys=True)
+        converter = joints2bvh.Joint2BVHConvertor()
 
-            npy_path = out_path / "results.npy"
-            print(f"saving results file to [{npy_path}]")
-            np.save(npy_path, results_dict)
+        for i_sample in tqdm.trange(
+            self.model_config.num_samples, desc="Saving Input BVHs"
+        ):
+            # Input Motion
+            length = all_lengths[0, i_sample]
+            motion = all_observed_motions[i_sample, :, :, :length]  # Crop
+            motion = postprocess_motion(motion, pre_y, pre_xz, pre_rot)
 
-            # with (out_path / "results.txt").open("w") as fw:
-            #     fw.write("\n".join(all_text))
-            # with (out_path / "results_len.txt").open("w") as fw:
-            #     fw.write("\n".join([str(l) for l in all_lengths]))
-
-            converter = joints2bvh.Joint2BVHConvertor()
-
-            for i_sample in tqdm.trange(
-                self.model_config.num_samples, desc="Saving Input BVHs"
-            ):
-                # Input Motion
-                length = all_lengths[0, i_sample]
-                motion = all_observed_motions[i_sample, :, :, :length]  # Crop
-                motion = motion.transpose(2, 0, 1)  # Put frames first
-
-                motion = postprocess_motion(motion, pre_y, pre_xz, pre_rot)
-
+            if save_results:
                 save_path = out_path / f"sample{i_sample:02d}_input.bvh"
                 converter.convert(
                     motion,
@@ -537,16 +516,17 @@ class MotionInferenceWorker:
                     foot_ik=False,
                 )
 
-            for i_rep in tqdm.trange(
-                self.model_config.num_repetitions, desc="Saving Sample BVHs"
-            ):
-                for i_sample in range(self.model_config.num_samples):
-                    length = all_lengths[i_rep, i_sample]
-                    motion = all_motions[i_rep, i_sample, :, :, :length]  # Crop
-                    motion = motion.transpose(2, 0, 1)  # Put frames first
+        postprocessed_motions = []
 
-                    motion = postprocess_motion(motion, pre_y, pre_xz, pre_rot)
-
+        for i_rep in tqdm.trange(
+            self.model_config.num_repetitions, desc="Saving Sample BVHs"
+        ):
+            for i_sample in range(self.model_config.num_samples):
+                length = all_lengths[i_rep, i_sample]
+                motion = all_motions[i_rep, i_sample, :, :, :length]  # Crop
+                motion = postprocess_motion(motion, pre_y, pre_xz, pre_rot)
+                postprocessed_motions.append(motion)
+                if save_results:
                     save_path = out_path / f"sample{i_sample:02d}_rep{i_rep:02d}.bvh"
                     converter.convert(
                         motion,
@@ -555,4 +535,46 @@ class MotionInferenceWorker:
                         foot_ik=False,
                     )
 
-        return results_dict
+        if save_results:
+            # TODO: Clean that up at some point, or output only in debug mode.
+            results_dict = {
+                "sample": all_samples,
+                "motion": all_motions,
+                "postprocessed_motion": postprocessed_motions,
+                "text": all_text,
+                "lengths": all_lengths,
+                "num_samples": self.model_config.num_samples,
+                "num_repetitions": self.model_config.num_repetitions,
+                "observed_motion": all_observed_motions,
+                "observed_mask": all_observed_masks,
+                "pre_y": pre_y,
+                "pre_xz": pre_xz,
+                "pre_rot": pre_rot,
+            }
+            npy_path = out_path / "results.npy"
+            print(f"saving results file to [{npy_path}]")
+            np.save(npy_path, results_dict)
+
+        return InferenceResults(motions=[m.tolist() for m in postprocessed_motions])
+
+
+if __name__ == "__main__":
+    model_path = Path("./save/condmdi_random_joints/model000750000.pt")
+    assert model_path.is_file(), f"Model checkpoint not found at [{model_path}]"
+
+    model_args_path = model_path.parent / "args.json"
+    with model_args_path.open("r") as file:
+        model_dict = json.load(file)
+
+    # Filter out only the model arguments (ignores `EvaluationOptions`)
+    model_args = ModelArgs(
+        **{k: v for k, v in model_dict.items() if k in ModelArgs.__dataclass_fields__}
+    )
+    model_args.model_path = model_path
+    model_args.num_repetitions = 1
+    model_args.num_samples = 1
+
+    worker = MotionInferenceWorker("worker", model_args)
+    result = worker.infer(InferenceArgs(bvh_path="sample/dummy.bvh", no_text=True))
+    print(result)
+    worker.stop()
