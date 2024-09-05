@@ -1,5 +1,4 @@
 import json
-import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -65,10 +64,11 @@ class InferenceArgs(GenerateOptions, CondSyntOptions, CustomSyntOptions):
     - `CustomSyntOptions` (BVH Path)
     """
 
-    # A mapping frame indices to poses (J, 3).
-    # Using a dictionary allows for temporal sparsity while
-    # using `nan` as values allows for sparse keyframes to be defined.
-    keyframes: dict = field(default_factory=dict)  # Technically: dict[int, np.ndarray]
+    # A mapping of frame indices to poses (J+1, 3) where J is the number of joints.
+    # The first index is the root position, followed by all joint rotations.
+    # Uses `nan` to indicate missing values / sparse keyframes.
+    keyframes: dict[int, list] = field(default_factory=dict)
+    num_samples: int = field(default=3)  # Override the model `num_samples`
 
 
 class InferenceResults(BaseModel):
@@ -77,8 +77,10 @@ class InferenceResults(BaseModel):
     motions: list  # Technically: list[np.ndarray]
 
 
-def get_abs_data_from_bvh(filepath: Path) -> torch.Tensor:
+def get_jointpos_from_bvh(filepath: Path) -> torch.Tensor:
     """Load a BVH file and convert it to HML3D_abs format."""
+    assert Path(filepath).is_file(), "BVH file not found"
+
     animation = BVH.load(filepath)
 
     # TODO: Define all assumptions about the input BVH file as `asserts`
@@ -90,6 +92,42 @@ def get_abs_data_from_bvh(filepath: Path) -> torch.Tensor:
     # Reorder joints to undo the reordering of Joints2BVHConvertor
     joint_positions = joint_positions[:, joints2bvh.re_order_inv]
 
+    return joint_positions
+
+
+def unpack_keyframe_input(keyframes: dict[int, list]) -> tuple[torch.Tensor, torch.Tensor]:
+    # TODO: Make sure that the key types were validated to be integers
+
+    # We actually have 22 joints, but are piggybacking the root pos in the first index.
+    assert next(keyframes.values()).shape[1] == 22 + 1
+
+    input_frames = np.max(list(keyframes.keys()))
+    motion = np.zeros((input_frames + 1, 22, 3))
+    joint_mask = np.ones((input_frames + 1, 22, 1), dtype=bool)
+    for frame, pose in keyframes.items():
+        _pose = np.array(pose)
+        _pose_mask = ~np.isnan(_pose)
+        motion[frame, _pose_mask] = _pose[_pose_mask]
+        joint_mask[frame] = _pose_mask.all(axis=-1).reshape(-1, 1)
+
+    # Extract root position and mask
+    root_pos = motion[:, 0].copy()
+    root_mask = joint_mask[:, 0].copy()
+    rotations = motion[:, 1:]
+    joint_mask = joint_mask[:, 1:]
+
+    raise NotImplementedError("Keyframe conditioning not implemented yet.")
+
+    # TODO: GO ON HERE
+    # - Convert rotational to positional motion (FK, but using which skeleton?)
+    # - Proceed with CondMDI pre-processing (see `get_abs_data_from_bvh`)
+    joint_positions = ...
+
+    return joint_positions, joint_mask
+
+
+def get_abs_data_from_jointpos(joint_positions: torch.Tensor) -> torch.Tensor:
+    """Convert joint positions to HML3D_abs format."""
     positions, pre_y, pre_xz, pre_rot = preprocess_motion(joint_positions)
 
     fid_r, fid_l = [8, 11], [7, 10]  # Right/Left foot
@@ -189,12 +227,7 @@ class MotionInferenceWorker:
         # * Load Minimal Dataset and Model
         ###########################################################################
 
-        # Sampling a single batch from the testset, with exactly args.num_samples
-        self.model_config.batch_size = self.model_config.num_samples
-        # split = "fixed_subset" if self.model_config.use_fixed_subset else "test"  # TODO: Not sure what this is for
         split = "test"
-
-        # returns a DataLoader with the Text2MotionDatasetV2 dataset
         print(f"Loading '{split}' split of '{self.model_config.dataset}' dataset ...")
 
         conf = DatasetConfig(
@@ -273,47 +306,57 @@ class MotionInferenceWorker:
         # * Prepare Text and Motion Inputs for Sampling
         ###########################################################################
 
+        # Handle Text Input
+        # TODO: Put all this text handling into validator?
         if infer_config.text_prompt != "":
-            # Single text prompt -> Single sample
-            texts = [infer_config.text_prompt]
-            self.model_config.num_samples = 1
-
+            texts = [infer_config.text_prompt] * infer_config.num_samples
         elif infer_config.input_text != "":
-            # Load text prompts from file -> Variable sample count
-            assert os.path.exists(infer_config.input_text)
-            with open(infer_config.input_text, "r") as fr:
+            # ! Variable sample count
+            assert Path(infer_config.input_text).is_file()
+            with Path(infer_config.input_text).open("r") as fr:
                 texts = fr.readlines()
             texts = [s.replace("\n", "") for s in texts]
-            self.model_config.num_samples = len(texts)
-
+            print(
+                f"Loaded [{len(texts)}] text prompts from [{infer_config.input_text}]"
+            )
+            infer_config.num_samples = len(texts)
         elif infer_config.no_text:
-            # No text -> Keep sample count
-            texts = [""] * self.model_config.num_samples
+            texts = [""] * infer_config.num_samples
+            infer_config.guidance_param = 0.0  # Force unconditioned generation
+        else:
+            print("No text provided, implicitly setting `no_text=True`.")
+            infer_config.no_text = True
             infer_config.guidance_param = 0.0  # Force unconditioned generation
 
+        # Handle Motion Input
+        if infer_config.bvh_path != "":
+            # Load BVH and convert it to hml3d format
+            input_motion, pre_y, pre_xz, pre_rot = get_abs_data_from_jointpos(
+                get_jointpos_from_bvh(Path(infer_config.bvh_path))
+            )
         else:
-            raise ValueError("No text supplied!")
-
-        # Load BVH and convert it to hml3d format
-        bvh_motion, pre_y, pre_xz, pre_rot = get_abs_data_from_bvh(
-            Path(infer_config.bvh_path)
-        )
+            # Unpack sparse keyframes and convert them to hml3d format
+            # TODO: Actually use the `keyframe_mask` later on
+            keyframe_pos, keyframe_mask = unpack_keyframe_input(infer_config.keyframes)
+            input_motion, pre_y, pre_xz, pre_rot = get_abs_data_from_jointpos(
+                keyframe_pos
+            )
 
         # Pad or crop to `max_frames`
-        if bvh_motion.shape[0] < self.max_frames:
-            frame = torch.zeros(self.max_frames, bvh_motion.shape[1])
-            frame[: bvh_motion.shape[0]] = bvh_motion
-            bvh_motion = frame
+        if input_motion.shape[0] < self.max_frames:
+            frame = torch.zeros(self.max_frames, input_motion.shape[1])
+            frame[: input_motion.shape[0]] = input_motion
+            input_motion = frame
             n_frames = self.max_frames
-        elif bvh_motion.shape[0] > self.max_frames:
-            n_frames = bvh_motion.shape[0]
-            bvh_motion = bvh_motion[: self.max_frames]
+        elif input_motion.shape[0] > self.max_frames:
+            n_frames = input_motion.shape[0]
+            input_motion = input_motion[: self.max_frames]
 
         # Normalize the motion
-        input_motions = self.dataloader.dataset.t2m_dataset.transform_th(bvh_motion)
+        input_motion = self.dataloader.dataset.t2m_dataset.transform_th(input_motion)
 
         # (max_frames, 263) -> (nsamples, 263, 1, max_frames)
-        input_motions = input_motions.repeat(self.model_config.num_samples, 1, 1, 1)
+        input_motions = input_motion.repeat(infer_config.num_samples, 1, 1, 1)
         input_motions = input_motions.permute(0, 3, 1, 2)
         input_motions = input_motions.to(dist_util.dev())
 
@@ -321,11 +364,11 @@ class MotionInferenceWorker:
         #       It seems to be used only when `args.imputate` is True.
         model_kwargs = {
             "y": {
-                "lengths": torch.tensor([n_frames] * self.model_config.num_samples).to(
+                "lengths": torch.tensor([n_frames] * infer_config.num_samples).to(
                     dist_util.dev()
                 ),
                 "mask": torch.ones(
-                    (self.model_config.num_samples, 1, 1, self.max_frames),
+                    (infer_config.num_samples, 1, 1, self.max_frames),
                     device=dist_util.dev(),
                 ),
             }
@@ -371,27 +414,27 @@ class MotionInferenceWorker:
             model_kwargs["y"]["inpainting_mask"] = model_kwargs["obs_mask"]
             if infer_config.reconstruction_guidance:
                 # if loss was present over keyframes during training, we may use guidance at inference time
-                model_kwargs["y"]["reconstruction_guidance"] = (
-                    infer_config.reconstruction_guidance
-                )
-                model_kwargs["y"]["reconstruction_weight"] = (
-                    infer_config.reconstruction_weight
-                )
+                model_kwargs["y"][
+                    "reconstruction_guidance"
+                ] = infer_config.reconstruction_guidance
+                model_kwargs["y"][
+                    "reconstruction_weight"
+                ] = infer_config.reconstruction_weight
                 model_kwargs["y"]["gradient_schedule"] = infer_config.gradient_schedule
-                model_kwargs["y"]["stop_recguidance_at"] = (
-                    infer_config.stop_recguidance_at
-                )
+                model_kwargs["y"][
+                    "stop_recguidance_at"
+                ] = infer_config.stop_recguidance_at
 
         elif infer_config.reconstruction_guidance:
             # if loss was present over keyframes during training, we may use guidance at inference time
             model_kwargs["y"]["inpainted_motion"] = model_kwargs["obs_x0"]
             model_kwargs["y"]["inpainting_mask"] = model_kwargs["obs_mask"]
-            model_kwargs["y"]["reconstruction_guidance"] = (
-                infer_config.reconstruction_guidance
-            )
-            model_kwargs["y"]["reconstruction_weight"] = (
-                infer_config.reconstruction_weight
-            )
+            model_kwargs["y"][
+                "reconstruction_guidance"
+            ] = infer_config.reconstruction_guidance
+            model_kwargs["y"][
+                "reconstruction_weight"
+            ] = infer_config.reconstruction_weight
             model_kwargs["y"]["gradient_schedule"] = infer_config.gradient_schedule
             model_kwargs["y"]["stop_recguidance_at"] = infer_config.stop_recguidance_at
 
@@ -399,13 +442,13 @@ class MotionInferenceWorker:
         if self.model_config.guidance_param != 1:
             # text classifier-free guidance
             model_kwargs["y"]["text_scale"] = (
-                torch.ones(self.model_config.batch_size, device=dist_util.dev())
+                torch.ones(infer_config.num_samples, device=dist_util.dev())
                 * self.model_config.guidance_param
             )
         if self.model_config.keyframe_guidance_param != 1:
             # keyframe classifier-free guidance
             model_kwargs["y"]["keyframe_scale"] = (
-                torch.ones(self.model_config.batch_size, device=dist_util.dev())
+                torch.ones(infer_config.num_samples, device=dist_util.dev())
                 * self.model_config.keyframe_guidance_param
             )
 
@@ -420,16 +463,13 @@ class MotionInferenceWorker:
         # * Sampling
         ###########################################################################
 
-        # TODO: Kinda convoluted to use two variables for the same thing, unify them.
-        assert self.model_config.num_samples == self.model_config.batch_size
-
         for _ in tqdm.trange(
             self.model_config.num_repetitions, desc="Sampling Repetitions"
         ):
             sample = self.diffusion.p_sample_loop(
                 self.model,
                 (
-                    self.model_config.batch_size,
+                    infer_config.num_samples,
                     self.model.njoints,
                     self.model.nfeats,
                     self.max_frames,
@@ -499,9 +539,7 @@ class MotionInferenceWorker:
 
         converter = joints2bvh.Joint2BVHConvertor()
 
-        for i_sample in tqdm.trange(
-            self.model_config.num_samples, desc="Saving Input BVHs"
-        ):
+        for i_sample in tqdm.trange(infer_config.num_samples, desc="Saving Input BVHs"):
             # Input Motion
             length = all_lengths[0, i_sample]
             motion = all_observed_motions[i_sample, :, :, :length]  # Crop
@@ -521,7 +559,7 @@ class MotionInferenceWorker:
         for i_rep in tqdm.trange(
             self.model_config.num_repetitions, desc="Saving Sample BVHs"
         ):
-            for i_sample in range(self.model_config.num_samples):
+            for i_sample in range(infer_config.num_samples):
                 length = all_lengths[i_rep, i_sample]
                 motion = all_motions[i_rep, i_sample, :, :, :length]  # Crop
                 motion = postprocess_motion(motion, pre_y, pre_xz, pre_rot)
@@ -543,7 +581,7 @@ class MotionInferenceWorker:
                 "postprocessed_motion": postprocessed_motions,
                 "text": all_text,
                 "lengths": all_lengths,
-                "num_samples": self.model_config.num_samples,
+                "num_samples": infer_config.num_samples,
                 "num_repetitions": self.model_config.num_repetitions,
                 "observed_motion": all_observed_motions,
                 "observed_mask": all_observed_masks,

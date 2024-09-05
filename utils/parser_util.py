@@ -311,7 +311,7 @@ class GMDOptions:
         default='no',
         metadata={
             "help":
-            "Select the guideance mode for generataion. Possible options are [no, mdm_legacy, trajectory, kps, sdf].",
+            "Select the guidance mode for generation. Possible options are [no, mdm_legacy, trajectory, kps, sdf].",
             "choices": ['no', 'mdm_legacy', 'trajectory', 'kps', 'sdf']
         })
     classifier_scale: float = field(
@@ -435,7 +435,7 @@ class CondSyntOptions:
 
 
 @dataclass
-class CustomSyntArgs:
+class CustomSyntOptions:
     bvh_path: str = field(
         default='',
         metadata={"help": "Path to BVH file to be used as input."})
@@ -517,7 +517,7 @@ class CondSyntArgs(BaseOptions, DataOptions, ModelOptions, DiffusionOptions,
 
 
 @dataclass
-class CustomSyntArgs(CondSyntArgs, CustomSyntArgs):
+class CustomSyntArgs(CondSyntArgs, CustomSyntOptions):
     pass
 
 
