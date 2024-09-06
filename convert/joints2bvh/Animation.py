@@ -295,7 +295,7 @@ def transforms_global(anim):
 # !!! useful!
 def positions_global(anim):
     """
-    Global Joint Positions
+    Global Joint Positions (basically FK)
 
     Given an animation compute the global joint
     positions at at every frame

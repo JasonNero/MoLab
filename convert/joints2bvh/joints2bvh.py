@@ -21,8 +21,6 @@ class Joint2BVHConvertor:
         self.template = BVH.load(template_path, need_quater=True)
 
         self.end_points = [4, 8, 13, 17, 21]
-
-        self.template_offset = self.template.offsets.copy()
         self.parents = [-1, 0, 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 12, 11, 14, 15, 16, 11, 18, 19, 20]
 
     def convert(self, positions, filename, iterations=10, foot_ik=True):

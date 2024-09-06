@@ -8,6 +8,7 @@ import tqdm
 from pydantic import BaseModel
 
 from convert.joints2bvh import BVH, Animation, joints2bvh
+from convert.joints2bvh.Quaternions import Quaternions
 from data_loaders.get_data import DatasetConfig, get_dataset_loader
 from data_loaders.humanml.scripts.motion_process import (
     extract_features,
@@ -96,7 +97,16 @@ def get_jointpos_from_bvh(filepath: Path) -> torch.Tensor:
 
 
 def unpack_keyframe_input(keyframes: dict[int, list]) -> tuple[torch.Tensor, torch.Tensor]:
-    # TODO: Make sure that the key types were validated to be integers
+    """Unpack the keyframe input and return the joint positions and mask.
+
+    This is based on the following list of assumptions:
+    - A pose in `keyframes` has 1 root position followed by 22 joint rotations.
+    - Skeleton is the same as in `template.bvh` (22 joints)
+        - This is used to get `parents`, `offsets` and `names`.
+    - Frametime is 1/20s (as per HML3D dataset)
+    - Rotation order is XYZ
+    """
+    ORDER = "xyz"  # TODO: Is this some kind of BVH default or can it differ?
 
     # We actually have 22 joints, but are piggybacking the root pos in the first index.
     assert next(keyframes.values()).shape[1] == 22 + 1
@@ -116,12 +126,29 @@ def unpack_keyframe_input(keyframes: dict[int, list]) -> tuple[torch.Tensor, tor
     rotations = motion[:, 1:]
     joint_mask = joint_mask[:, 1:]
 
-    raise NotImplementedError("Keyframe conditioning not implemented yet.")
+    # Theoretically, this should always hold true, otherwise we would
+    # need separate joint and feature masks (which is possible).
+    assert root_mask == joint_mask[:, 0], "Root pos mask does not match root rot mask"
 
-    # TODO: GO ON HERE
-    # - Convert rotational to positional motion (FK, but using which skeleton?)
-    # - Proceed with CondMDI pre-processing (see `get_abs_data_from_bvh`)
-    joint_positions = ...
+    # Using the BVH template to get offsets, orients, parents and names
+    template_path = Path(BVH.__file__).parent / "data" / "template.bvh"
+    template_anim = BVH.load(template_path, need_quater=True)
+
+    # NOTE: `positions` and `rotations` are both local to the parent joint
+    anim = template_anim.copy()
+    anim.frametime = 1.0 / 20.0
+    anim.rotations = Quaternions.from_euler(np.radians(rotations), order=ORDER)
+    anim.positions = anim.offsets.repeat(input_frames, axis=0)
+    anim.positions[:, 0] = root_pos
+
+    joint_positions = Animation.positions_global(anim)
+
+    # TODO: Assure the original BVH ordering in the Maya/Blender Export
+    #       Also investigate the reason for this whole (re)ordering,
+    #       do we really need hardcoded indices here?
+
+    # Reorder joints to undo the reordering of Joints2BVHConvertor
+    joint_positions = joint_positions[:, joints2bvh.re_order_inv]
 
     return joint_positions, joint_mask
 
