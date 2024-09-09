@@ -85,7 +85,7 @@ def extract_keyframes() -> tuple[np.ndarray, np.ndarray]:
     return positions, rotations
 
 
-def pack_keyframes(positions: np.ndarray, rotations: np.ndarray) -> dict[int, list]:
+def pack_keyframes(positions: np.ndarray, rotations: np.ndarray, verbose=False) -> dict[int, list]:
     """Pack the keyframes into a more compact format."""
     root_pos = positions[:, 0]
     frame_mask_pos = ~np.isnan(root_pos).any(axis=(1))
@@ -94,6 +94,9 @@ def pack_keyframes(positions: np.ndarray, rotations: np.ndarray) -> dict[int, li
     # Combine all frames that have non-nan values
     frame_mask = frame_mask_pos | frame_mask_rot
     valid_frames = np.where(frame_mask)[0]
+
+    if verbose:
+        print(f"Compacting to (partial) Keyposes on Frames:\n{valid_frames}")
 
     packed_motion: dict = {}
     for frame in valid_frames.tolist():
