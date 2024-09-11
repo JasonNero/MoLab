@@ -131,7 +131,7 @@ def get_abs_data_from_bvh(filepath: Path) -> torch.Tensor:
     assert animation.positions.shape[1] == 22, "Incorrect number of joints in BVH file"
 
     # Get global joint positions
-    joint_positions = torch.from_numpy(Animation.positions_global(animation))
+    joint_positions = Animation.positions_global(animation)
 
     # Reorder joints to undo the reordering of Joints2BVHConvertor
     joint_positions = joint_positions[:, joints2bvh.re_order_inv]

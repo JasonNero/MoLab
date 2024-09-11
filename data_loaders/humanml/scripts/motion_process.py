@@ -77,8 +77,6 @@ def preprocess_motion(positions: np.ndarray):
         root_pose_init_xz (np.ndarray): Translation applied to start at the origin.
         quat_between (np.ndarray): Rotation applied to face the Z+ axis.
     """
-    positions = positions.detach().numpy()
-
     '''Put on Floor (Translation)'''
     floor_height = positions.min(axis=0).min(axis=0)[1]
     positions[:, :, 1] -= floor_height
@@ -117,12 +115,16 @@ def postprocess_motion(
     ):
     """Undo the preprocessing steps applied by `preprocess_motion`.
     """
+    if floor_height is None or root_pose_init_xz is None or quat_between is None:
+        print("No preprocessing applied. Returning original positions.")
+        return positions
+
     root_quat_init = np.ones(positions.shape[:-1] + (4,)) * quat_between
 
     positions = positions.copy()
     positions = qrot_np(qinv_np(root_quat_init), positions)
     positions += root_pose_init_xz
-    positions[:, :, 1] += floor_height
+    positions[..., 1] += floor_height
     return positions
 
 

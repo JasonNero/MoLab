@@ -62,14 +62,14 @@ async def inference(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_json()
-            print(f"Received:\n{data}")
+            print("Received Job")
 
             inference_args = InferenceArgs(**data)
             result: InferenceResults = await asyncio.get_event_loop().run_in_executor(
                 None, worker.infer, inference_args
             )
 
-            print(f"Finished:\n{data}")
+            print("Finished Job")
             await websocket.send_json(result.model_dump())
     except WebSocketDisconnect as e:
         print(f"WebSocket closed: [{e.code}] {e.reason}")

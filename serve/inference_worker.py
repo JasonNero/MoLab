@@ -20,7 +20,7 @@ from data_loaders.humanml.scripts.motion_process import (
 from data_loaders.humanml.utils import paramUtil
 from model.cfg_sampler import ClassifierFreeSampleModel
 from utils import dist_util
-from utils.editing_util import get_keyframes_mask
+from utils.editing_util import get_keyframes_mask, joint_to_full_mask
 from utils.fixseed import fixseed
 from utils.model_util import create_model_and_diffusion, load_saved_model
 from utils.parser_util import (
@@ -68,14 +68,34 @@ class InferenceArgs(GenerateOptions, CondSyntOptions, CustomSyntOptions):
     # A mapping of frame indices to poses (J+1, 3) where J is the number of joints.
     # The first index is the root position, followed by all joint rotations.
     # Uses `nan` to indicate missing values / sparse keyframes.
-    keyframes: dict[int, list] = field(default_factory=dict)
+    packed_motion: dict[int, list] = field(default_factory=dict)
     num_samples: int = field(default=3)  # Override the model `num_samples`
+
+    # TODO: Check whether this overriding works as expected
+    editable_features: str = "pos_rot"  # Override to exclude input velocities
+
+    fill_mode: str = field(
+        default="zeros",
+        metadata={
+            "choices": [
+                "zeros",
+                "step",
+                "linear"
+                "random",
+            ],
+        },
+    )
 
 
 class InferenceResults(BaseModel):
     """Contains Inference Results. Uses Pydantic for serialization."""
 
-    motions: list  # Technically: list[np.ndarray]
+    # motions: list  # Technically: list[np.ndarray]
+    root_positions: list
+    joint_rotations: list
+
+    obs_root_positions: list
+    obs_joint_rotations: list
 
 
 def get_jointpos_from_bvh(filepath: Path) -> torch.Tensor:
@@ -88,7 +108,7 @@ def get_jointpos_from_bvh(filepath: Path) -> torch.Tensor:
     assert animation.positions.shape[1] == 22, "Incorrect number of joints in BVH file"
 
     # Get global joint positions
-    joint_positions = torch.from_numpy(Animation.positions_global(animation))
+    joint_positions = Animation.positions_global(animation)
 
     # Reorder joints to undo the reordering of Joints2BVHConvertor
     joint_positions = joint_positions[:, joints2bvh.re_order_inv]
@@ -96,28 +116,45 @@ def get_jointpos_from_bvh(filepath: Path) -> torch.Tensor:
     return joint_positions
 
 
-def unpack_keyframe_input(keyframes: dict[int, list]) -> tuple[torch.Tensor, torch.Tensor]:
-    """Unpack the keyframe input and return the joint positions and mask.
+def unpack_motion(
+    packed_motion: dict[int, list],
+    fill_mode: str = "zeros",
+    stepped: bool = True,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Unpack the packed motion input and return the joint positions and mask.
 
-    This is based on the following list of assumptions:
-    - A pose in `keyframes` has 1 root position followed by 22 joint rotations.
-    - Skeleton is the same as in `template.bvh` (22 joints)
-        - This is used to get `parents`, `offsets` and `names`.
-    - Frametime is 1/20s (as per HML3D dataset)
-    - Rotation order is XYZ
+    Packed Motion Format:
+    - A dictionary mapping frame indices to packed poses
+    - A packed pose contains the root position followed by all 22 joint rotations
+    - Values stored as `nan` indicate sparse keyframes and are converted to a joint mask
     """
-    ORDER = "xyz"  # TODO: Is this some kind of BVH default or can it differ?
+    packed_motion = {int(k): np.array(v) for k, v in packed_motion.items()}
 
     # We actually have 22 joints, but are piggybacking the root pos in the first index.
-    assert next(keyframes.values()).shape[1] == 22 + 1
+    assert next(iter(packed_motion.values())).shape[0] == 23, "Expected 22 joints + 1"
 
-    input_frames = np.max(list(keyframes.keys()))
-    motion = np.zeros((input_frames + 1, 22, 3))
-    joint_mask = np.ones((input_frames + 1, 22, 1), dtype=bool)
-    for frame, pose in keyframes.items():
-        _pose = np.array(pose)
-        _pose_mask = ~np.isnan(_pose)
-        motion[frame, _pose_mask] = _pose[_pose_mask]
+    n_input_frames = np.max(list(packed_motion.keys())) + 1
+
+    if fill_mode == "zeros":
+        motion = np.zeros((n_input_frames, 22 + 1, 3))
+    elif fill_mode == "random":
+        # TODO: Complete utter madness, this should use dataset mean and std instead.
+        #       Initialize the motion elsewhere to decouple it from the unpacking.
+        motion = np.zeros((n_input_frames, 22 + 1, 3))
+        motion[:, 0] = np.random.uniform(-1, 1, (n_input_frames, 3)) # Root position
+        motion[:, 1:] = np.random.uniform(-180, 180, (n_input_frames, 22, 3))  # Joint rotations
+    else:
+        # TODO: Implement other fill modes
+        raise NotImplementedError(f"Fill mode [{fill_mode}] not implemented")
+
+    joint_mask = np.zeros((n_input_frames, 22 + 1, 1), dtype=bool)
+    for frame, pose in packed_motion.items():
+        _pose_mask = ~np.isnan(pose)
+        if stepped:
+            # Always fill into the future
+            motion[frame:, _pose_mask] = pose[_pose_mask]
+        else:
+            motion[frame, _pose_mask] = pose[_pose_mask]
         joint_mask[frame] = _pose_mask.all(axis=-1).reshape(-1, 1)
 
     # Extract root position and mask
@@ -128,7 +165,31 @@ def unpack_keyframe_input(keyframes: dict[int, list]) -> tuple[torch.Tensor, tor
 
     # Theoretically, this should always hold true, otherwise we would
     # need separate joint and feature masks (which is possible).
-    assert root_mask == joint_mask[:, 0], "Root pos mask does not match root rot mask"
+    assert np.all(
+        np.equal(root_mask, joint_mask[:, 0])
+    ), "Root pos mask does not match root rot mask"
+
+    return root_pos, rotations, joint_mask
+
+
+def unpacked_motion_to_jointpos(
+    root_pos: np.ndarray,
+    rotations: np.ndarray,
+) -> torch.Tensor:
+    """Convert the unpacked motion to joint positions using the BVH template and
+    Forward Kinematics.
+
+    This is based on the following list of assumptions:
+    - The skeleton is the same as in `template.bvh` (22 joints)
+        - This is used to get `parents`, `offsets` and `names`
+    - Frametime is 1/20s (as per HML3D dataset)
+    - Rotation order is XYZ
+    """
+
+    # HACK: Hardcoded for now
+    # TODO: Why? Why is this needed when Maya says it's xyz?!
+    ORDER = "zyx"
+    input_frames = rotations.shape[0]
 
     # Using the BVH template to get offsets, orients, parents and names
     template_path = Path(BVH.__file__).parent / "data" / "template.bvh"
@@ -138,7 +199,7 @@ def unpack_keyframe_input(keyframes: dict[int, list]) -> tuple[torch.Tensor, tor
     anim = template_anim.copy()
     anim.frametime = 1.0 / 20.0
     anim.rotations = Quaternions.from_euler(np.radians(rotations), order=ORDER)
-    anim.positions = anim.offsets.repeat(input_frames, axis=0)
+    anim.positions = anim.offsets[np.newaxis].repeat(input_frames, axis=0)
     anim.positions[:, 0] = root_pos
 
     joint_positions = Animation.positions_global(anim)
@@ -150,10 +211,10 @@ def unpack_keyframe_input(keyframes: dict[int, list]) -> tuple[torch.Tensor, tor
     # Reorder joints to undo the reordering of Joints2BVHConvertor
     joint_positions = joint_positions[:, joints2bvh.re_order_inv]
 
-    return joint_positions, joint_mask
+    return joint_positions
 
 
-def get_abs_data_from_jointpos(joint_positions: torch.Tensor) -> torch.Tensor:
+def get_abs_data_from_jointpos(joint_positions: np.ndarray) -> torch.Tensor:
     """Convert joint positions to HML3D_abs format."""
     positions, pre_y, pre_xz, pre_rot = preprocess_motion(joint_positions)
 
@@ -308,7 +369,7 @@ class MotionInferenceWorker:
         self.start()
 
     def infer(
-        self, infer_config: InferenceArgs, save_results: bool = False
+        self, infer_config: InferenceArgs, save_results: bool = True
     ) -> InferenceResults:
         """Infer using model args and save results to output directory.
 
@@ -353,7 +414,11 @@ class MotionInferenceWorker:
         else:
             print("No text provided, implicitly setting `no_text=True`.")
             infer_config.no_text = True
+            texts = [""] * infer_config.num_samples
             infer_config.guidance_param = 0.0  # Force unconditioned generation
+
+        input_joint_mask = None
+        input_motion = None
 
         # Handle Motion Input
         if infer_config.bvh_path != "":
@@ -361,26 +426,36 @@ class MotionInferenceWorker:
             input_motion, pre_y, pre_xz, pre_rot = get_abs_data_from_jointpos(
                 get_jointpos_from_bvh(Path(infer_config.bvh_path))
             )
-        else:
+        elif infer_config.packed_motion:
             # Unpack sparse keyframes and convert them to hml3d format
-            # TODO: Actually use the `keyframe_mask` later on
-            keyframe_pos, keyframe_mask = unpack_keyframe_input(infer_config.keyframes)
+            _root_pos, _rotations, input_joint_mask = unpack_motion(
+                infer_config.packed_motion
+            )
+            keyframe_pos = unpacked_motion_to_jointpos(_root_pos, _rotations)
             input_motion, pre_y, pre_xz, pre_rot = get_abs_data_from_jointpos(
                 keyframe_pos
             )
 
-        # Pad or crop to `max_frames`
-        if input_motion.shape[0] < self.max_frames:
-            frame = torch.zeros(self.max_frames, input_motion.shape[1])
-            frame[: input_motion.shape[0]] = input_motion
-            input_motion = frame
-            n_frames = self.max_frames
-        elif input_motion.shape[0] > self.max_frames:
-            n_frames = input_motion.shape[0]
-            input_motion = input_motion[: self.max_frames]
+        if input_motion is not None:
+            # Normalize the motion
+            input_motion = self.dataloader.dataset.t2m_dataset.transform_th(
+                input_motion
+            )
 
-        # Normalize the motion
-        input_motion = self.dataloader.dataset.t2m_dataset.transform_th(input_motion)
+            # Pad or crop to `max_frames`
+            if input_motion.shape[0] < self.max_frames:
+                frame = torch.zeros(self.max_frames, input_motion.shape[1])
+                frame[: input_motion.shape[0]] = input_motion
+                frame[input_motion.shape[0] :] = input_motion[-1]  # Repeat last frame
+                input_motion = frame
+                n_frames = input_motion.shape[0]
+            elif input_motion.shape[0] > self.max_frames:
+                n_frames = self.max_frames
+                input_motion = input_motion[: self.max_frames]
+        else:
+            print("No motion provided, using zero motion as input.")
+            input_motion = torch.zeros(self.max_frames, 263)
+            pre_y = pre_xz = pre_rot = None
 
         # (max_frames, 263) -> (nsamples, 263, 1, max_frames)
         input_motions = input_motion.repeat(infer_config.num_samples, 1, 1, 1)
@@ -401,20 +476,45 @@ class MotionInferenceWorker:
             }
         }
 
-        # TODO: Implement sparse keyframe conditioning
-        #       - Get the list of keyframes (and joints) from the input motion
-        #       - Generate a custom keyframes mask
+        # Convert/generate feature mask
+        if input_joint_mask is not None:
+            # input_joint_mask: (n_inputframes, 22, 1)
+            # obs_joint_mask:   (nsamples, 22, 1, max_frames)
+            # obs_feature_mask: (nsamples, 263, 1, max_frames)
+
+            obs_joint_mask = torch.zeros(
+                (infer_config.num_samples, 22, 1, self.max_frames),
+                dtype=bool,
+                device=dist_util.dev(),
+            )
+
+            n_inframes = input_joint_mask.shape[0]
+            obs_joint_mask[..., :n_inframes] = torch.from_numpy(
+                input_joint_mask[None]
+                .repeat(infer_config.num_samples, axis=0)
+                .transpose(0, 2, 3, 1)
+            )
+
+            # TODO: Test the `editable_features` parameter
+            obs_feature_mask = joint_to_full_mask(
+                obs_joint_mask, mode=infer_config.editable_features
+            )
+        else:
+            obs_feature_mask, obs_joint_mask = get_keyframes_mask(
+                data=input_motions,
+                lengths=model_kwargs["y"]["lengths"],
+                edit_mode=infer_config.edit_mode,
+                feature_mode=infer_config.editable_features,
+                trans_length=infer_config.transition_length,
+                get_joint_mask=True,
+                n_keyframes=infer_config.n_keyframes,
+            )  # [nsamples, njoints, nfeats, nframes]
+
+        # TODO: Check whether this is really necessary or I'm just paranoid ...
+        # input_motions *= obs_feature_mask
 
         model_kwargs["obs_x0"] = input_motions
-        model_kwargs["obs_mask"], obs_joint_mask = get_keyframes_mask(
-            data=input_motions,
-            lengths=model_kwargs["y"]["lengths"],
-            edit_mode=infer_config.edit_mode,
-            feature_mode=infer_config.editable_features,
-            trans_length=infer_config.transition_length,
-            get_joint_mask=True,
-            n_keyframes=infer_config.n_keyframes,
-        )  # [nsamples, njoints, nfeats, nframes]
+        model_kwargs["obs_mask"] = obs_feature_mask
 
         assert self.max_frames == input_motions.shape[-1]
 
@@ -480,10 +580,10 @@ class MotionInferenceWorker:
             )
 
         all_samples = []
-        all_motions = []
+        all_motions_pos = []
         all_lengths = []
         all_text = []
-        all_observed_motions = []
+        all_observed_motions_pos = []
         all_observed_masks = []
 
         ###########################################################################
@@ -522,13 +622,14 @@ class MotionInferenceWorker:
                 sample = self.dataloader.dataset.t2m_dataset.inv_transform(
                     sample
                 ).float()
-                motion = recover_from_ric(
+                motion_pos = recover_from_ric(
                     sample, n_joints, abs_3d=self.model_config.abs_3d
                 )
                 # Reshape to (batch_size, n_joints=22, 3, n_frames)
-                motion = motion.view(-1, *motion.shape[2:])
+                motion_pos = motion_pos.view(-1, *motion_pos.shape[2:])
+
             all_samples.append(sample.cpu().numpy())
-            all_motions.append(motion.cpu().numpy())
+            all_motions_pos.append(motion_pos.cpu().numpy())
             all_lengths.append(model_kwargs["y"]["lengths"].cpu().numpy())
 
             all_text += model_kwargs["y"]["text"]
@@ -543,18 +644,20 @@ class MotionInferenceWorker:
             input_motions = self.dataloader.dataset.t2m_dataset.inv_transform(
                 input_motions
             ).float()
-            input_motions = recover_from_ric(
+            input_motions_pos = recover_from_ric(
                 input_motions, n_joints, abs_3d=self.model_config.abs_3d
             )
-            input_motions = input_motions.view(-1, *input_motions.shape[2:])
-            input_motions = input_motions.cpu().numpy()
+            input_motions_pos = input_motions_pos.view(-1, *input_motions_pos.shape[2:])
+            input_motions_pos = input_motions_pos.cpu().numpy()
             inpainting_mask = obs_joint_mask.permute(0, 3, 1, 2).cpu().numpy()
 
         all_samples = np.stack(all_samples)
-        all_motions = np.stack(all_motions)  # [num_rep, num_samples, n_frames, 22, 3]
+        all_motions_pos = np.stack(
+            all_motions_pos
+        )  # [num_rep, num_samples, n_frames, 22, 3]
         all_text = np.stack(all_text)  # [num_rep, num_samples]
         all_lengths = np.stack(all_lengths)  # [num_rep, num_samples]
-        all_observed_motions = input_motions  # [n_frames, num_samples, 22, 3]
+        all_observed_motions_pos = input_motions_pos  # [n_frames, num_samples, 22, 3]
         all_observed_masks = inpainting_mask
 
         out_path = self.get_output_path(infer_config)
@@ -566,51 +669,67 @@ class MotionInferenceWorker:
 
         converter = joints2bvh.Joint2BVHConvertor()
 
+        all_postpro_obs_motions_pos = []
+        all_postpro_obs_motions_rot = []
+
         for i_sample in tqdm.trange(infer_config.num_samples, desc="Saving Input BVHs"):
             # Input Motion
             length = all_lengths[0, i_sample]
-            motion = all_observed_motions[i_sample, :, :, :length]  # Crop
+            motion = all_observed_motions_pos[i_sample, :, :, :length]  # Crop
             motion = postprocess_motion(motion, pre_y, pre_xz, pre_rot)
+            all_postpro_obs_motions_pos.append(motion)
 
             if save_results:
                 save_path = out_path / f"sample{i_sample:02d}_input.bvh"
-                converter.convert(
-                    motion,
-                    save_path,
-                    iterations=10,
-                    foot_ik=False,
-                )
+            else:
+                save_path = None
+            new_anim, _ = converter.convert(
+                motion,
+                save_path,
+                iterations=10,
+                foot_ik=False,
+            )
+            all_postpro_obs_motions_rot.append(
+                np.rad2deg(new_anim.rotations.euler(order="xyz"))
+            )
 
-        postprocessed_motions = []
+        all_postpro_motions_pos = []
+        all_postpro_motions_rot = []
 
         for i_rep in tqdm.trange(
             self.model_config.num_repetitions, desc="Saving Sample BVHs"
         ):
             for i_sample in range(infer_config.num_samples):
                 length = all_lengths[i_rep, i_sample]
-                motion = all_motions[i_rep, i_sample, :, :, :length]  # Crop
+                motion = all_motions_pos[i_rep, i_sample, :, :, :length]  # Crop
                 motion = postprocess_motion(motion, pre_y, pre_xz, pre_rot)
-                postprocessed_motions.append(motion)
+                all_postpro_motions_pos.append(motion)
                 if save_results:
                     save_path = out_path / f"sample{i_sample:02d}_rep{i_rep:02d}.bvh"
-                    converter.convert(
-                        motion,
-                        save_path,
-                        iterations=10,
-                        foot_ik=False,
-                    )
+                else:
+                    save_path = None
+
+                new_anim, _ = converter.convert(
+                    motion,
+                    save_path,
+                    iterations=10,
+                    foot_ik=False,
+                )
+                all_postpro_motions_rot.append(
+                    np.rad2deg(new_anim.rotations.euler(order="xyz"))
+                )
 
         if save_results:
             # TODO: Clean that up at some point, or output only in debug mode.
             results_dict = {
                 "sample": all_samples,
-                "motion": all_motions,
-                "postprocessed_motion": postprocessed_motions,
+                "motion": all_motions_pos,
+                "postprocessed_motion": all_postpro_motions_pos,
                 "text": all_text,
                 "lengths": all_lengths,
                 "num_samples": infer_config.num_samples,
                 "num_repetitions": self.model_config.num_repetitions,
-                "observed_motion": all_observed_motions,
+                "observed_motion": all_observed_motions_pos,
                 "observed_mask": all_observed_masks,
                 "pre_y": pre_y,
                 "pre_xz": pre_xz,
@@ -620,7 +739,12 @@ class MotionInferenceWorker:
             print(f"saving results file to [{npy_path}]")
             np.save(npy_path, results_dict)
 
-        return InferenceResults(motions=[m.tolist() for m in postprocessed_motions])
+        return InferenceResults(
+            root_positions=[m[:, 0, :].tolist() for m in all_postpro_motions_pos],
+            joint_rotations=[m.tolist() for m in all_postpro_motions_rot],
+            obs_root_positions=[m[:, 0, :].tolist() for m in all_postpro_obs_motions_pos],
+            obs_joint_rotations=[m.tolist() for m in all_postpro_obs_motions_rot],
+        )
 
 
 if __name__ == "__main__":
@@ -640,6 +764,139 @@ if __name__ == "__main__":
     model_args.num_samples = 1
 
     worker = MotionInferenceWorker("worker", model_args)
-    result = worker.infer(InferenceArgs(bvh_path="sample/dummy.bvh", no_text=True))
+
+    infer_dict: dict = {
+        # "bvh_path": "sample/dummy.bvh",
+        "text_prompt": "Worker walks into a bar",
+        "packed_motion": {
+            "0": [
+                [0.006335, 0.925889, 0.022782],
+                [-1.848952, 5.855419, -2.209308],
+                [-2.225391, 0.251401, 2.091639],
+                [-1.218372, -0.323186, 12.9199],
+                [7.476767, 15.311409000000001, 1.712001],
+                [0.0, 0.0, 0.0],
+                [-2.184482, 1.651783, -23.240063],
+                [-2.814711, 1.391872, 20.864488],
+                [4.163708, 2.049498, 16.159805],
+                [0.0, 0.0, 0.0],
+                [3.729861, -0.337432, 4.422964],
+                [2.408384, -1.4252, 3.27613],
+                [-9.129623, -1.656823, 3.135745],
+                [13.112406, -5.187206, -21.793815],
+                [0.0, 0.0, 0.0],
+                [-11.362097, -26.660376, 10.556817],
+                [-51.782502, -43.877115, 14.017005],
+                [132.977088, -62.445882, -104.782485],
+                [0.0, 0.0, 0.0],
+                [10.967079, 12.768552, 5.388521],
+                [67.233545, 46.770885, 23.864491],
+                [-125.065474, 57.771444, -84.861314],
+                [0.0, 0.0, 0.0],
+            ],
+            "3": [
+                [-0.005397, 0.923839, 0.038262],
+                [-2.944292, 11.688877, -0.744433],
+                [1.330347, -0.54384, -6.42566],
+                [-2.461061, -1.037096, 25.45655],
+                [5.155187, 11.443451, 3.14162],
+                [0.0, 0.0, 0.0],
+                [-1.958387, 1.366517, -22.168222],
+                [-0.577779, 0.385054, 18.883832],
+                [0.015543, -3.8655960000000005, 14.135998],
+                [0.0, 0.0, 0.0],
+                [3.4149730000000003, -0.55504, 6.905263],
+                [1.382484, -0.791695, 1.400716],
+                [-7.933509000000001, 3.7116560000000005, 2.637238],
+                [15.413932000000003, -4.118027, -28.096708],
+                [0.0, 0.0, 0.0],
+                [-9.153748, -27.823949000000002, 9.350787],
+                [-43.505833, -49.495025, 12.898866],
+                [64.612952, -57.545172, -38.580461],
+                [0.0, 0.0, 0.0],
+                [10.838178, 14.427333, 7.570341],
+                [45.742547, 54.182692, 18.629589],
+                [-70.799916, 42.813622, -24.305144],
+                [0.0, 0.0, 0.0],
+            ],
+            "4": [
+                [-0.001765, 0.925816, 0.054307],
+                [-3.725732, 12.670698, -2.237916],
+                [4.608602, -0.474464, -6.318524],
+                [-5.343978, -0.430467, 28.755527000000004],
+                [12.128289, 23.607741, 10.015787],
+                [0.0, 0.0, 0.0],
+                [-0.879221, 1.500142, -21.414124],
+                [-1.14147, 0.476827, 21.571616],
+                [-0.540815, -5.032799, 15.559959],
+                [0.0, 0.0, 0.0],
+                [3.697301, -0.667363, 8.050449],
+                [0.529855, -0.299849, 0.591786],
+                [-7.173179000000001, 6.867548, 3.730258],
+                [16.663089000000003, -4.834545, -26.58799],
+                [0.0, 0.0, 0.0],
+                [-8.517065, -28.319879000000004, 8.938752],
+                [-31.162397000000002, -46.34815, 7.183754999999999],
+                [52.002, -53.22641500000001, -28.400572000000004],
+                [0.0, 0.0, 0.0],
+                [9.081599, 16.898637, 8.935075],
+                [28.47988, 50.958105, 9.339571],
+                [-62.39294000000001, 46.62553, -22.598966],
+                [0.0, 0.0, 0.0],
+            ],
+            "9": [
+                [0.008035, 0.880018, 0.034304],
+                [-2.27324, 24.479031, -4.485215],
+                [7.304753, -0.781987, -10.104969],
+                [-8.509794, -2.191417, 41.200228],
+                [5.749923, 6.93057, -8.615016],
+                [0.0, 0.0, 0.0],
+                [-9.876022, -2.184774, -28.880068999999995],
+                [5.098005, -6.16919, 43.525683],
+                [-4.680638, -11.334446, 6.293945],
+                [0.0, 0.0, 0.0],
+                [3.232715, -0.610529, 7.64939],
+                [-6.456206, 2.968811, -1.032531],
+                [-3.360464, 18.495897, 5.631643],
+                [23.504173, -9.795774, -19.990481],
+                [0.0, 0.0, 0.0],
+                [-5.656359, -8.609517, -0.31699600000000006],
+                [-9.048457, -35.650475, -0.76012],
+                [99.236589, -30.058303000000002, -45.053273],
+                [0.0, 0.0, 0.0],
+                [-5.406511, 13.903595, 4.479021],
+                [9.39165, 15.831369999999998, -0.41817],
+                [-14.650218000000002, 10.990762, -0.079215],
+                [0.0, 0.0, 0.0],
+            ],
+            "10": [
+                [0.004019, 0.872268, 0.025836],
+                [-1.755083, 27.3451, -2.633481],
+                [7.145027000000001, -1.07325, -13.17809],
+                [-7.836206, -3.479632, 44.087649],
+                [5.176777, 0.49769599999999997, -14.886387000000001],
+                [0.0, 0.0, 0.0],
+                [-10.852122, -3.225971, -31.103845],
+                [5.80187, -7.921004000000001, 46.706103],
+                [-6.359201, -14.977151000000001, 2.76627],
+                [0.0, 0.0, 0.0],
+                [3.435323, -0.5459680000000001, 6.583863],
+                [-9.047144, 3.9601350000000006, -2.3822130000000006],
+                [-2.988933, 18.627451000000004, 5.638191],
+                [22.962958, -9.383703, -19.590579],
+                [0.0, 0.0, 0.0],
+                [-8.58717, -5.944162, -2.686332],
+                [-3.7354569999999994, -35.300409, -2.001034],
+                [102.827854, -21.3613, -35.058615],
+                [0.0, 0.0, 0.0],
+                [-3.672455, 9.356965, 3.259471],
+                [12.307579, 7.272943, -1.152276],
+                [-10.127301000000001, 9.465788, 0.134461],
+                [0.0, 0.0, 0.0],
+            ],
+        },
+    }
+    result = worker.infer(InferenceArgs(**infer_dict))
+
     print(result)
     worker.stop()
