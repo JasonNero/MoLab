@@ -6,7 +6,7 @@ import tqdm
 
 from . import Animation
 from . import BVH
-from .InverseKinematics import BasicInverseKinematics
+from .InverseKinematics import BasicInverseKinematics, BasicJacobianIK
 from .Quaternions import Quaternions
 from .remove_fs import remove_fs
 
@@ -23,7 +23,7 @@ class Joint2BVHConvertor:
         self.end_points = [4, 8, 13, 17, 21]
         self.parents = [-1, 0, 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 12, 11, 14, 15, 16, 11, 18, 19, 20]
 
-    def convert(self, positions, filename, iterations=10, foot_ik=True):
+    def convert(self, positions, filename, iterations=10, foot_ik=True, use_jacobian=False):
         '''
         Convert the SMPL joint positions to Mocap BVH
         :param positions: (N, 22, 3)
@@ -41,7 +41,10 @@ class Joint2BVHConvertor:
         if foot_ik:
             positions = remove_fs(positions, None, fid_l=(3, 4), fid_r=(7, 8), interp_length=5,
                                   force_on_floor=True)
-        ik_solver = BasicInverseKinematics(new_anim, positions, iterations=iterations, silent=True)
+        if use_jacobian:
+            ik_solver = BasicJacobianIK(new_anim, positions, iterations=iterations, silent=True)
+        else:
+            ik_solver = BasicInverseKinematics(new_anim, positions, iterations=iterations, silent=True)
         new_anim = ik_solver()
 
         glb = Animation.positions_global(new_anim)[:, re_order_inv]

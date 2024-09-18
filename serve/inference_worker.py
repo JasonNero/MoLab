@@ -74,6 +74,8 @@ class InferenceArgs(GenerateOptions, CondSyntOptions, CustomSyntOptions):
     # TODO: Check whether this overriding works as expected
     editable_features: str = "pos_rot"  # Override to exclude input velocities
 
+    jacobian_ik: bool = field(default=False)
+    foot_ik: bool = field(default=False)
     fill_mode: str = field(
         default="zeros",
         metadata={
@@ -359,6 +361,15 @@ class MotionInferenceWorker:
         self.model.to(dist_util.dev())
         self.model.eval()  # disable random masking
 
+        backend = "inductor"  # default
+        if dist_util.dev().type == "mps":
+            # see https://discuss.pytorch.org/t/jitting-fails-on-mps-device/192079/3
+            backend = "aot_eager"
+
+        # TODO: On MPS this currently increases inference time, improve or remove it.
+        self.model = torch.compile(self.model, backend=backend)
+
+
     def stop(self):
         self.dataloader = None
         self.model = None
@@ -441,7 +452,6 @@ class MotionInferenceWorker:
             input_motion = self.dataloader.dataset.t2m_dataset.transform_th(
                 input_motion
             )
-
             # Pad or crop to `max_frames`
             if input_motion.shape[0] < self.max_frames:
                 frame = torch.zeros(self.max_frames, input_motion.shape[1])
@@ -449,12 +459,14 @@ class MotionInferenceWorker:
                 frame[input_motion.shape[0] :] = input_motion[-1]  # Repeat last frame
                 input_motion = frame
                 n_frames = input_motion.shape[0]
-            elif input_motion.shape[0] > self.max_frames:
+            elif input_motion.shape[0] >= self.max_frames:
                 n_frames = self.max_frames
                 input_motion = input_motion[: self.max_frames]
         else:
             print("No motion provided, using zero motion as input.")
-            input_motion = torch.zeros(self.max_frames, 263)
+            # TODO: Allow supplying a custom length
+            n_frames = self.max_frames
+            input_motion = torch.zeros(n_frames, 263)
             pre_y = pre_xz = pre_rot = None
 
         # (max_frames, 263) -> (nsamples, 263, 1, max_frames)
@@ -477,6 +489,7 @@ class MotionInferenceWorker:
         }
 
         # Convert/generate feature mask
+        obs_feature_mask = None
         if input_joint_mask is not None:
             # input_joint_mask: (n_inputframes, 22, 1)
             # obs_joint_mask:   (nsamples, 22, 1, max_frames)
@@ -488,9 +501,10 @@ class MotionInferenceWorker:
                 device=dist_util.dev(),
             )
 
-            n_inframes = input_joint_mask.shape[0]
+            n_inframes = min(input_joint_mask.shape[0], self.max_frames)  # crop if needed
+
             obs_joint_mask[..., :n_inframes] = torch.from_numpy(
-                input_joint_mask[None]
+                input_joint_mask[None, :n_frames]
                 .repeat(infer_config.num_samples, axis=0)
                 .transpose(0, 2, 3, 1)
             )
@@ -513,8 +527,9 @@ class MotionInferenceWorker:
         # TODO: Check whether this is really necessary or I'm just paranoid ...
         # input_motions *= obs_feature_mask
 
-        model_kwargs["obs_x0"] = input_motions
-        model_kwargs["obs_mask"] = obs_feature_mask
+        if input_motions is not None:
+            model_kwargs["obs_x0"] = input_motions
+            model_kwargs["obs_mask"] = obs_feature_mask
 
         assert self.max_frames == input_motions.shape[-1]
 
@@ -590,11 +605,19 @@ class MotionInferenceWorker:
         # * Sampling
         ###########################################################################
 
+        # If no text is provided, we can bypass the Classifier Free Guidance
+        # and half the inference time.
+        if infer_config.no_text:
+            print("Sampling without text guidance ...")
+            model_to_sample = self.model.model
+        else:
+            model_to_sample = self.model
+
         for _ in tqdm.trange(
             self.model_config.num_repetitions, desc="Sampling Repetitions"
         ):
             sample = self.diffusion.p_sample_loop(
-                self.model,
+                model_to_sample,
                 (
                     infer_config.num_samples,
                     self.model.njoints,
@@ -687,7 +710,8 @@ class MotionInferenceWorker:
                 motion,
                 save_path,
                 iterations=10,
-                foot_ik=False,
+                foot_ik=infer_config.foot_ik,
+                use_jacobian=infer_config.jacobian_ik,
             )
             all_postpro_obs_motions_rot.append(
                 np.rad2deg(new_anim.rotations.euler(order="xyz"))
@@ -713,7 +737,8 @@ class MotionInferenceWorker:
                     motion,
                     save_path,
                     iterations=10,
-                    foot_ik=False,
+                    foot_ik=infer_config.foot_ik,
+                    use_jacobian=infer_config.jacobian_ik,
                 )
                 all_postpro_motions_rot.append(
                     np.rad2deg(new_anim.rotations.euler(order="xyz"))
@@ -747,7 +772,8 @@ class MotionInferenceWorker:
         )
 
 
-if __name__ == "__main__":
+
+def _test():
     model_path = Path("./save/condmdi_random_joints/model000750000.pt")
     assert model_path.is_file(), f"Model checkpoint not found at [{model_path}]"
 
@@ -767,7 +793,8 @@ if __name__ == "__main__":
 
     infer_dict: dict = {
         # "bvh_path": "sample/dummy.bvh",
-        "text_prompt": "Worker walks into a bar",
+        # "text_prompt": "Worker walks into a bar",
+        "num_samples": 1,
         "packed_motion": {
             "0": [
                 [0.006335, 0.925889, 0.022782],
@@ -898,5 +925,23 @@ if __name__ == "__main__":
     }
     result = worker.infer(InferenceArgs(**infer_dict))
 
-    print(result)
     worker.stop()
+
+##### PROFILING TESTS #####
+
+
+def trace_handler(p):
+    output = p.key_averages().table(sort_by="self_cuda_time_total", row_limit=10)
+    print(output)
+    p.export_chrome_trace("./traces/trace_" + str(p.step_num) + ".json")
+
+if __name__ == "__main__":
+    # from torch.profiler import profile, ProfilerActivity
+    # with profile(
+    #     activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+    #     on_trace_ready=trace_handler
+    # ) as p:
+    #     _test()
+    #     p.step()
+
+    _test()

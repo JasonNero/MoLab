@@ -100,18 +100,21 @@ class Skeleton(object):
             else:
                 R = quat_params[:, chain[0]]
             for j in range(len(chain) - 1):
+                parent_idx = chain[j]
+                joint_idx = chain[j+1]
+
                 # (batch, 3)
-                u = self._raw_offset_np[chain[j+1]][np.newaxis,...].repeat(len(joints), axis=0)
+                u = self._raw_offset_np[joint_idx][np.newaxis,...].repeat(len(joints), axis=0)
                 # print(u.shape)
                 # (batch, 3)
-                v = joints[:, chain[j+1]] - joints[:, chain[j]]
+                v = joints[:, joint_idx] - joints[:, parent_idx]
                 v = v / np.sqrt((v**2).sum(axis=-1))[:, np.newaxis]
                 # print(u.shape, v.shape)
                 rot_u_v = qbetween_np(u, v)
 
                 R_loc = qmul_np(qinv_np(R), rot_u_v)
 
-                quat_params[:,chain[j + 1], :] = R_loc
+                quat_params[:, joint_idx, :] = R_loc
                 R = qmul_np(R, R_loc)
 
         return quat_params

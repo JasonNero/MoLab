@@ -711,8 +711,10 @@ class MDM_UNET(nn.Module):
 
     def load_and_freeze_clip(self, clip_version):
         clip_model, clip_preprocess = clip.load(
-            clip_version, device='cpu',
-            jit=False)  # Must set jit=False for training
+            clip_version,
+            device='cpu',
+            jit=False  # ! Must set jit=False for training
+        )
         clip.model.convert_weights(
             clip_model
         )  # Actually this line is unnecessary since clip by default already on float16
@@ -736,6 +738,7 @@ class MDM_UNET(nn.Module):
         else:
             return cond
 
+    @torch.compiler.disable()  # CLIP doesn't play nice with torch.compile
     def encode_text(self, raw_text):
         # raw_text - list (batch_size length) of strings with input text prompts
         device = next(self.parameters()).device

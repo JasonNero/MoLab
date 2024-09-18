@@ -12,7 +12,7 @@ from serve.inference_worker import InferenceArgs, InferenceResults, ModelArgs, M
 MOCK = True
 
 mocked_result = np.load(
-    "save/results/condmdi_random_joints/condsamples000750000__benchmark_clip_T=40_CI=0_CRG=0_KGP=1.0_seed10/results.npy",
+    "save/results/condmdi_random_joints/MoLab000750000__benchmark_clip_pos_rot_T=30_CI=0_CRG=0_KGP=1.0_seed10/results.npy",
     allow_pickle=True,
 ).item()
 
@@ -22,6 +22,9 @@ async def lifespan(app: FastAPI):
     """Defines startup and shutdown behavior for the FastAPI application."""
 
     model_path = Path("./save/condmdi_random_joints/model000750000.pt")
+    print("\n\nUsing random joints model\n\n")
+    # model_path = Path("./save/condmdi_random_frames/model000750000.pt")
+    # print("\n\nUsing random frames model\n\n")
     assert model_path.is_file(), f"Model checkpoint not found at [{model_path}]"
 
     model_args_path = model_path.parent / "args.json"
