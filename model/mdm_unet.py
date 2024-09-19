@@ -738,7 +738,7 @@ class MDM_UNET(nn.Module):
         else:
             return cond
 
-    @torch.compiler.disable()  # CLIP doesn't play nice with torch.compile
+    @torch.compiler.disable  # CLIP doesn't play nice with torch.compile
     def encode_text(self, raw_text):
         # raw_text - list (batch_size length) of strings with input text prompts
         device = next(self.parameters()).device

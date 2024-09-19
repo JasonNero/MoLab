@@ -358,17 +358,20 @@ class MotionInferenceWorker:
         elif self.model_config.guidance_param != 1:
             # wrapping model with the classifier-free sampler
             self.model = ClassifierFreeSampleModel(self.model)
+
         self.model.to(dist_util.dev())
         self.model.eval()  # disable random masking
 
-        backend = "inductor"  # default
         if dist_util.dev().type == "mps":
-            # see https://discuss.pytorch.org/t/jitting-fails-on-mps-device/192079/3
-            backend = "aot_eager"
-
-        # TODO: On MPS this currently increases inference time, improve or remove it.
-        self.model = torch.compile(self.model, backend=backend)
-
+            # NOTE: Compiled Inference Time on M3:
+            #       - "inductor" not supported
+            #       - "aot_eager" slows down inference by 20%
+            pass
+        elif dist_util.dev().type == "cuda":
+            # NOTE: Compiled Inference Time on 2080Ti:
+            #       - "inductor" speeds up inference by 15%
+            #       - "aot_eager" slows down inference by factor ~2
+            self.model.model.compile(backend="inductor")
 
     def stop(self):
         self.dataloader = None

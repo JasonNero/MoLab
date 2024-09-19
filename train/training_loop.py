@@ -18,7 +18,6 @@ from diffusion.resample import create_named_schedule_sampler
 from data_loaders.humanml.networks.evaluator_wrapper import EvaluatorMDMWrapper
 from eval import eval_humanml, eval_humanact12_uestc
 from data_loaders.get_data import get_dataset_loader
-from torch.cuda import amp
 from utils.parser_util import TrainingOptions
 from utils.model_util import load_model_wo_clip
 from torch import nn
@@ -352,7 +351,7 @@ class TrainLoop:
                                                       dist_util.dev())
 
             # forward pass
-            with amp.autocast(enabled=self.use_fp16, dtype=torch.float16):
+            with torch.autocast("cuda", enabled=self.use_fp16, dtype=torch.float16):
                 compute_losses = functools.partial(
                     self.diffusion.training_losses,
                     self.ddp_model,

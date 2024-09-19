@@ -16,7 +16,6 @@ from copy import deepcopy
 from diffusion.nn import mean_flat, sum_flat
 from diffusion.losses import normal_kl, discretized_gaussian_log_likelihood
 from data_loaders.humanml.scripts import motion_process
-from torch.cuda import amp
 from typing import List
 import utils.editing_util as inpainting_util
 
@@ -386,7 +385,7 @@ class GaussianDiffusion:
         assert t.shape == (B, )
 
         def get_conv_model_output(x, t, model_kwargs):
-            with amp.autocast(enabled=self.conf.fp16):
+            with torch.autocast("cuda", enabled=self.conf.fp16):
 
                 if self.conf.train_keypoint_mask != 'none':
                     pass
