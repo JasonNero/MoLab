@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
+import scipy
+import scipy.interpolate
 import torch
 import tqdm
 from pydantic import BaseModel
@@ -76,14 +78,13 @@ class InferenceArgs(GenerateOptions, CondSyntOptions, CustomSyntOptions):
 
     jacobian_ik: bool = field(default=False)
     foot_ik: bool = field(default=False)
-    fill_mode: str = field(
-        default="zeros",
+    unpack_randomness: float = 0.0,
+    unpack_mode: str = field(
+        default="step",
         metadata={
             "choices": [
-                "zeros",
                 "step",
                 "linear"
-                "random",
             ],
         },
     )
@@ -120,8 +121,8 @@ def get_jointpos_from_bvh(filepath: Path) -> torch.Tensor:
 
 def unpack_motion(
     packed_motion: dict[int, list],
-    fill_mode: str = "zeros",
-    stepped: bool = True,
+    mode: str = "step",
+    randomness: float = 0.01,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Unpack the packed motion input and return the joint positions and mask.
 
@@ -137,27 +138,39 @@ def unpack_motion(
 
     n_input_frames = np.max(list(packed_motion.keys())) + 1
 
-    if fill_mode == "zeros":
-        motion = np.zeros((n_input_frames, 22 + 1, 3))
-    elif fill_mode == "random":
-        # TODO: Complete utter madness, this should use dataset mean and std instead.
-        #       Initialize the motion elsewhere to decouple it from the unpacking.
-        motion = np.zeros((n_input_frames, 22 + 1, 3))
-        motion[:, 0] = np.random.uniform(-1, 1, (n_input_frames, 3)) # Root position
-        motion[:, 1:] = np.random.uniform(-180, 180, (n_input_frames, 22, 3))  # Joint rotations
-    else:
-        # TODO: Implement other fill modes
-        raise NotImplementedError(f"Fill mode [{fill_mode}] not implemented")
+    motion = np.ones((n_input_frames, 22 + 1, 3)) * np.nan
 
     joint_mask = np.zeros((n_input_frames, 22 + 1, 1), dtype=bool)
     for frame, pose in packed_motion.items():
         _pose_mask = ~np.isnan(pose)
-        if stepped:
-            # Always fill into the future
+        if mode == "step":
+            # Always fill into the future (aka forward-fill)
             motion[frame:, _pose_mask] = pose[_pose_mask]
         else:
             motion[frame, _pose_mask] = pose[_pose_mask]
         joint_mask[frame] = _pose_mask.all(axis=-1).reshape(-1, 1)
+
+    nan_mask = np.isnan(motion)
+    if mode == "linear":
+        # Interpolate missing values linearly
+        interp = scipy.interpolate.LinearNDInterpolator(
+            points=np.argwhere(~nan_mask),
+            values=motion[~nan_mask],
+            fill_value=np.nan,
+        )
+        motion[nan_mask] = interp(np.argwhere(nan_mask))
+
+    if randomness > 0.0:
+        # Add random noise to the nan values
+        pos_noise = np.random.normal(0, randomness, (n_input_frames, 3))
+        rot_noise = np.random.normal(0, randomness, (n_input_frames, 22, 3)) * 180  # degrees
+        motion[:, 0][nan_mask[:, 0]] += pos_noise[nan_mask[:, 0]]
+        motion[:, 1:][nan_mask[:, 1:]] += rot_noise[nan_mask[:, 1:]]
+
+    # TODO: There might still be nan values
+    #       Forward/backward fill or zero-fill them
+    assert np.isnan(motion).sum() == 0, "Unfilled nan values in the motion"
+
 
     # Extract root position and mask
     root_pos = motion[:, 0].copy()
@@ -443,7 +456,9 @@ class MotionInferenceWorker:
         elif infer_config.packed_motion:
             # Unpack sparse keyframes and convert them to hml3d format
             _root_pos, _rotations, input_joint_mask = unpack_motion(
-                infer_config.packed_motion
+                infer_config.packed_motion,
+                mode=infer_config.unpack_mode,
+                randomness=infer_config.unpack_randomness,
             )
             keyframe_pos = unpacked_motion_to_jointpos(_root_pos, _rotations)
             input_motion, pre_y, pre_xz, pre_rot = get_abs_data_from_jointpos(
