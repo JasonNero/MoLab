@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from typing import Dict
 
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect

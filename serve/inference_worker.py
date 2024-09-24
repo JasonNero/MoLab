@@ -3,8 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
-import scipy
-import scipy.interpolate
+import pandas as pd
 import torch
 import tqdm
 from pydantic import BaseModel
@@ -121,8 +120,8 @@ def get_jointpos_from_bvh(filepath: Path) -> torch.Tensor:
 
 def unpack_motion(
     packed_motion: dict[int, list],
-    mode: str = "step",
-    randomness: float = 0.01,
+    mode: str = "linear",
+    randomness: float = 0.00,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Unpack the packed motion input and return the joint positions and mask.
 
@@ -130,6 +129,18 @@ def unpack_motion(
     - A dictionary mapping frame indices to packed poses
     - A packed pose contains the root position followed by all 22 joint rotations
     - Values stored as `nan` indicate sparse keyframes and are converted to a joint mask
+
+    Args:
+        packed_motion (dict[int, list]): Packed motion data
+        mode (str, optional): Interpolation mode, either "linear" or "step".
+            Defaults to "linear".
+        randomness (float, optional): Random noise to add to the missing values.
+            Defaults to 0.0.
+
+    Returns:
+        np.ndarray: Root positions (n_frames, 3)
+        np.ndarray: Joint rotations (n_frames, 22, 3)
+        np.ndarray: Joint mask (n_frames, 22, 1)
     """
     packed_motion = {int(k): np.array(v) for k, v in packed_motion.items()}
 
@@ -138,27 +149,32 @@ def unpack_motion(
 
     n_input_frames = np.max(list(packed_motion.keys())) + 1
 
+    # NOTE: Alternatives for handling sparse/masked data: `np.ma` or `scipy.sparse`
     motion = np.ones((n_input_frames, 22 + 1, 3)) * np.nan
-
     joint_mask = np.zeros((n_input_frames, 22 + 1, 1), dtype=bool)
     for frame, pose in packed_motion.items():
         _pose_mask = ~np.isnan(pose)
-        if mode == "step":
-            # Always fill into the future (aka forward-fill)
-            motion[frame:, _pose_mask] = pose[_pose_mask]
-        else:
-            motion[frame, _pose_mask] = pose[_pose_mask]
+        motion[frame, _pose_mask] = pose[_pose_mask]
         joint_mask[frame] = _pose_mask.all(axis=-1).reshape(-1, 1)
 
     nan_mask = np.isnan(motion)
+
     if mode == "linear":
-        # Interpolate missing values linearly
-        interp = scipy.interpolate.LinearNDInterpolator(
-            points=np.argwhere(~nan_mask),
-            values=motion[~nan_mask],
-            fill_value=np.nan,
-        )
-        motion[nan_mask] = interp(np.argwhere(nan_mask))
+        # Pretty sure this can be done using just scipy, but this is fine for now
+        df_x = pd.DataFrame(motion[..., 0]).interpolate(method='linear', axis=0)
+        df_y = pd.DataFrame(motion[..., 1]).interpolate(method='linear', axis=0)
+        df_z = pd.DataFrame(motion[..., 2]).interpolate(method='linear', axis=0)
+        motion[..., 0] = df_x.values
+        motion[..., 1] = df_y.values
+        motion[..., 2] = df_z.values
+
+    elif mode == "step":
+        df_x = pd.DataFrame(motion[..., 0]).ffill().bfill().fillna(0)
+        df_y = pd.DataFrame(motion[..., 1]).ffill().bfill().fillna(0)
+        df_z = pd.DataFrame(motion[..., 2]).ffill().bfill().fillna(0)
+        motion[..., 0] = df_x.values
+        motion[..., 1] = df_y.values
+        motion[..., 2] = df_z.values
 
     if randomness > 0.0:
         # Add random noise to the nan values
@@ -167,10 +183,7 @@ def unpack_motion(
         motion[:, 0][nan_mask[:, 0]] += pos_noise[nan_mask[:, 0]]
         motion[:, 1:][nan_mask[:, 1:]] += rot_noise[nan_mask[:, 1:]]
 
-    # TODO: There might still be nan values
-    #       Forward/backward fill or zero-fill them
     assert np.isnan(motion).sum() == 0, "Unfilled nan values in the motion"
-
 
     # Extract root position and mask
     root_pos = motion[:, 0].copy()
