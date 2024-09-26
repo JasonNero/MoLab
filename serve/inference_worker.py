@@ -71,15 +71,11 @@ class InferenceArgs(GenerateOptions, CondSyntOptions, CustomSyntOptions):
     # Uses `nan` to indicate missing values / sparse keyframes.
     packed_motion: dict[int, list] = field(default_factory=dict)
     num_samples: int = field(default=3)  # Override the model `num_samples`
-
-    # TODO: Check whether this overriding works as expected
-    editable_features: str = "pos_rot"  # Override to exclude input velocities
-
     jacobian_ik: bool = field(default=False)
     foot_ik: bool = field(default=False)
-    unpack_randomness: float = 0.0,
+    unpack_randomness: float = 0.0
     unpack_mode: str = field(
-        default="step",
+        default="linear",
         metadata={
             "choices": [
                 "step",
@@ -250,9 +246,14 @@ def get_abs_data_from_jointpos(joint_positions: np.ndarray) -> torch.Tensor:
     face_joint_indx = [2, 1, 17, 16]  # Face direction, r_hip, l_hip, sdr_r, sdr_l
     foot_threshold = 0.002
 
+    # TODO: This loses one frame due to the derivative calculation (aka velocity).
+    #       But we could just repeat/emulate the velocity of the last frame,
+    #       then we get to keep the positional & rotational information.
+    #       This change might have implications for the model though.
+
     # compute relative (original) HML3D representation
     rel_data = extract_features(
-        positions,
+        positions.copy(),  # ensure no in-place modification of positions
         foot_threshold,
         torch.from_numpy(paramUtil.t2m_raw_offsets),
         paramUtil.t2m_kinematic_chain,
@@ -265,9 +266,13 @@ def get_abs_data_from_jointpos(joint_positions: np.ndarray) -> torch.Tensor:
     r_rot_quat, r_pos, rot_ang = recover_root_rot_pos(
         torch.from_numpy(rel_data), return_rot_ang=True
     )
+
+    # Override the relative root position with the known absolute root position.
+    # The calculated `r_pos` seems to have an increasing error over time.
+    # TODO: Also evaluate replacing `rot_ang` with the known root rotation.
     abs_data = rel_data.copy()
+    abs_data[:, [1, 2]] = positions[:-1, 0, [0, 2]]
     abs_data[:, 0] = rot_ang
-    abs_data[:, [1, 2]] = r_pos[:, [0, 2]]
 
     return torch.from_numpy(abs_data).float(), pre_y, pre_xz, pre_rot
 
@@ -458,12 +463,12 @@ class MotionInferenceWorker:
             infer_config.guidance_param = 0.0  # Force unconditioned generation
 
         input_joint_mask = None
-        input_motion = None
+        input_motion_preprocessed = None
 
         # Handle Motion Input
         if infer_config.bvh_path != "":
             # Load BVH and convert it to hml3d format
-            input_motion, pre_y, pre_xz, pre_rot = get_abs_data_from_jointpos(
+            input_motion_preprocessed, pre_y, pre_xz, pre_rot = get_abs_data_from_jointpos(
                 get_jointpos_from_bvh(Path(infer_config.bvh_path))
             )
         elif infer_config.packed_motion:
@@ -474,34 +479,35 @@ class MotionInferenceWorker:
                 randomness=infer_config.unpack_randomness,
             )
             keyframe_pos = unpacked_motion_to_jointpos(_root_pos, _rotations)
-            input_motion, pre_y, pre_xz, pre_rot = get_abs_data_from_jointpos(
+            input_motion_preprocessed, pre_y, pre_xz, pre_rot = get_abs_data_from_jointpos(
                 keyframe_pos
             )
 
-        if input_motion is not None:
+        if input_motion_preprocessed is not None:
             # Normalize the motion
-            input_motion = self.dataloader.dataset.t2m_dataset.transform_th(
-                input_motion
+            input_motion_normalized = self.dataloader.dataset.t2m_dataset.transform_th(
+                input_motion_preprocessed
             )
+
             # Pad or crop to `max_frames`
-            if input_motion.shape[0] < self.max_frames:
-                frame = torch.zeros(self.max_frames, input_motion.shape[1])
-                frame[: input_motion.shape[0]] = input_motion
-                frame[input_motion.shape[0] :] = input_motion[-1]  # Repeat last frame
-                input_motion = frame
-                n_frames = input_motion.shape[0]
-            elif input_motion.shape[0] >= self.max_frames:
+            if input_motion_normalized.shape[0] < self.max_frames:
+                frame = torch.zeros(self.max_frames, input_motion_normalized.shape[1])
+                frame[: input_motion_normalized.shape[0]] = input_motion_normalized
+                frame[input_motion_normalized.shape[0] :] = input_motion_normalized[-1]  # Repeat last frame
+                input_motion_normalized = frame
+                n_frames = input_motion_normalized.shape[0]
+            elif input_motion_normalized.shape[0] >= self.max_frames:
                 n_frames = self.max_frames
-                input_motion = input_motion[: self.max_frames]
+                input_motion_normalized = input_motion_normalized[: self.max_frames]
         else:
             print("No motion provided, using zero motion as input.")
             # TODO: Allow supplying a custom length
             n_frames = self.max_frames
-            input_motion = torch.zeros(n_frames, 263)
+            input_motion_normalized = torch.zeros(n_frames, 263)
             pre_y = pre_xz = pre_rot = None
 
         # (max_frames, 263) -> (nsamples, 263, 1, max_frames)
-        input_motions = input_motion.repeat(infer_config.num_samples, 1, 1, 1)
+        input_motions = input_motion_normalized.repeat(infer_config.num_samples, 1, 1, 1)
         input_motions = input_motions.permute(0, 3, 1, 2)
         input_motions = input_motions.to(dist_util.dev())
 

@@ -104,6 +104,7 @@ def preprocess_motion(positions: np.ndarray):
     root_quat_init = np.ones(positions.shape[:-1] + (4,)) * quat_between
     positions = qrot_np(root_quat_init, positions)
 
+    # TODO: Combine Y and XZ offsets to one offset vector instead
     return positions, floor_height, root_pose_init_xz, quat_between
 
 
