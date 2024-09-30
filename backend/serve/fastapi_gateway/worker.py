@@ -22,10 +22,10 @@ worker = None
 def setup_worker():
     """Starts the worker, loading the model checkpoint and arguments."""
     # Setup the MotionInferenceWorker
-    model_path = Path("./save/condmdi_random_joints/model000750000.pt")
-    logger.info("Using random joints model.")
-    # model_path = Path("./save/condmdi_random_frames/model000750000.pt")
-    # logger.info("Using random frames model.")
+    # model_path = Path("./save/condmdi_random_joints/model000750000.pt")
+    # logger.info("Using random joints model.")
+    model_path = Path("./save/condmdi_random_frames/model000750000.pt")
+    logger.info("Using random frames model.")
     assert model_path.is_file(), f"Model checkpoint not found at [{model_path}]"
     model_args_path = model_path.parent / "args.json"
     with model_args_path.open("r") as file:

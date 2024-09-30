@@ -131,7 +131,7 @@ dmypy.json
 
 # experiments
 save/
-dataset/
+dataset/HumanML3D/
 kit/
 t2m/
 glove/
