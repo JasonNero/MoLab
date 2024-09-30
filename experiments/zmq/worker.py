@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import zmq
 
-from ..inference_worker import InferenceArgs, ModelArgs, MotionInferenceWorker
+from models.condmdi.inference_worker import InferenceArgs, ModelArgs, MotionInferenceWorker
 
 MOCK = True
 

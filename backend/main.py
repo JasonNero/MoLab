@@ -4,8 +4,7 @@ import logging
 import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
-# Dataclasses for inference arguments and results, move to a shared file
-# from serve.inference_worker import InferenceArgs, InferenceResults
+# NOTE: Dataclasses for inference arguments and results see `inference_worker.py`
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("gateway")

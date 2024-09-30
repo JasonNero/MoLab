@@ -3,15 +3,11 @@ import json
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import numpy as np
+import uvicorn
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from ray import serve
 
-from serve.inference_worker import (
-    InferenceArgs,
-    InferenceResults,
-    ModelArgs,
-    MotionInferenceWorker,
-)
+from models.condmdi.inference_worker import InferenceArgs, InferenceResults, ModelArgs, MotionInferenceWorker
 
 
 @asynccontextmanager
@@ -47,28 +43,34 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan, title="Motion Inference Server")
 
 
-@serve.deployment(num_replicas=1)
-@serve.ingress(app)
-class FastAPIWrapper:
-    @app.websocket("/infer")
-    async def inference(self, websocket: WebSocket):
-        await websocket.accept()
-        try:
-            while True:
-                data = await websocket.receive_json()
-                print("Received Job")
-
-                inference_args = InferenceArgs(**data)
-                result: InferenceResults = (
-                    await asyncio.get_event_loop().run_in_executor(
-                        None, worker.infer, inference_args
-                    )
-                )
-
-                print("Finished Job")
-                await websocket.send_json(result.model_dump())
-        except WebSocketDisconnect as e:
-            print(f"WebSocket closed: [{e.code}] {e.reason}")
+@app.post(
+    "/resolve_args",
+    response_model=InferenceArgs,
+    description="Resolve the arguments for the inference.",
+)
+async def resolve_args(args: dict):
+    return InferenceArgs(**args)
 
 
-handle = serve.run(FastAPIWrapper.bind(), blocking=True, name="MotionInferenceServer")
+@app.websocket("/infer")
+async def inference(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            data = await websocket.receive_json()
+            print("Received Job")
+
+            inference_args = InferenceArgs(**data)
+            result: InferenceResults = await asyncio.get_event_loop().run_in_executor(
+                None, worker.infer, inference_args
+            )
+
+            print("Finished Job")
+            await websocket.send_json(result.model_dump())
+    except WebSocketDisconnect as e:
+        print(f"WebSocket closed: [{e.code}] {e.reason}")
+
+
+if __name__ == "__main__":
+    # uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

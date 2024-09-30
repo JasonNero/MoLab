@@ -6,7 +6,7 @@ from pathlib import Path
 
 import websockets
 
-from serve.inference_worker import (
+from inference_worker import (
     InferenceArgs,
     InferenceResults,
     ModelArgs,

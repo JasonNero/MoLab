@@ -1,0 +1,91 @@
+[project]
+name = "molab-condmdi"
+version = "0.1.0"
+authors = [
+  { name="Jason Schühlein", email="schuehlein@hdm-stuttgart.de" },
+]
+description = "An improved fork of CondMDI for use in MoLab."
+readme = "README.md"
+keywords = ['python']
+requires-python = ">=3.9,<4.0"
+dependencies = [
+    "clip",
+    "einops>=0.8.0",
+    "gdown>=5.2.0",
+    "matplotlib>=3.8.4",
+    "numpy==1.21.5",
+    "pandas>=1.5.1",
+    "pydantic>=2.9.2",
+    "scipy>=1.10.1",
+    "spacy>=3.7.5",
+    "torch>=2.4.1",
+    "torchaudio>=2.4.1",
+    "torchvision>=0.19.1",
+    "tqdm>=4.66.5",
+    "websockets>=13.1",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "black>=24.8.0",
+    "blobfile>=3.0.0",
+    "deptry>=0.20.0",
+    "jupyter>=1.1.1",
+    "mypy>=1.11.2",
+    "ruff>=0.6.8",
+    "wandb>=0.18.2",
+]
+
+[tool.uv.sources]
+clip = { git = "https://github.com/openai/CLIP.git" }
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+fix = true
+
+[tool.ruff.lint]
+select = [
+    # flake8-2020
+    "YTT",
+    # flake8-bandit
+    "S",
+    # flake8-bugbear
+    "B",
+    # flake8-builtins
+    "A",
+    # flake8-comprehensions
+    "C4",
+    # flake8-debugger
+    "T10",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # mccabe
+    "C90",
+    # pycodestyle
+    "E", "W",
+    # pyflakes
+    "F",
+    # pygrep-hooks
+    "PGH",
+    # pyupgrade
+    "UP",
+    # ruff
+    "RUF",
+    # tryceratops
+    "TRY",
+]
+ignore = [
+    # LineTooLong
+    "E501",
+    # DoNotAssignLambda
+    "E731",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[tool.ruff.format]
+preview = true

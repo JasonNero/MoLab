@@ -1,0 +1,73 @@
+[project]
+name = "backend"
+version = "0.1.0"
+authors = [
+  { name="Jason Schühlein", email="schuehlein@hdm-stuttgart.de" },
+]
+description = "MoLab Backend serving a WebSockets API."
+readme = "README.md"
+keywords = ['python']
+requires-python = ">=3.9,<4.0"
+dependencies = [
+    "fastapi[standard]==0.115.0",
+    "uvicorn==0.31.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "black>=24.8.0",
+    "deptry>=0.20.0",
+    "mypy>=1.11.2",
+    "ruff>=0.6.8",
+]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+fix = true
+
+[tool.ruff.lint]
+select = [
+    # flake8-2020
+    "YTT",
+    # flake8-bandit
+    "S",
+    # flake8-bugbear
+    "B",
+    # flake8-builtins
+    "A",
+    # flake8-comprehensions
+    "C4",
+    # flake8-debugger
+    "T10",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # mccabe
+    "C90",
+    # pycodestyle
+    "E", "W",
+    # pyflakes
+    "F",
+    # pygrep-hooks
+    "PGH",
+    # pyupgrade
+    "UP",
+    # ruff
+    "RUF",
+    # tryceratops
+    "TRY",
+]
+ignore = [
+    # LineTooLong
+    "E501",
+    # DoNotAssignLambda
+    "E731",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[tool.ruff.format]
+preview = true

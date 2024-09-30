@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 import clip
-from model.rotation2xyz import Rotation2xyz
+# from model.rotation2xyz import Rotation2xyz
 from typing import Optional, Tuple
 
 
@@ -49,7 +49,7 @@ class DiTBlockConcat(nn.Module):
                 src_mask: Optional[Tensor] = None,
                 src_key_padding_mask: Optional[Tensor] = None):
         """
-        Args: 
+        Args:
             src: [t, bs, d_model]
             c: [1, bs, d_model]
         """
@@ -119,7 +119,7 @@ class DiTBlockConcatV2(nn.Module):
                 src_mask: Optional[Tensor] = None,
                 src_key_padding_mask: Optional[Tensor] = None):
         """
-        Args: 
+        Args:
             src: [t, bs, d_model]
             c: [1, bs, d_model]
         """
@@ -188,7 +188,7 @@ class DiTBlockPostNorm(nn.Module):
                 src_key_padding_mask: Optional[Tensor] = None,
                 **kwargs):
         """
-        Args: 
+        Args:
             src: [t, bs, d_model]
             c: [1, bs, d_model]
         """
@@ -248,7 +248,7 @@ class DiTBlockPreNorm(nn.Module):
                 src_key_padding_mask: Optional[Tensor] = None,
                 **kwargs):
         """
-        Args: 
+        Args:
             src: [t, bs, d_model]
             c: [1, bs, d_model]
         """
@@ -514,7 +514,7 @@ class MDM_DiT(nn.Module):
                                                 self.latent_dim)
                 print('EMBED ACTION')
 
-        self.rot2xyz = Rotation2xyz(device='cpu', dataset=self.dataset)
+        # self.rot2xyz = Rotation2xyz(device='cpu', dataset=self.dataset)
 
     def parameters_wo_clip(self):
         return [
@@ -612,11 +612,11 @@ class MDM_DiT(nn.Module):
 
     def _apply(self, fn):
         super()._apply(fn)
-        self.rot2xyz.smpl_model._apply(fn)
+        # self.rot2xyz.smpl_model._apply(fn)
 
     def train(self, *args, **kwargs):
         super().train(*args, **kwargs)
-        self.rot2xyz.smpl_model.train(*args, **kwargs)
+        # self.rot2xyz.smpl_model.train(*args, **kwargs)
 
 
 class PositionalEncoding(nn.Module):

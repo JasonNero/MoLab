@@ -1,0 +1,49 @@
+site_name: MoLab
+repo_url: https://github.com/JasonNero/MoLab
+site_url: https://JasonNero.github.io/MoLab
+site_description: Motion Lab - Human Motion Generation and Inbetweening
+site_author: Jason Schuehlein
+edit_uri: edit/main/docs/
+repo_name: JasonNero/MoLab
+copyright: Maintained by <a href="https://JasonNero.com">Jason Schuehlein</a>.
+
+nav:
+  - Home: index.md
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [MoLab]
+theme:
+  name: material
+  feature:
+    tabs: true
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: white
+      accent: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/JasonNero/MoLab
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true

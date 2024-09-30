@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import clip
-from model.rotation2xyz import Rotation2xyz
+# from model.rotation2xyz import Rotation2xyz
 from einops.layers.torch import Rearrange
 
 class MDM(nn.Module):
@@ -64,7 +64,7 @@ class MDM(nn.Module):
 
         self.input_feats = self.njoints * self.nfeats
         self.train_keypoint_mask = train_keypoint_mask
-        
+
         self.better_cond = True
         self.latent_dim_input = self.latent_dim
         if 'better_cond' in self.train_keypoint_mask:
@@ -80,7 +80,7 @@ class MDM(nn.Module):
             self.cond_process = CondProcess(self.cond_dim, self.cond_latent_dim)
             print('add cond latent to MDM latent. New dim is: %d + %d' % (self.latent_dim, self.cond_latent_dim))
             self.latent_dim = self.latent_dim + self.cond_latent_dim
-            
+
         elif self.train_keypoint_mask == 'keypoints':
             self.added_input_dim = 3
         elif self.train_keypoint_mask == 'keyposes':
@@ -162,7 +162,7 @@ class MDM(nn.Module):
                                                 self.latent_dim, self.njoints,
                                                 self.nfeats)
 
-        self.rot2xyz = Rotation2xyz(device='cpu', dataset=self.dataset)
+        # self.rot2xyz = Rotation2xyz(device='cpu', dataset=self.dataset)
 
     def parameters_wo_clip(self):
         return [
@@ -196,7 +196,7 @@ class MDM(nn.Module):
             return cond * (1. - mask)
         else:
             return cond
-    
+
     def mask_kps_cond(self, xseq, cond_mask):
         # Beware that the first position is now text embedding.
         # Masking needed to be shifted by one position
@@ -307,11 +307,11 @@ class MDM(nn.Module):
 
     def _apply(self, fn):
         super()._apply(fn)
-        self.rot2xyz.smpl_model._apply(fn)
+        # self.rot2xyz.smpl_model._apply(fn)
 
     def train(self, *args, **kwargs):
         super().train(*args, **kwargs)
-        self.rot2xyz.smpl_model.train(*args, **kwargs)
+        # self.rot2xyz.smpl_model.train(*args, **kwargs)
 
 
 class PositionalEncoding(nn.Module):
