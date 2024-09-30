@@ -701,7 +701,8 @@ class MDM_UNET(nn.Module):
                                                 self.latent_dim)
                 print('EMBED ACTION')
 
-        self.rot2xyz = Rotation2xyz(device='cpu', dataset=self.dataset)
+        # This is not used in the current implementation
+        # self.rot2xyz = Rotation2xyz(device='cpu', dataset=self.dataset)
 
     def parameters_wo_clip(self):
         return [
@@ -853,11 +854,11 @@ class MDM_UNET(nn.Module):
 
     def _apply(self, fn):
         super()._apply(fn)
-        self.rot2xyz.smpl_model._apply(fn)
+        # self.rot2xyz.smpl_model._apply(fn)
 
     def train(self, *args, **kwargs):
         super().train(*args, **kwargs)
-        self.rot2xyz.smpl_model.train(*args, **kwargs)
+        # self.rot2xyz.smpl_model.train(*args, **kwargs)
 
 
 class PositionalEncoding(nn.Module):

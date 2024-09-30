@@ -11,7 +11,7 @@ class ClassifierFreeSampleModel(nn.Module):
         assert self.model.cond_mask_prob > 0, 'Cannot run a guided diffusion on a model that has not been trained with no conditions'
 
         # pointers to inner model
-        self.rot2xyz = self.model.rot2xyz
+        # self.rot2xyz = self.model.rot2xyz
         self.translation = self.model.translation
         self.njoints = self.model.njoints
         self.nfeats = self.model.nfeats
