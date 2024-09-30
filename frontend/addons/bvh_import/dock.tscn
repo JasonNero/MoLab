@@ -1,0 +1,228 @@
+[gd_scene load_steps=2 format=3 uid="uid://cg2rgibnuhxsu"]
+
+[ext_resource type="Script" path="res://addons/bvh_import/main.gd" id="1"]
+
+[node name="BVHImport" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="FileDialog" type="FileDialog" parent="."]
+access = 2
+filters = PackedStringArray("*.bvh ; Biovision Hierarchy", "*.bvh ; Biovision Hierarchy", "*.bvh ; Biovision Hierarchy", "*.bvh ; Biovision Hierarchy", "*.bvh ; Biovision Hierarchy", "*.bvh ; Biovision Hierarchy", "*.bvh ; Biovision Hierarchy", "*.bvh ; Biovision Hierarchy")
+
+[node name="SkeletonPathLabel" type="Label" parent="."]
+layout_mode = 2
+text = "Skeleton Path:"
+
+[node name="SkeletonPathInput" type="LineEdit" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Armature"
+placeholder_text = "Armature Name"
+
+[node name="AnimationPlayerLabel" type="Label" parent="."]
+layout_mode = 2
+text = "Animation Player Name:"
+
+[node name="AnimationPlayerNameInput" type="LineEdit" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "AnimationPlayer"
+placeholder_text = "AnimtionPlayer"
+
+[node name="NewAnimNameLabel" type="Label" parent="."]
+layout_mode = 2
+text = "New Animation Name:"
+
+[node name="AnimationNameInput" type="LineEdit" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "BVH Animation 00"
+placeholder_text = "Animtion Name"
+
+[node name="HSeparator" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="ShowImportTweaks" type="CheckButton" parent="."]
+layout_mode = 2
+text = "Show Import Tweaks"
+
+[node name="ImportTweaksGroup" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="AutoscaleBVHOption" type="CheckBox" parent="ImportTweaksGroup"]
+layout_mode = 2
+disabled = true
+text = "Autoscale BVH to Match Target Skeleton"
+
+[node name="IgnoreOffsetsOption" type="CheckBox" parent="ImportTweaksGroup"]
+layout_mode = 2
+text = "Ignore Starting Offsets"
+
+[node name="AxisOrderingLabel" type="Label" parent="ImportTweaksGroup"]
+layout_mode = 2
+text = "Axis Ordering:"
+
+[node name="AxisOrderingOption" type="OptionButton" parent="ImportTweaksGroup"]
+layout_mode = 2
+
+[node name="TransformScaleTweak" type="HBoxContainer" parent="ImportTweaksGroup"]
+layout_mode = 2
+
+[node name="TransformScaleLabel" type="Label" parent="ImportTweaksGroup/TransformScaleTweak"]
+layout_mode = 2
+text = "Animation Transform Rescaling: "
+
+[node name="TransformScaleSpinBox" type="SpinBox" parent="ImportTweaksGroup/TransformScaleTweak"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.001
+max_value = 10.0
+step = 0.001
+value = 1.0
+allow_greater = true
+
+[node name="XBasisLabel" type="Label" parent="ImportTweaksGroup"]
+layout_mode = 2
+text = "X Basis (Right) Vector:"
+
+[node name="XBasisTweak" type="HBoxContainer" parent="ImportTweaksGroup"]
+layout_mode = 2
+
+[node name="XLabel" type="Label" parent="ImportTweaksGroup/XBasisTweak"]
+layout_mode = 2
+text = "X:"
+
+[node name="x" type="SpinBox" parent="ImportTweaksGroup/XBasisTweak"]
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+value = 1.0
+
+[node name="YLabel" type="Label" parent="ImportTweaksGroup/XBasisTweak"]
+layout_mode = 2
+text = "Y:"
+
+[node name="y" type="SpinBox" parent="ImportTweaksGroup/XBasisTweak"]
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+
+[node name="ZLabel" type="Label" parent="ImportTweaksGroup/XBasisTweak"]
+layout_mode = 2
+text = "Z:"
+
+[node name="z" type="SpinBox" parent="ImportTweaksGroup/XBasisTweak"]
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+
+[node name="YBasisLabel" type="Label" parent="ImportTweaksGroup"]
+layout_mode = 2
+text = "Y Basis (Up) Vector:"
+
+[node name="YBasisTweak" type="HBoxContainer" parent="ImportTweaksGroup"]
+layout_mode = 2
+
+[node name="XLabel" type="Label" parent="ImportTweaksGroup/YBasisTweak"]
+layout_mode = 2
+text = "X:"
+
+[node name="x" type="SpinBox" parent="ImportTweaksGroup/YBasisTweak"]
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+
+[node name="YLabel" type="Label" parent="ImportTweaksGroup/YBasisTweak"]
+layout_mode = 2
+text = "Y:"
+
+[node name="y" type="SpinBox" parent="ImportTweaksGroup/YBasisTweak"]
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+value = 1.0
+
+[node name="ZLabel" type="Label" parent="ImportTweaksGroup/YBasisTweak"]
+layout_mode = 2
+text = "Z:"
+
+[node name="z" type="SpinBox" parent="ImportTweaksGroup/YBasisTweak"]
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+
+[node name="ZBasisLabel" type="Label" parent="ImportTweaksGroup"]
+layout_mode = 2
+text = "Z Basis (Forward) Vector:"
+
+[node name="ZBasisTweak" type="HBoxContainer" parent="ImportTweaksGroup"]
+layout_mode = 2
+
+[node name="XLabel" type="Label" parent="ImportTweaksGroup/ZBasisTweak"]
+layout_mode = 2
+text = "X:"
+
+[node name="x" type="SpinBox" parent="ImportTweaksGroup/ZBasisTweak"]
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+
+[node name="YLabel" type="Label" parent="ImportTweaksGroup/ZBasisTweak"]
+layout_mode = 2
+text = "Y:"
+
+[node name="y" type="SpinBox" parent="ImportTweaksGroup/ZBasisTweak"]
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+
+[node name="ZLabel" type="Label" parent="ImportTweaksGroup/ZBasisTweak"]
+layout_mode = 2
+text = "Z:"
+
+[node name="z" type="SpinBox" parent="ImportTweaksGroup/ZBasisTweak"]
+layout_mode = 2
+min_value = -1.0
+max_value = 1.0
+value = 1.0
+
+[node name="HSeparator2" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="ShowBoneRetargeting" type="CheckButton" parent="."]
+layout_mode = 2
+text = "Show Bone Retargeting Options"
+
+[node name="BoneRetargetingGroup" type="VBoxContainer" parent="."]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="BoneMapJSONEditor" type="TextEdit" parent="BoneRetargetingGroup"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "{
+  \"bvh bone name\": \"skeleton bone name\"
+}"
+highlight_current_line = true
+
+[node name="GenerateFromSkeletonButton" type="Button" parent="BoneRetargetingGroup"]
+layout_mode = 2
+text = "Generate from Skeleton"
+
+[node name="HSeparator3" type="HSeparator" parent="."]
+layout_mode = 2
+
+[node name="ImportButton" type="Button" parent="."]
+layout_mode = 2
+text = "Import"
+
+[node name="ReimportButton" type="Button" parent="."]
+layout_mode = 2
+disabled = true
+text = "Reimport"

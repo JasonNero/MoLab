@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=3 uid="uid://bna0c1t5re2pk"]
+
+[ext_resource type="PackedScene" uid="uid://b871xxj0dvj8w" path="res://scenes/Main3D.tscn" id="1_803a3"]
+[ext_resource type="PackedScene" uid="uid://3cmvat50tv12" path="res://scenes/Sequencer.tscn" id="2_wdk01"]
+[ext_resource type="Script" path="res://scripts/WebSocketTestCS.cs" id="3_gmgu3"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VSplitContainer" type="VSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="VSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="VSplitContainer/SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(1920, 426)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Main" parent="VSplitContainer/SubViewportContainer/SubViewport" instance=ExtResource("1_803a3")]
+
+[node name="Sequencer" parent="VSplitContainer" instance=ExtResource("2_wdk01")]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+
+[node name="Node" type="Node" parent="."]
+script = ExtResource("3_gmgu3")
