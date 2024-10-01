@@ -130,11 +130,16 @@ dmypy.json
 .pyre/
 
 # experiments
-save/
-dataset/HumanML3D/
-kit/
-t2m/
-glove/
-body_models/
+molab_condmdi/save/
+molab_condmdi/dataset/HumanML3D/*
+molab_condmdi/kit/
+molab_condmdi/t2m/
+molab_condmdi/glove/
+molab_condmdi/body_models/
 .vscode/
-wandb/
+molab_condmdi/wandb/
+
+!molab_condmdi/dataset/HumanML3D/Mean.npy
+!molab_condmdi/dataset/HumanML3D/Std.npy
+!molab_condmdi/dataset/HumanML3D/Mean_abs_3d.npy
+!molab_condmdi/dataset/HumanML3D/Std_abs_3d.npy

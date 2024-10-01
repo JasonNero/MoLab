@@ -18,4 +18,4 @@ ADD . /app
 # Sync the project
 RUN uv sync --frozen
 
-CMD [ "python", "main.py"]
+CMD [ "python", "molab_backend/main.py"]

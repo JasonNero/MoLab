@@ -18,4 +18,4 @@ ADD . /app
 # Sync the project
 RUN uv sync --frozen
 
-CMD [ "python", "websocket_worker.py"]
+CMD [ "python", "molab_condmdi/websocket_worker.py"]
