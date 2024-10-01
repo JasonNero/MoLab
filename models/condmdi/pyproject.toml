@@ -33,6 +33,7 @@ dev-dependencies = [
     "jupyter>=1.1.1",
     "mypy>=1.11.2",
     "ruff>=0.6.8",
+    "seaborn>=0.13.2",
     "wandb>=0.18.2",
 ]
 

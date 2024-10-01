@@ -1,3 +1,62 @@
+# MoLab CondMDI
+
+> A fork of [CondMDI](https://github.com/setarehc/diffusion-motion-inbetweening) extended for use in the MoLab project.
+
+
+## Overview
+
+```
+condmdi/
+├── configs/              # Configuration files for training
+├── convert/              # Conversion scripts for HML3D format, BVH and glTF
+├── data_loaders/         # Data loaders for HML3D and other datasets
+├── dataset/              # Dataset directories
+│   ├── HumanML3D_abs     # Contains modified preprocessing scripts for HML3D
+│   ├── HumanML3D         # Place the processed HumanML3D dataset here
+├── diffusion/            # Diffusion utilities
+├── eval/                 # Evaluation scripts
+├── model/                # Motion Diffusion Model (MDM) Variants
+├── notebooks/            # Jupyter notebooks for experiments and demos
+├── prepare/              # Scripts for downloading datasets and pretrained models
+├── sample/               # Inference scripts for text-to-motion and motion editing
+├── save/                 # Directory for model checkpoints
+├── train/                # Training scripts
+├── utils/                # Utility functions
+├── visualize/            # Visualization scripts
+├── inference_worker.py   # Inference worker
+├── websocket_worker.py   # WebSocket worker calling the inference worker
+├── Dockerfile            # Dockerfile for the inference worker
+└── README.md             # Project description and setup instructions
+```
+
+For more information see the original README at the end of this file.
+
+## Getting started
+
+1. Setup environment using `make install` or by using `uv sync` to install dependencies.
+2. Download the pretrained models using `make download` or by running `prepare/download_pretrained.sh`.
+3. For train and eval: Follow the dataset instructions in the original README below
+
+## Inference
+
+To test the inference you can use the `InferenceWorker` class in `inference_worker.py` or the `WebSocketWorker` class in `websocket_worker.py`. 
+
+The `InferenceWorker` class is a wrapper around CondMDI with a simple `infer` method that takes `InferenceArgs` as input and returns the generated motion as `InferenceResult`.
+
+TODO: Add more details on how to use the inference worker.
+
+## Training
+
+TODO
+
+## Evaluation
+
+TODO
+
+---
+---
+---
+
 # Flexible Motion In-betweening with Diffusion Models
 
 [![arXiv](https://img.shields.io/badge/arXiv-<2305.12577>-<COLOR>.svg)](https://arxiv.org/abs/2405.11126)
