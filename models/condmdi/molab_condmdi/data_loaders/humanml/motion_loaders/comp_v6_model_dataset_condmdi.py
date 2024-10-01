@@ -5,21 +5,21 @@ import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
-from ....sample.gmd.condition import (
-    compute_kps_error_arbitrary,
-    log_trajectory_from_xstart,
-)
-from ....utils.editing_util import get_keyframes_mask
-from ....utils.fixseed import fixseed
-from ..data.dataset import (
+from molab_condmdi.data_loaders.humanml.data.dataset import (
     abs3d_to_rel,
     rel_to_abs3d,
     sample_to_motion,
 )
-from ..networks.modules import *
-from ..scripts.motion_process import recover_from_ric
-from ..utils import dist_util
-from ..utils.metrics import calculate_skating_ratio
+from molab_condmdi.data_loaders.humanml.networks.modules import *
+from molab_condmdi.data_loaders.humanml.scripts.motion_process import recover_from_ric
+from molab_condmdi.data_loaders.humanml.utils import dist_util
+from molab_condmdi.data_loaders.humanml.utils.metrics import calculate_skating_ratio
+from molab_condmdi.sample.gmd.condition import (
+    compute_kps_error_arbitrary,
+    log_trajectory_from_xstart,
+)
+from molab_condmdi.utils.editing_util import get_keyframes_mask
+from molab_condmdi.utils.fixseed import fixseed
 
 
 # Data class for generated motion by *conditioning*
@@ -398,7 +398,9 @@ class CompMDMGeneratedDatasetCondMDI(Dataset):
 
                     # NOTE: To test if the motion is reasonable or not
                     if log_motion:
-                        from data_loaders.humanml.utils.plot_script import plot_3d_motion
+                        from data_loaders.humanml.utils.plot_script import (
+                            plot_3d_motion,
+                        )
                         for j in tqdm([1, 3, 4, 5], desc="generating motion"):
                             motion_id = f'{i:04d}_{t:02d}_{j:02d}'
                             plot_3d_motion(os.path.join(self.save_dir, f"motion_cond_{motion_id}.mp4"), self.dataset.kinematic_chain,

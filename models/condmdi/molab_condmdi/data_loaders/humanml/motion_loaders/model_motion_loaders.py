@@ -4,9 +4,10 @@ import numpy as np
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data._utils.collate import default_collate
 
-from ....utils.fixseed import fixseed
-from ..utils.get_opt import get_opt
-from ..utils.word_vectorizer import WordVectorizer
+from molab_condmdi.data_loaders.humanml.utils.get_opt import get_opt
+from molab_condmdi.data_loaders.humanml.utils.word_vectorizer import WordVectorizer
+from molab_condmdi.utils.fixseed import fixseed
+
 from .comp_v6_model_dataset import (
     CompMDMGeneratedDataset,
     CompMDMGeneratedDatasetCondition,

@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from ..common.quaternion import (
+from molab_condmdi.data_loaders.humanml.common.quaternion import (
     qbetween_np,
     qfix,
     qinv,
@@ -16,8 +16,8 @@ from ..common.quaternion import (
     quaternion_to_cont6d,
     quaternion_to_cont6d_np,
 )
-from ..common.skeleton import Skeleton
-from ..utils.paramUtil import (
+from molab_condmdi.data_loaders.humanml.common.skeleton import Skeleton
+from molab_condmdi.data_loaders.humanml.utils.paramUtil import (
     t2m_kinematic_chain,
     t2m_raw_offsets,
 )

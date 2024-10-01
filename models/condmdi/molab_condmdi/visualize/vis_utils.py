@@ -5,7 +5,8 @@ import torch
 import trimesh
 from trimesh import Trimesh
 
-from ..model.rotation2xyz import Rotation2xyz
+from molab_condmdi.model.rotation2xyz import Rotation2xyz
+
 from .simplify_loc2rot import joints2smpl
 
 

@@ -1,18 +1,20 @@
-import torch
-import os, sys
+import os
 import pickle
-import smplx
+import sys
+
 import numpy as np
+import smplx
+import torch
 
 sys.path.append(os.path.dirname(__file__))
-from customloss import (camera_fitting_loss, 
-                        body_fitting_loss, 
-                        camera_fitting_loss_3d,
-                        body_fitting_loss_3d, 
-                        )
+from customloss import (
+    body_fitting_loss,
+    body_fitting_loss_3d,
+    camera_fitting_loss,
+    camera_fitting_loss_3d,
+)
 from prior import MaxMixturePrior
 from visualize.joints2smpl.src import config
-
 
 
 @torch.no_grad()
@@ -115,8 +117,8 @@ class SMPLify3D():
         filter_faces = None
         
         if self.use_collision:
-            from mesh_intersection.bvh_search_tree import BVH
             import mesh_intersection.loss as collisions_loss
+            from mesh_intersection.bvh_search_tree import BVH
             from mesh_intersection.filter_faces import FilterFaces
 
             search_tree = BVH(max_collisions=8)

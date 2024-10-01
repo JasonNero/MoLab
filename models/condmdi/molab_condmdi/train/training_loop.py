@@ -12,19 +12,21 @@ from torch import nn
 from torch.optim import AdamW
 from tqdm import tqdm
 
-from ..data_loaders.get_data import get_dataset_loader
-from ..data_loaders.humanml.networks.evaluator_wrapper import EvaluatorMDMWrapper
-from ..diffusion import logger
-from ..diffusion.fp16_util import MixedPrecisionTrainer
-from ..diffusion.resample import (
+from molab_condmdi.data_loaders.get_data import get_dataset_loader
+from molab_condmdi.data_loaders.humanml.networks.evaluator_wrapper import (
+    EvaluatorMDMWrapper,
+)
+from molab_condmdi.diffusion import logger
+from molab_condmdi.diffusion.fp16_util import MixedPrecisionTrainer
+from molab_condmdi.diffusion.resample import (
     LossAwareSampler,
     create_named_schedule_sampler,
 )
-from ..eval import eval_humanact12_uestc, eval_humanml
-from ..utils import dist_util
-from ..utils.editing_util import get_keyframes_mask
-from ..utils.model_util import load_model_wo_clip
-from ..utils.parser_util import TrainingOptions
+from molab_condmdi.eval import eval_humanact12_uestc, eval_humanml
+from molab_condmdi.utils import dist_util
+from molab_condmdi.utils.editing_util import get_keyframes_mask
+from molab_condmdi.utils.model_util import load_model_wo_clip
+from molab_condmdi.utils.parser_util import TrainingOptions
 
 # For ImageNet experiments, this was a good default value.
 # We found that the lg_loss_scale quickly climbed to

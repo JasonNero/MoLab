@@ -16,7 +16,8 @@ import numpy as np
 import torch
 import torch as th
 
-from ..utils import editing_util as inpainting_util
+from molab_condmdi.utils import editing_util as inpainting_util
+
 from .losses import discretized_gaussian_log_likelihood, normal_kl
 from .nn import mean_flat, sum_flat
 

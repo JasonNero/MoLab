@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Tuple
 
-from ..utils.parser_util import (
+from molab_condmdi.utils.parser_util import (
     DataOptions,
     DiffusionOptions,
     EvaluationOptions,

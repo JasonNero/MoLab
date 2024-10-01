@@ -3,23 +3,22 @@ from datetime import datetime
 
 import torch
 
-from ..data_loaders.get_data import DatasetConfig, get_dataset_loader
-from ..data_loaders.humanml.motion_loaders.model_motion_loaders import (
-    get_mdm_loader,  # get_motion_loader
+from molab_condmdi.data_loaders.get_data import DatasetConfig, get_dataset_loader
+from molab_condmdi.data_loaders.humanml.motion_loaders.model_motion_loaders import (
+    get_mdm_loader,
 )
-from ..data_loaders.humanml.networks.evaluator_wrapper import EvaluatorMDMWrapper
-from ..data_loaders.humanml.scripts.motion_process import *
-from ..data_loaders.humanml.utils.metrics import *
-from ..data_loaders.humanml.utils.utils import *
-from ..diffusion import logger
-from ..model.cfg_sampler import ClassifierFreeSampleModel
-from ..utils import dist_util
-from ..utils.fixseed import fixseed
-from ..utils.model_util import (
-    create_model_and_diffusion,
-    load_saved_model,
+from molab_condmdi.data_loaders.humanml.networks.evaluator_wrapper import (
+    EvaluatorMDMWrapper,
 )
-from ..utils.parser_util import eval_args  # , evaluation_parser
+from molab_condmdi.data_loaders.humanml.scripts.motion_process import *
+from molab_condmdi.data_loaders.humanml.utils.metrics import *
+from molab_condmdi.data_loaders.humanml.utils.utils import *
+from molab_condmdi.diffusion import logger
+from molab_condmdi.model.cfg_sampler import ClassifierFreeSampleModel
+from molab_condmdi.utils import dist_util
+from molab_condmdi.utils.fixseed import fixseed
+from molab_condmdi.utils.model_util import create_model_and_diffusion, load_saved_model
+from molab_condmdi.utils.parser_util import eval_args  # , evaluation_parser
 
 torch.multiprocessing.set_sharing_strategy('file_system')
 

@@ -10,16 +10,16 @@ import shutil
 import numpy as np
 import torch
 
-from ..data_loaders.get_data import DatasetConfig, get_dataset_loader
-from ..data_loaders.humanml.scripts.motion_process import recover_from_ric
-from ..data_loaders.humanml.utils import paramUtil
-from ..data_loaders.humanml.utils.plot_script import plot_3d_motion
-from ..model.cfg_sampler import ClassifierFreeSampleModel
-from ..utils import dist_util
-from ..utils.editing_util import get_keyframes_mask, load_fixed_dataset
-from ..utils.fixseed import fixseed
-from ..utils.model_util import create_model_and_diffusion, load_saved_model
-from ..utils.parser_util import cond_synt_args
+from molab_condmdi.data_loaders.get_data import DatasetConfig, get_dataset_loader
+from molab_condmdi.data_loaders.humanml.scripts.motion_process import recover_from_ric
+from molab_condmdi.data_loaders.humanml.utils import paramUtil
+from molab_condmdi.data_loaders.humanml.utils.plot_script import plot_3d_motion
+from molab_condmdi.model.cfg_sampler import ClassifierFreeSampleModel
+from molab_condmdi.utils import dist_util
+from molab_condmdi.utils.editing_util import get_keyframes_mask, load_fixed_dataset
+from molab_condmdi.utils.fixseed import fixseed
+from molab_condmdi.utils.model_util import create_model_and_diffusion, load_saved_model
+from molab_condmdi.utils.parser_util import cond_synt_args
 
 
 def main():

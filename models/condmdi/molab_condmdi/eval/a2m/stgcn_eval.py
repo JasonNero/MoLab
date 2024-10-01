@@ -5,10 +5,11 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from ...data_loaders.tensors import collate
-from ...utils import dist_util
-from ...utils import rotation_conversions as geometry
-from ...utils.fixseed import fixseed
+from molab_condmdi.data_loaders.tensors import collate
+from molab_condmdi.utils import dist_util
+from molab_condmdi.utils import rotation_conversions as geometry
+from molab_condmdi.utils.fixseed import fixseed
+
 from .stgcn.evaluate import Evaluation as STGCNEvaluation
 from .tools import format_metrics
 

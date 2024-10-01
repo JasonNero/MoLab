@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 
-from ..data_loaders.humanml.scripts.motion_process import recover_from_ric
+from molab_condmdi.data_loaders.humanml.scripts.motion_process import recover_from_ric
 
 
 def sample_to_motion(sample_list, args, model_kwargs, model, n_frames,

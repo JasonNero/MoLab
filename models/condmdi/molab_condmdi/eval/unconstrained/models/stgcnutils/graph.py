@@ -2,7 +2,7 @@ import pickle as pkl
 
 import numpy as np
 
-from .....utils.config import SMPL_KINTREE_PATH
+from molab_condmdi.utils.config import SMPL_KINTREE_PATH
 
 
 class Graph:

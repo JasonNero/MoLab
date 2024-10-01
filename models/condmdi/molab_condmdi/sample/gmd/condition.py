@@ -6,7 +6,7 @@ import torch
 import torch.nn.functional as F
 from matplotlib.patches import Circle
 
-from ...data_loaders.humanml.scripts.motion_process import recover_from_ric
+from molab_condmdi.data_loaders.humanml.scripts.motion_process import recover_from_ric
 
 
 def get_target_from_kframes(kframes, batch_size, m_length, device):

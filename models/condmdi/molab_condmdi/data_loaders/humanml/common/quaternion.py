@@ -5,8 +5,8 @@
 # LICENSE file in the root directory of this source tree.
 #
 
-import torch
 import numpy as np
+import torch
 
 _EPS4 = np.finfo(float).eps * 4.0
 

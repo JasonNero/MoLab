@@ -13,23 +13,24 @@ import data_loaders.humanml.utils.paramUtil as paramUtil
 import numpy as np
 import torch
 
-from ...data_loaders import humanml_utils
-from ...data_loaders.get_data import DatasetConfig, get_dataset_loader
-from ...data_loaders.humanml.scripts.motion_process import recover_from_ric
-from ...data_loaders.humanml.utils.plot_script import plot_3d_motion
-from ...data_loaders.tensors import collate
-from ...model.cfg_sampler import ClassifierFreeSampleModel
-from ...utils import dist_util
-from ...utils.editing_util import get_keyframes_mask, load_fixed_dataset
-from ...utils.fixseed import fixseed
-from ...utils.generation_template import get_template
-from ...utils.model_util import create_model_and_diffusion, load_saved_model
-from ...utils.output_util import (
+from molab_condmdi.data_loaders import humanml_utils
+from molab_condmdi.data_loaders.get_data import DatasetConfig, get_dataset_loader
+from molab_condmdi.data_loaders.humanml.scripts.motion_process import recover_from_ric
+from molab_condmdi.data_loaders.humanml.utils.plot_script import plot_3d_motion
+from molab_condmdi.data_loaders.tensors import collate
+from molab_condmdi.model.cfg_sampler import ClassifierFreeSampleModel
+from molab_condmdi.utils import dist_util
+from molab_condmdi.utils.editing_util import get_keyframes_mask, load_fixed_dataset
+from molab_condmdi.utils.fixseed import fixseed
+from molab_condmdi.utils.generation_template import get_template
+from molab_condmdi.utils.model_util import create_model_and_diffusion, load_saved_model
+from molab_condmdi.utils.output_util import (
     construct_template_variables,
     sample_to_motion,
     save_multiple_samples,
 )
-from ...utils.parser_util import generate_args
+from molab_condmdi.utils.parser_util import generate_args
+
 from .condition import (
     CondKeyLocations,
     CondKeyLocationsWithSdf,
@@ -714,7 +715,10 @@ def load_processed_file(model_device, batch_size, traject_only=False):
     '''Load template file for trajectory imputing'''
     template_path = "./assets/template_joints.npy"
     init_joints = torch.from_numpy(np.load(template_path))
-    from data_loaders.humanml.scripts.motion_process import process_file, recover_root_rot_pos
+    from data_loaders.humanml.scripts.motion_process import (
+        process_file,
+        recover_root_rot_pos,
+    )
     data, ground_positions, positions, l_velocity = process_file(
         init_joints.permute(0, 3, 1, 2)[0], 0.002)
     init_image = data

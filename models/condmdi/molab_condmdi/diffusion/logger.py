@@ -160,8 +160,8 @@ class TensorBoardOutputFormat(KVWriter):
         prefix = "events"
         path = osp.join(osp.abspath(dir), prefix)
         import tensorflow as tf
-        from tensorflow.python import pywrap_tensorflow
         from tensorflow.core.util import event_pb2
+        from tensorflow.python import pywrap_tensorflow
         from tensorflow.python.util import compat
 
         self.tf = tf

@@ -1,6 +1,7 @@
 from os.path import join as pjoin
 
-from ..utils.word_vectorizer import POS_enumerator
+from molab_condmdi.data_loaders.humanml.utils.word_vectorizer import POS_enumerator
+
 from .modules import *
 
 

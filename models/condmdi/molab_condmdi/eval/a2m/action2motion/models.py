@@ -81,8 +81,8 @@ def load_classifier_for_fid(input_size_raw, num_classes, device):
 
 
 def test():
-    from src.datasets.ntu13 import NTU13
     import src.utils.fixseed  # noqa
+    from src.datasets.ntu13 import NTU13
 
     classifier = load_classifier("ntu13", input_size_raw=54, num_classes=13, device="cuda").eval()
     params = {"pose_rep": "rot6d",

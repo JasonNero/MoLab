@@ -42,15 +42,16 @@ def worker():
     worker.stop()
 
 
+@pytest.mark.expensive
 @pytest.mark.parametrize(
     "use_bvh, use_packed_motion, text",
     [
         pytest.param(False, False, "", id="unconditional"),
-        # pytest.param(True, False, "", id="bvh"),
-        # pytest.param(False, True, "", id="packed"),
-        # pytest.param(False, False, "Dance like nobody's watching", id="text"),
-        # pytest.param(True, False, "Dance like nobody's watching", id="bvh_text"),
-        # pytest.param(False, True, "Dance like nobody's watching", id="packed_text"),
+        pytest.param(True, False, "", id="bvh"),
+        pytest.param(False, True, "", id="packed"),
+        pytest.param(False, False, "Dance like nobody's watching", id="text"),
+        pytest.param(True, False, "Dance like nobody's watching", id="bvh_text"),
+        pytest.param(False, True, "Dance like nobody's watching", id="packed_text"),
     ],
 )
 def test_inference(worker: MotionInferenceWorker, use_bvh: bool, use_packed_motion: bool, text: str):

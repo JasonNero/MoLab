@@ -10,15 +10,15 @@ import data_loaders.humanml.utils.paramUtil as paramUtil
 import numpy as np
 import torch
 
-from ..data_loaders.get_data import DatasetConfig, get_dataset_loader
-from ..data_loaders.humanml.scripts.motion_process import recover_from_ric
-from ..data_loaders.humanml.utils.plot_script import plot_3d_motion
-from ..data_loaders.tensors import collate
-from ..model.cfg_sampler import ClassifierFreeSampleModel
-from ..utils import dist_util
-from ..utils.fixseed import fixseed
-from ..utils.model_util import create_model_and_diffusion, load_saved_model
-from ..utils.parser_util import generate_args
+from molab_condmdi.data_loaders.get_data import DatasetConfig, get_dataset_loader
+from molab_condmdi.data_loaders.humanml.scripts.motion_process import recover_from_ric
+from molab_condmdi.data_loaders.humanml.utils.plot_script import plot_3d_motion
+from molab_condmdi.data_loaders.tensors import collate
+from molab_condmdi.model.cfg_sampler import ClassifierFreeSampleModel
+from molab_condmdi.utils import dist_util
+from molab_condmdi.utils.fixseed import fixseed
+from molab_condmdi.utils.model_util import create_model_and_diffusion, load_saved_model
+from molab_condmdi.utils.parser_util import generate_args
 
 
 def get_max_length(dataset):

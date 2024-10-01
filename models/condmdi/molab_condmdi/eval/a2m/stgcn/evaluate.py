@@ -1,7 +1,8 @@
 import numpy as np
 import torch
 
-from ..recognition.models.stgcn import STGCN
+from molab_condmdi.eval.a2m.recognition.models.stgcn import STGCN
+
 from .accuracy import calculate_accuracy
 from .diversity import calculate_diversity_multimodality
 from .fid import calculate_fid

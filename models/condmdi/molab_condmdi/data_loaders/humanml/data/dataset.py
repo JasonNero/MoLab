@@ -10,15 +10,15 @@ from torch.utils import data
 from torch.utils.data._utils.collate import default_collate
 from tqdm import tqdm
 
-from ..common.quaternion import qinv, qrot
-from ..common.skeleton import Skeleton
-from ..scripts.motion_process import (
+from molab_condmdi.data_loaders.humanml.common.quaternion import qinv, qrot
+from molab_condmdi.data_loaders.humanml.common.skeleton import Skeleton
+from molab_condmdi.data_loaders.humanml.scripts.motion_process import (
     extract_features,
     recover_from_ric,
 )
-from ..utils.get_opt import get_opt
-from ..utils.paramUtil import *
-from ..utils.word_vectorizer import WordVectorizer
+from molab_condmdi.data_loaders.humanml.utils.get_opt import get_opt
+from molab_condmdi.data_loaders.humanml.utils.paramUtil import *
+from molab_condmdi.data_loaders.humanml.utils.word_vectorizer import WordVectorizer
 
 
 def collate_fn(batch):

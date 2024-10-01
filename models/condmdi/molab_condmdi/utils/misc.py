@@ -20,8 +20,8 @@ def to_torch(ndarray):
 
 
 def cleanexit():
-    import sys
     import os
+    import sys
     try:
         sys.exit(0)
     except SystemExit:

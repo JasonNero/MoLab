@@ -11,8 +11,9 @@ import torch.optim as optim
 from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
 
-from ..data.dataset import collate_fn
-from ..utils.utils import *
+from molab_condmdi.data_loaders.humanml.data.dataset import collate_fn
+from molab_condmdi.data_loaders.humanml.utils.utils import *
+
 from .modules import *
 
 

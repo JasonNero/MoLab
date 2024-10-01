@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ..utils.parser_util import BaseOptions, DataOptions
+from molab_condmdi.utils.parser_util import BaseOptions, DataOptions
 
 
 @dataclass

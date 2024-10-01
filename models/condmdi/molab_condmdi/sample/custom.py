@@ -12,22 +12,22 @@ import numpy as np
 import torch
 import tqdm
 
-from ..convert.joints2bvh import BVH, Animation, joints2bvh
-from ..data_loaders.get_data import DatasetConfig, get_dataset_loader
-from ..data_loaders.humanml.scripts.motion_process import (
+from molab_condmdi.convert.joints2bvh import BVH, Animation, joints2bvh
+from molab_condmdi.data_loaders.get_data import DatasetConfig, get_dataset_loader
+from molab_condmdi.data_loaders.humanml.scripts.motion_process import (
     extract_features,
     postprocess_motion,
     preprocess_motion,
     recover_from_ric,
     recover_root_rot_pos,
 )
-from ..data_loaders.humanml.utils import paramUtil
-from ..model.cfg_sampler import ClassifierFreeSampleModel
-from ..utils import dist_util
-from ..utils.editing_util import get_keyframes_mask
-from ..utils.fixseed import fixseed
-from ..utils.model_util import create_model_and_diffusion, load_saved_model
-from ..utils.parser_util import CustomSyntArgs, custom_synt_args
+from molab_condmdi.data_loaders.humanml.utils import paramUtil
+from molab_condmdi.model.cfg_sampler import ClassifierFreeSampleModel
+from molab_condmdi.utils import dist_util
+from molab_condmdi.utils.editing_util import get_keyframes_mask
+from molab_condmdi.utils.fixseed import fixseed
+from molab_condmdi.utils.model_util import create_model_and_diffusion, load_saved_model
+from molab_condmdi.utils.parser_util import CustomSyntArgs, custom_synt_args
 
 
 def parse_args() -> CustomSyntArgs:

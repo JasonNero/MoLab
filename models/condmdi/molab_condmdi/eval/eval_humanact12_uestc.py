@@ -7,12 +7,16 @@ import re
 
 import torch
 
-from ..data_loaders.get_data import get_dataset_loader
-from ..model.cfg_sampler import ClassifierFreeSampleModel
-from ..utils import dist_util
-from ..utils.fixseed import fixseed
-from ..utils.model_util import create_model_and_diffusion, load_model_wo_clip
-from ..utils.parser_util import evaluation_parser
+from molab_condmdi.data_loaders.get_data import get_dataset_loader
+from molab_condmdi.model.cfg_sampler import ClassifierFreeSampleModel
+from molab_condmdi.utils import dist_util
+from molab_condmdi.utils.fixseed import fixseed
+from molab_condmdi.utils.model_util import (
+    create_model_and_diffusion,
+    load_model_wo_clip,
+)
+from molab_condmdi.utils.parser_util import evaluation_parser
+
 from .a2m.tools import save_metrics
 
 

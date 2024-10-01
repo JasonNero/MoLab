@@ -8,12 +8,13 @@ from pprint import pprint
 
 import wandb
 
-from ..configs import card
-from ..data_loaders.get_data import DatasetConfig, get_dataset_loader
-from ..utils import dist_util
-from ..utils.fixseed import fixseed
-from ..utils.model_util import create_model_and_diffusion
-from ..utils.parser_util import train_args
+from molab_condmdi.configs import card
+from molab_condmdi.data_loaders.get_data import DatasetConfig, get_dataset_loader
+from molab_condmdi.utils import dist_util
+from molab_condmdi.utils.fixseed import fixseed
+from molab_condmdi.utils.model_util import create_model_and_diffusion
+from molab_condmdi.utils.parser_util import train_args
+
 from .training_loop import TrainLoop
 
 

@@ -6,10 +6,11 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from ...data_loaders.tensors import collate
-from ...utils import dist_util
-from ...utils.fixseed import fixseed
-from ..unconstrained.evaluate import evaluate_unconstrained_metrics
+from molab_condmdi.data_loaders.tensors import collate
+from molab_condmdi.eval.unconstrained.evaluate import evaluate_unconstrained_metrics
+from molab_condmdi.utils import dist_util
+from molab_condmdi.utils.fixseed import fixseed
+
 from .action2motion.evaluate import A2MEvaluation
 from .tools import format_metrics
 

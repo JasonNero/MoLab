@@ -3,7 +3,7 @@ import os
 import numpy as np
 import torch
 
-from ..data_loaders import humanml_utils
+from molab_condmdi.data_loaders import humanml_utils
 
 
 def bool_matmul(a, b):

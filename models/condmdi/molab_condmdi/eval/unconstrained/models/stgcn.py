@@ -2,7 +2,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from ...a2m.recognition.models.stgcnutils.tgcn import ConvTemporalGraphical
+from molab_condmdi.eval.a2m.recognition.models.stgcnutils.tgcn import (
+    ConvTemporalGraphical,
+)
+
 from .stgcnutils.graph import Graph
 
 __all__ = ["STGCN"]

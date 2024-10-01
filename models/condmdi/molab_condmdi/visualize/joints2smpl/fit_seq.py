@@ -1,19 +1,22 @@
-from __future__ import print_function, division
+from __future__ import division, print_function
+
 import argparse
-import torch
-import os,sys
-from os import walk, listdir
+import os
+import sys
+from os import listdir, walk
 from os.path import isfile, join
-import numpy as np
-import joblib
-import smplx
-import trimesh
+
 import h5py
+import joblib
+import numpy as np
+import smplx
+import torch
+import trimesh
 from tqdm import tqdm
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
-from smplify import SMPLify3D
 import config
+from smplify import SMPLify3D
 
 # parsing argmument
 parser = argparse.ArgumentParser()

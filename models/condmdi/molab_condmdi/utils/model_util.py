@@ -4,16 +4,21 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 
-from ..data_loaders.humanml.data.dataset import (
+from molab_condmdi.data_loaders.humanml.data.dataset import (
     HumanML3D,
     Text2MotionDatasetV2,
     TextOnlyDataset,
 )
-from ..diffusion import gaussian_diffusion as gd
-from ..diffusion.respace import DiffusionConfig, SpacedDiffusion, space_timesteps
-from ..model.mdm import MDM
-from ..model.mdm_dit import MDM_DiT
-from ..model.mdm_unet import MDM_UNET
+from molab_condmdi.diffusion import gaussian_diffusion as gd
+from molab_condmdi.diffusion.respace import (
+    DiffusionConfig,
+    SpacedDiffusion,
+    space_timesteps,
+)
+from molab_condmdi.model.mdm import MDM
+from molab_condmdi.model.mdm_dit import MDM_DiT
+from molab_condmdi.model.mdm_unet import MDM_UNET
+
 from .parser_util import (
     DataOptions,
     DiffusionOptions,

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from ..utils.parser_util import *
+from molab_condmdi.utils.parser_util import *
+
 from . import data, model
 
 ###########################
