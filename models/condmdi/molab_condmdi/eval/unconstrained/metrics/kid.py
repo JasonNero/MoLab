@@ -1,8 +1,9 @@
-import torch
-import numpy as np
-from tqdm import tqdm
-from sklearn.metrics.pairwise import polynomial_kernel
 import sys
+
+import numpy as np
+from sklearn.metrics.pairwise import polynomial_kernel
+from tqdm import tqdm
+
 
 # from: https://github.com/abdulfatir/gan-metrics-pytorch/blob/master/kid_score.py
 def polynomial_mmd_averages(codes_g, codes_r, n_subsets=50, subset_size=1000,

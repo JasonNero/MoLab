@@ -1,15 +1,13 @@
-import copy
+import math
+
+# from model.rotation2xyz import Rotation2xyz
+import clip
+import einops
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import Tensor
-import clip
-# from model.rotation2xyz import Rotation2xyz
-from typing import Optional, Tuple
 from einops.layers.torch import Rearrange
-import einops
-import math
 
 
 class Downsample1d(nn.Module):

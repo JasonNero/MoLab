@@ -1,6 +1,7 @@
-import numpy as np
 import pickle
 from os.path import join as pjoin
+
+import numpy as np
 
 POS_enumerator = {
     'VERB': 0,

@@ -1,19 +1,13 @@
-from eval.unconstrained.models.stgcn import STGCN
-import pandas as pd
-import os.path as osp
-import os
-import datetime
 
-import torch
-
-from torch.utils.data import DataLoader
 import numpy as np
-import sys as _sys
-from eval.a2m.action2motion.fid import calculate_fid
-from eval.a2m.action2motion.diversity import calculate_diversity
-from eval.unconstrained.metrics.kid import calculate_kid
-from eval.unconstrained.metrics.precision_recall import precision_and_recall
-from matplotlib import pyplot as plt
+import torch
+from torch.utils.data import DataLoader
+
+from ..a2m.action2motion.diversity import calculate_diversity
+from ..a2m.action2motion.fid import calculate_fid
+from .metrics.kid import calculate_kid
+from .metrics.precision_recall import precision_and_recall
+from .models.stgcn import STGCN
 
 TEST = False
 

@@ -1,12 +1,14 @@
 import copy
+
+# from model.rotation2xyz import Rotation2xyz
+from typing import Optional, Tuple
+
+import clip
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
-import clip
-# from model.rotation2xyz import Rotation2xyz
-from typing import Optional, Tuple
 
 
 def modulate(x, shift, scale):

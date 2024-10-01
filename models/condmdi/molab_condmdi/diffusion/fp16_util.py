@@ -3,12 +3,12 @@ Helpers to train with 16-bit precision.
 """
 
 import numpy as np
-import torch as th
 import torch
+import torch as th
 import torch.nn as nn
 from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
 
-from diffusion import logger
+from . import logger
 
 INITIAL_LOG_LOSS_SCALE = 20.0
 
@@ -192,7 +192,7 @@ class MixedPrecisionTrainer:
     def _optimize_fp16(self, opt: th.optim.Optimizer):
         if self.train_grad_clip > 0:
             raise NotImplementedError("Gradient clipping not implemented for fp16")
-            
+
         logger.logkv_mean("lg_loss_scale", self.lg_loss_scale)
         # copy the gradients from the model params to the master params
         model_grads_to_master_grads(self.param_groups_and_shapes, self.master_params)

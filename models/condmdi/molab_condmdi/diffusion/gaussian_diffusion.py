@@ -6,18 +6,19 @@ https://github.com/hojonathanho/diffusion/blob/1e0dceb3b3495bbe19116a5e1b3596cd0
 Docstrings have been added, as well as DDIM sampling and a new collection of beta schedules.
 """
 
-from dataclasses import dataclass
 import enum
 import math
+from copy import deepcopy
+from dataclasses import dataclass
+from typing import List
+
 import numpy as np
 import torch
 import torch as th
-from copy import deepcopy
-from diffusion.nn import mean_flat, sum_flat
-from diffusion.losses import normal_kl, discretized_gaussian_log_likelihood
-from data_loaders.humanml.scripts import motion_process
-from typing import List
-import utils.editing_util as inpainting_util
+
+from ..utils import editing_util as inpainting_util
+from .losses import discretized_gaussian_log_likelihood, normal_kl
+from .nn import mean_flat, sum_flat
 
 
 def get_named_beta_schedule(schedule_name,

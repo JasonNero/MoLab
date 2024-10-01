@@ -1,6 +1,9 @@
 import numpy as np
 
-from .InverseKinematics import BasicInverseKinematics, JacobianInverseKinematics
+from .InverseKinematics import (
+    BasicInverseKinematics,
+    JacobianInverseKinematics,
+)
 
 
 def softmax(x, **kw):

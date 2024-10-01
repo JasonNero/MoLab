@@ -1,18 +1,16 @@
 import copy
-import torch
-from tqdm import tqdm
 import functools
 
-from utils.fixseed import fixseed
-
-from eval.a2m.stgcn.evaluate import Evaluation as STGCNEvaluation
+import torch
 from torch.utils.data import DataLoader
-from data_loaders.tensors import collate
+from tqdm import tqdm
 
-
+from ...data_loaders.tensors import collate
+from ...utils import dist_util
+from ...utils import rotation_conversions as geometry
+from ...utils.fixseed import fixseed
+from .stgcn.evaluate import Evaluation as STGCNEvaluation
 from .tools import format_metrics
-import utils.rotation_conversions as geometry
-from utils import dist_util
 
 
 def convert_x_to_rot6d(x, pose_rep):

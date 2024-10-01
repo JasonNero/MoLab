@@ -1,22 +1,23 @@
-import torch
 import numpy as np
-from .models import load_classifier, load_classifier_for_fid
+import torch
+
 from .accuracy import calculate_accuracy
-from .fid import calculate_fid
 from .diversity import calculate_diversity_multimodality
+from .fid import calculate_fid
+from .models import load_classifier, load_classifier_for_fid
 
 
 class A2MEvaluation:
     def __init__(self, device):
         dataset_opt = {"input_size_raw": 72, "joints_num": 24, "num_classes": 12}
-        
+
         self.input_size_raw = dataset_opt["input_size_raw"]
         self.num_classes = dataset_opt["num_classes"]
         self.device = device
-        
+
         self.gru_classifier_for_fid = load_classifier_for_fid(self.input_size_raw, self.num_classes, device).eval()
         self.gru_classifier = load_classifier(self.input_size_raw,  self.num_classes, device).eval()
-        
+
     def compute_features(self, model, motionloader):
         # calculate_activations_labels function from action2motion
         activations = []
@@ -39,12 +40,12 @@ class A2MEvaluation:
         return mu, sigma
 
     def evaluate(self, model, loaders):
-        
+
         def print_logs(metric, key):
             print(f"Computing action2motion {metric} on the {key} loader ...")
-            
+
         metrics = {}
-        
+
         computedfeats = {}
         for key, loader in loaders.items():
             metric = "accuracy"
@@ -62,7 +63,7 @@ class A2MEvaluation:
             feats, labels = self.compute_features(model, loader)
             print_logs("stats", key)
             stats = self.calculate_activation_statistics(feats)
-            
+
             computedfeats[key] = {"feats": feats,
                                   "labels": labels,
                                   "stats": stats}
@@ -70,15 +71,15 @@ class A2MEvaluation:
             print_logs("diversity", key)
             ret = calculate_diversity_multimodality(feats, labels, self.num_classes, unconstrained=(model.cond_mode=='no_cond'))
             metrics[f"diversity_{key}"], metrics[f"multimodality_{key}"] = ret
-            
+
         # taking the stats of the ground truth and remove it from the computed feats
         gtstats = computedfeats["gt"]["stats"]
         # computing fid
         for key, loader in computedfeats.items():
             metric = "fid"
             mkey = f"{metric}_{key}"
-            
+
             stats = computedfeats[key]["stats"]
             metrics[mkey] = float(calculate_fid(gtstats, stats))
-            
+
         return metrics

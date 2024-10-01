@@ -1,9 +1,7 @@
 import numpy as np
 import scipy.linalg as linalg
 
-from . import Animation
-from . import AnimationStructure
-
+from . import Animation, AnimationStructure
 from .Quaternions import Quaternions
 
 

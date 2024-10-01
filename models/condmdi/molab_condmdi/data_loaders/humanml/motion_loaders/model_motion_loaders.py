@@ -1,14 +1,20 @@
-from torch.utils.data import DataLoader, Dataset
-from data_loaders.humanml.utils.get_opt import get_opt
-from data_loaders.humanml.motion_loaders.comp_v6_model_dataset import (CompMDMGeneratedDataset,
-                                                                       CompMDMGeneratedDatasetCondition,
-                                                                       CompMDMGeneratedDatasetInpainting)
-from data_loaders.humanml.motion_loaders.comp_v6_model_dataset_condmdi import CompMDMGeneratedDatasetCondMDI
-from data_loaders.humanml.utils.word_vectorizer import WordVectorizer
-import numpy as np
-from torch.utils.data._utils.collate import default_collate
-from utils.fixseed import fixseed
 import os
+
+import numpy as np
+from torch.utils.data import DataLoader, Dataset
+from torch.utils.data._utils.collate import default_collate
+
+from ....utils.fixseed import fixseed
+from ..utils.get_opt import get_opt
+from ..utils.word_vectorizer import WordVectorizer
+from .comp_v6_model_dataset import (
+    CompMDMGeneratedDataset,
+    CompMDMGeneratedDatasetCondition,
+    CompMDMGeneratedDatasetInpainting,
+)
+from .comp_v6_model_dataset_condmdi import (
+    CompMDMGeneratedDatasetCondMDI,
+)
 
 
 def collate_fn(batch):

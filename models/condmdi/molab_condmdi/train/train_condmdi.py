@@ -1,18 +1,20 @@
 # This code is based on https://github.com/openai/guided-diffusion,
 # and is used to train a diffusion model on human motion sequences.
 
+import json
 import os
 import sys
-import json
 from pprint import pprint
-from utils.fixseed import fixseed
-from utils.parser_util import train_args
-from utils import dist_util
-from train.training_loop import TrainLoop
-from data_loaders.get_data import DatasetConfig, get_dataset_loader
-from utils.model_util import create_model_and_diffusion
-from configs import card
+
 import wandb
+
+from ..configs import card
+from ..data_loaders.get_data import DatasetConfig, get_dataset_loader
+from ..utils import dist_util
+from ..utils.fixseed import fixseed
+from ..utils.model_util import create_model_and_diffusion
+from ..utils.parser_util import train_args
+from .training_loop import TrainLoop
 
 
 def init_wandb(config, project_name=None, entity=None, tags=[], notes=None, **kwargs):

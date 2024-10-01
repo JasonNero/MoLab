@@ -1,19 +1,26 @@
-from utils.parser_util import eval_args # , evaluation_parser
-from utils.fixseed import fixseed
-from datetime import datetime
-from data_loaders.humanml.motion_loaders.model_motion_loaders import get_mdm_loader, get_mdm_loader_cond  # get_motion_loader
-from data_loaders.humanml.utils.metrics import *
-from data_loaders.humanml.networks.evaluator_wrapper import EvaluatorMDMWrapper
 from collections import OrderedDict
-from data_loaders.humanml.scripts.motion_process import *
-from data_loaders.humanml.utils.utils import *
-from utils.model_util import create_model_and_diffusion, load_model_wo_clip, load_saved_model
+from datetime import datetime
 
-from diffusion import logger
-from utils import dist_util
-from data_loaders.get_data import DatasetConfig, get_dataset_loader
-from model.cfg_sampler import ClassifierFreeSampleModel
-import copy
+import torch
+
+from ..data_loaders.get_data import DatasetConfig, get_dataset_loader
+from ..data_loaders.humanml.motion_loaders.model_motion_loaders import (  # get_motion_loader
+    get_mdm_loader_cond,
+)
+from ..data_loaders.humanml.networks.evaluator_wrapper import EvaluatorMDMWrapper
+from ..data_loaders.humanml.scripts.motion_process import *
+from ..data_loaders.humanml.utils.metrics import *
+from ..data_loaders.humanml.utils.utils import *
+from ..diffusion import logger
+from ..model.cfg_sampler import ClassifierFreeSampleModel
+from ..utils import dist_util
+from ..utils.fixseed import fixseed
+from ..utils.model_util import (
+    create_model_and_diffusion,
+    load_saved_model,
+)
+from ..utils.parser_util import eval_args  # , evaluation_parser
+
 # import flag
 # import flag_traj
 
@@ -76,8 +83,8 @@ def evaluate_matching_score(eval_wrapper, motion_loaders, file):
             match_score_dict[motion_loader_name] = matching_score
             R_precision_dict[motion_loader_name] = R_precision
             activation_dict[motion_loader_name] = all_motion_embeddings
-        
-        
+
+
         if motion_loader_name == "vald":
             ### For trajecotry evaluation ###
             traj_err = np.stack(traj_err).mean(0)
@@ -246,7 +253,7 @@ def evaluation(eval_wrapper,
                 flush=True)
             print(f'Time: {datetime.now()}')
             print(f'Time: {datetime.now()}', file=f, flush=True)
-            (mat_score_dict, R_precision_dict, acti_dict, 
+            (mat_score_dict, R_precision_dict, acti_dict,
              trajectory_score_dict, skating_ratio_dict) = evaluate_matching_score(
                 eval_wrapper, motion_loaders, f)
 
@@ -273,7 +280,7 @@ def evaluation(eval_wrapper,
                     all_metrics['Trajectory Error'][key] = [item]
                 else:
                     all_metrics['Trajectory Error'][key] += [item]
-            
+
             for key, item in skating_ratio_dict.items():
                 if key not in all_metrics['Skating Ratio']:
                     all_metrics['Skating Ratio'][key] = [item]
@@ -432,7 +439,7 @@ if __name__ == '__main__':
     torch.set_num_threads(1)
 
     # assert flag.TRAIN_MAX_LEN == 196, "UNET length during evaluation works best with 196!"
-    
+
     # args = evaluation_parser()
     args = eval_args()
 
@@ -469,8 +476,8 @@ if __name__ == '__main__':
         log_file += f'_gscale{args.guidance_param}'
     log_file += f'_{args.eval_mode}'
     log_file += '.log'
-    print(f'Will save to log file [{log_file}]')    
-    
+    print(f'Will save to log file [{log_file}]')
+
     if args.eval_mode == 'debug':
         num_samples_limit = 1000  # None means no limit (eval over all dataset)
         run_mm = False
@@ -507,7 +514,7 @@ if __name__ == '__main__':
 
     dist_util.setup_dist(args.device)
     logger.configure()
-    
+
     logger.log("creating data loader...")
     split = 'test'
     gt_loader = load_dataset(args, args.num_frames, split, hml_mode='gt')

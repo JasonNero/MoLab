@@ -1,8 +1,7 @@
 # based on https://github.com/blandocs/improved-precision-and-recall-metric-pytorch/blob/master/functions.py
-import os, torch
+
 import numpy as np
-import torch.nn as nn
-import torch.optim as optim
+import torch
 from tqdm import tqdm
 
 # self.batch_size = args.batch_size

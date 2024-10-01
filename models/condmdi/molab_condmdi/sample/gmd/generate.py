@@ -3,42 +3,41 @@
 Generate a large batch of image samples from a model and save them as a large
 numpy array. This can be used to produce samples for FID evaluation.
 """
-from dataclasses import asdict
-from functools import partial
-from pprint import pprint
-from utils.fixseed import fixseed
-import os
-import time
-import numpy as np
-import torch
 import copy
 import json
-from utils.parser_util import generate_args
-from utils.model_util import create_model_and_diffusion, load_saved_model
-from utils.output_util import sample_to_motion, construct_template_variables, save_multiple_samples
-from utils.generation_template import get_template
-from utils import dist_util
-from model.cfg_sampler import ClassifierFreeSampleModel
-from data_loaders.get_data import DatasetConfig, get_dataset_loader
-from data_loaders.humanml.scripts.motion_process import recover_from_ric
-import data_loaders.humanml.utils.paramUtil as paramUtil
-from data_loaders import humanml_utils
-from data_loaders.humanml.utils.plot_script import plot_3d_motion
+import os
 import shutil
-from data_loaders.tensors import collate
-# import flag
-from torch.cuda import amp
-from sample.gmd.condition import (get_target_from_kframes, get_inpainting_motion_from_traj,
-                              get_target_and_inpt_from_kframes_batch,
-                              cond_fn_key_location, cond_fn_sdf, log_trajectory_from_xstart,
-                              CondKeyLocations, CondKeyLocationsWithSdf)
+from functools import partial
 
-from sample.gmd.keyframe_pattern import get_kframes, get_obstacles
-# For debugging
-import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
-import seaborn as sns
-from utils.editing_util import load_fixed_dataset, get_keyframes_mask
+import data_loaders.humanml.utils.paramUtil as paramUtil
+import numpy as np
+import torch
+
+from ...data_loaders import humanml_utils
+from ...data_loaders.get_data import DatasetConfig, get_dataset_loader
+from ...data_loaders.humanml.scripts.motion_process import recover_from_ric
+from ...data_loaders.humanml.utils.plot_script import plot_3d_motion
+from ...data_loaders.tensors import collate
+from ...model.cfg_sampler import ClassifierFreeSampleModel
+from ...utils import dist_util
+from ...utils.editing_util import get_keyframes_mask, load_fixed_dataset
+from ...utils.fixseed import fixseed
+from ...utils.generation_template import get_template
+from ...utils.model_util import create_model_and_diffusion, load_saved_model
+from ...utils.output_util import (
+    construct_template_variables,
+    sample_to_motion,
+    save_multiple_samples,
+)
+from ...utils.parser_util import generate_args
+from .condition import (
+    CondKeyLocations,
+    CondKeyLocationsWithSdf,
+    get_inpainting_motion_from_traj,
+    get_target_and_inpt_from_kframes_batch,
+    log_trajectory_from_xstart,
+)
+from .keyframe_pattern import get_kframes, get_obstacles
 
 
 def load_reward_model(data):

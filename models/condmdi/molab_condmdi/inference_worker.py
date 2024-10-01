@@ -8,23 +8,23 @@ import torch
 import tqdm
 from pydantic import BaseModel
 
-from convert.joints2bvh import BVH, Animation, joints2bvh
-from convert.joints2bvh.Quaternions import Quaternions
-from data_loaders.get_data import DatasetConfig, get_dataset_loader
-from data_loaders.humanml.scripts.motion_process import (
+from .convert.joints2bvh import BVH, Animation, joints2bvh
+from .convert.joints2bvh.Quaternions import Quaternions
+from .data_loaders.get_data import DatasetConfig, get_dataset_loader
+from .data_loaders.humanml.scripts.motion_process import (
     extract_features,
     postprocess_motion,
     preprocess_motion,
     recover_from_ric,
     recover_root_rot_pos,
 )
-from data_loaders.humanml.utils import paramUtil
-from model.cfg_sampler import ClassifierFreeSampleModel
-from utils import dist_util
-from utils.editing_util import get_keyframes_mask, joint_to_full_mask
-from utils.fixseed import fixseed
-from utils.model_util import create_model_and_diffusion, load_saved_model
-from utils.parser_util import (
+from .data_loaders.humanml.utils import paramUtil
+from .model.cfg_sampler import ClassifierFreeSampleModel
+from .utils import dist_util
+from .utils.editing_util import get_keyframes_mask, joint_to_full_mask
+from .utils.fixseed import fixseed
+from .utils.model_util import create_model_and_diffusion, load_saved_model
+from .utils.parser_util import (
     BaseOptions,
     CondSyntOptions,
     CustomSyntOptions,

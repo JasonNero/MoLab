@@ -1,9 +1,10 @@
-import numpy as np
 import os
-import numpy as np
-import data_loaders.humanml.utils.paramUtil as paramUtil
-from data_loaders.humanml.utils.plot_script import plot_3d_motion
 from argparse import ArgumentParser
+
+import numpy as np
+
+from . import paramUtil
+from .plot_script import plot_3d_motion
 
 
 def plot_samples(motions, gt_motions, lengths, texts, out_path, all_observed_masks=None):

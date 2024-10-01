@@ -1,8 +1,11 @@
 import warnings
-from data_loaders.humanml.common.quaternion import *
+
+import numpy as np
 import scipy.ndimage.filters as filters
 import torch
-import numpy as np
+
+from .quaternion import *
+
 
 class Skeleton(object):
     def __init__(self, offset, kinematic_tree, device):

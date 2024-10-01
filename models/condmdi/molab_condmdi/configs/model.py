@@ -1,6 +1,13 @@
 from dataclasses import dataclass
 from typing import Tuple
-from utils.parser_util import DataOptions, ModelOptions, DiffusionOptions, TrainingOptions, EvaluationOptions
+
+from ..utils.parser_util import (
+    DataOptions,
+    DiffusionOptions,
+    EvaluationOptions,
+    ModelOptions,
+    TrainingOptions,
+)
 
 
 @dataclass

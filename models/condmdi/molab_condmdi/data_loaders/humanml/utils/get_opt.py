@@ -1,8 +1,9 @@
 import os
-from argparse import Namespace
 import re
+from argparse import Namespace
 from os.path import join as pjoin
-from data_loaders.humanml.utils.word_vectorizer import POS_enumerator
+
+from .word_vectorizer import POS_enumerator
 
 
 def is_float(numStr):

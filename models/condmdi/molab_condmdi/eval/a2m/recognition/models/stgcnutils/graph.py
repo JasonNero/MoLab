@@ -1,7 +1,8 @@
-import numpy as np
 import pickle as pkl
 
-from utils.config import SMPL_KINTREE_PATH
+import numpy as np
+
+from ......utils.config import SMPL_KINTREE_PATH
 
 
 class Graph:
@@ -33,7 +34,7 @@ class Graph:
         self.dilation = dilation
 
         self.kintree_path = kintree_path
-        
+
         self.get_edge(layout)
         self.hop_dis = get_hop_distance(
             self.num_node, self.edge, max_hop=max_hop)

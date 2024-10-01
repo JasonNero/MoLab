@@ -3,12 +3,11 @@
 # Check PYTORCH3D_LICENCE before use
 
 import functools
-from typing import Optional
 import warnings
+from typing import Optional
 
 import torch
 import torch.nn.functional as F
-
 
 """
 The transformation matrices returned from the functions in this file assume

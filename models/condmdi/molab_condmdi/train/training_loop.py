@@ -3,27 +3,28 @@ import functools
 import os
 import time
 from types import SimpleNamespace
-import numpy as np
 
 import blobfile as bf
+import numpy as np
 import torch
-from torch.optim import AdamW
-
-from diffusion import logger
-from utils import dist_util
-from diffusion.fp16_util import MixedPrecisionTrainer
-from diffusion.resample import LossAwareSampler, UniformSampler
-from tqdm import tqdm
-from diffusion.resample import create_named_schedule_sampler
-from data_loaders.humanml.networks.evaluator_wrapper import EvaluatorMDMWrapper
-from eval import eval_humanml, eval_humanact12_uestc
-from data_loaders.get_data import get_dataset_loader
-from utils.parser_util import TrainingOptions
-from utils.model_util import load_model_wo_clip
-from torch import nn
-
 import wandb
-from utils.editing_util import get_keyframes_mask
+from torch import nn
+from torch.optim import AdamW
+from tqdm import tqdm
+
+from ..data_loaders.get_data import get_dataset_loader
+from ..data_loaders.humanml.networks.evaluator_wrapper import EvaluatorMDMWrapper
+from ..diffusion import logger
+from ..diffusion.fp16_util import MixedPrecisionTrainer
+from ..diffusion.resample import (
+    LossAwareSampler,
+    create_named_schedule_sampler,
+)
+from ..eval import eval_humanact12_uestc, eval_humanml
+from ..utils import dist_util
+from ..utils.editing_util import get_keyframes_mask
+from ..utils.model_util import load_model_wo_clip
+from ..utils.parser_util import TrainingOptions
 
 # For ImageNet experiments, this was a good default value.
 # We found that the lg_loss_scale quickly climbed to

@@ -1,7 +1,8 @@
 import os
+
 import numpy as np
 
-from data_loaders.humanml.scripts.motion_process import recover_from_ric
+from ..data_loaders.humanml.scripts.motion_process import recover_from_ric
 
 
 def sample_to_motion(sample_list, args, model_kwargs, model, n_frames,
@@ -101,7 +102,7 @@ def save_multiple_samples(args, out_path, row_print_template,
     os.system(ffmpeg_rep_cmd)
     print(row_print_template.format(caption, sample_i, all_rep_save_file))
     sample_files.append(all_rep_save_path)
-    
+
     # if (sample_i + 1
     #     ) % num_samples_in_out_file == 0 or
     if sample_i + 1 == args.num_samples:
@@ -178,7 +179,7 @@ def vis_fn(sample, filename, data, model, concat=False, abs_3d=False, traj_only=
         os.system(ffmpeg_rep_cmd)
         # print(row_print_template.format(caption, sample_i, all_rep_save_file))
         # sample_files.append(all_rep_save_path)
-    
+
 
 def plot_grad(out_path, rep_i):
     '''Function for check gradient of x during the denoising process.

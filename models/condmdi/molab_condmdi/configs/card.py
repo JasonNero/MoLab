@@ -1,6 +1,7 @@
-from utils.parser_util import *
 from dataclasses import dataclass
-from configs import data, model
+
+from ..utils.parser_util import *
+from . import data, model
 
 ###########################
 # MOTION MODELS

@@ -53,7 +53,7 @@ def worker():
         # pytest.param(False, True, "Dance like nobody's watching", id="packed_text"),
     ],
 )
-def test_inference(worker, use_bvh: bool, use_packed_motion: bool, text: str):
+def test_inference(worker: MotionInferenceWorker, use_bvh: bool, use_packed_motion: bool, text: str):
     packed_motion = {
         "0": [
             [0.006335, 0.925889, 0.022782],

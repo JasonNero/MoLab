@@ -1,15 +1,11 @@
 import math
-import numpy as np
+from textwrap import wrap
+
 import matplotlib
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.patches import Circle
-import mpl_toolkits.mplot3d.art3d as art3d
-from matplotlib.animation import FuncAnimation, FFMpegFileWriter
+import numpy as np
+from matplotlib.animation import FuncAnimation
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-import mpl_toolkits.mplot3d.axes3d as p3
-# import cv2
-from textwrap import wrap
 
 
 def list_cut_average(ll, intervals):

@@ -1,27 +1,26 @@
+import os
 from os.path import join as pjoin
 
-from data_loaders.humanml.common.skeleton import Skeleton
 import numpy as np
-import os
-from data_loaders.humanml.common.quaternion import (
-    qbetween_np,
-    qrot_np,
-    qmul_np,
-    qinv_np,
-    quaternion_to_cont6d_np,
-    qfix,
-    qrot,
-    qinv,
-    quaternion_to_cont6d,
-)
-from data_loaders.humanml.utils.paramUtil import (
-    t2m_raw_offsets,
-    t2m_kinematic_chain,
-)
-
 import torch
 from tqdm import tqdm
 
+from ..common.quaternion import (
+    qbetween_np,
+    qfix,
+    qinv,
+    qinv_np,
+    qmul_np,
+    qrot,
+    qrot_np,
+    quaternion_to_cont6d,
+    quaternion_to_cont6d_np,
+)
+from ..common.skeleton import Skeleton
+from ..utils.paramUtil import (
+    t2m_kinematic_chain,
+    t2m_raw_offsets,
+)
 
 # Lower legs
 l_idx1, l_idx2 = 5, 8

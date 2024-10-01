@@ -4,8 +4,7 @@ from pathlib import Path
 import numpy as np
 import tqdm
 
-from . import Animation
-from . import BVH
+from . import BVH, Animation
 from .InverseKinematics import BasicInverseKinematics, BasicJacobianIK
 from .Quaternions import Quaternions
 from .remove_fs import remove_fs

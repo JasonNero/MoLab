@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from eval.a2m.recognition.models.stgcnutils.tgcn import ConvTemporalGraphical
-from eval.unconstrained.models.stgcnutils.graph import Graph
+from ...a2m.recognition.models.stgcnutils.tgcn import ConvTemporalGraphical
+from .stgcnutils.graph import Graph
 
 __all__ = ["STGCN"]
 
@@ -32,7 +32,7 @@ class STGCN(nn.Module):
 
         self.device = device
         self.num_class = num_class
-        
+
         self.losses = ["accuracy", "cross_entropy", "mixed"]
         self.criterion = torch.nn.CrossEntropyLoss(reduction='mean')
 
@@ -99,14 +99,14 @@ class STGCN(nn.Module):
         # _, c, t, v = x.size()
         # features = x.view(N, M, c, t, v).permute(0, 2, 3, 4, 1)
         # batch["features"] = features
-        
+
         # global pooling
         x = F.avg_pool2d(x, x.size()[2:])
         x = x.view(N, M, -1, 1, 1).mean(dim=1)
 
         # features
         batch["features"] = x.squeeze()
-        
+
         # prediction
         x = self.fcn(x)
         x = x.view(x.size(0), -1)
@@ -121,11 +121,11 @@ class STGCN(nn.Module):
             confusion[label][pred] += 1
         accuracy = torch.trace(confusion)/torch.sum(confusion)
         return accuracy
-    
+
     def compute_loss(self, batch):
         cross_entropy = self.criterion(batch["yhat"], batch["y"])
         mixed_loss = cross_entropy
-        
+
         acc = self.compute_accuracy(batch)
         losses = {"cross_entropy": cross_entropy.item(),
                   "mixed": mixed_loss.item(),

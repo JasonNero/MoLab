@@ -1,30 +1,15 @@
-import torch
 import os
+
 import numpy as np
-import random
-from data_loaders import humanml_utils, amass_utils
+import torch
+
+from ..data_loaders import humanml_utils
 
 
 def bool_matmul(a, b):
         res = torch.matmul(a.float(), b.float().to(a.device))
         assert (res == res.bool()).all()
         return res.bool()
-
-
-def joint_to_full_mask_amass(joint_mask, mode='all'):
-    # If mode='nemf', choose features corresponding to pos, global_xform, trans, root_orient to be consistent with NeMF
-    # But we choose to use everything except velocities and contacts. 609 features / 764 features
-    joint_mask = joint_mask.permute(2, 3, 0, 1) # [1, seqlen, bs, 24]
-    mask_comp = []
-    mask_comp.append(bool_matmul(joint_mask, torch.tensor(amass_utils.MAT_POS)))
-    mask_comp.append(bool_matmul(joint_mask, torch.tensor(amass_utils.MAT_ROTMAT)))
-    mask_comp.append(bool_matmul(joint_mask, torch.tensor(amass_utils.MAT_ROT)))
-    if mode == 'all':
-        mask_comp.append(bool_matmul(joint_mask, torch.tensor(amass_utils.MAT_HEIGHT)))
-        mask_comp.append(bool_matmul(joint_mask, torch.tensor(amass_utils.MAT_ROT6D)))
-
-    mask = torch.stack(mask_comp, dim=0).any(dim=0) # [1, seqlen, bs, 764]
-    return mask.permute(2, 3, 0, 1) # [bs, 764, 1, seqlen]
 
 
 def joint_to_full_mask(joint_mask, mode='pos_rot_vel'):

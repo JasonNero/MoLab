@@ -1,10 +1,10 @@
-import torch
 import numpy as np
-from .accuracy import calculate_accuracy
-from .fid import calculate_fid
-from .diversity import calculate_diversity_multimodality
+import torch
 
-from eval.a2m.recognition.models.stgcn import STGCN
+from ..recognition.models.stgcn import STGCN
+from .accuracy import calculate_accuracy
+from .diversity import calculate_diversity_multimodality
+from .fid import calculate_fid
 
 
 class Evaluation:

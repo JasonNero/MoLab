@@ -1,18 +1,17 @@
 import copy
-import os
+import functools
 
 import numpy as np
-from tqdm import tqdm
 import torch
-import functools
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
-from utils.fixseed import fixseed
-from data_loaders.tensors import collate
-from eval.a2m.action2motion.evaluate import A2MEvaluation
-from eval.unconstrained.evaluate import evaluate_unconstrained_metrics
-from .tools import save_metrics, format_metrics
-from utils import dist_util
+from ...data_loaders.tensors import collate
+from ...utils import dist_util
+from ...utils.fixseed import fixseed
+from ..unconstrained.evaluate import evaluate_unconstrained_metrics
+from .action2motion.evaluate import A2MEvaluation
+from .tools import format_metrics
 
 num_samples_unconstrained = 1000
 

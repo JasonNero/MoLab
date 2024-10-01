@@ -1,10 +1,13 @@
-from model.rotation2xyz import Rotation2xyz
+import os
+
 import numpy as np
+import torch
 import trimesh
 from trimesh import Trimesh
-import os
-import torch
-from visualize.simplify_loc2rot import joints2smpl
+
+from ..model.rotation2xyz import Rotation2xyz
+from .simplify_loc2rot import joints2smpl
+
 
 class npy2obj:
     def __init__(self, npy_path, sample_idx, rep_idx, device=0, cuda=True):

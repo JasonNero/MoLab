@@ -1,4 +1,4 @@
-from utils.parser_util import FullModelArgs
+from .parser_util import FullModelArgs
 
 
 def get_template(args: FullModelArgs, template_name="no"):
@@ -36,7 +36,7 @@ def mdm_template(args: FullModelArgs):
 
 def trajectory_template(args: FullModelArgs):
     args.do_inpaint = True
-    # Data flags  
+    # Data flags
     # NOTE: this should already be in json for new model
     # May need to update json for previous model
     # args.use_random_proj = True

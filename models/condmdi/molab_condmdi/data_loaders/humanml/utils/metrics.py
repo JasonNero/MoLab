@@ -1,7 +1,7 @@
 import numpy as np
+import torch
 from scipy import linalg
 from scipy.ndimage import uniform_filter1d
-import torch
 
 
 # (X - X_train)*(X - X_train) = -2X*X_train + X*X + X_train*X_train

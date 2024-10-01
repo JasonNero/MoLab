@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from utils.parser_util import BaseOptions, DataOptions
+
+from ..utils.parser_util import BaseOptions, DataOptions
 
 
 @dataclass

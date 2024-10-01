@@ -1,16 +1,19 @@
-import torch
-import torch.nn.functional as F
+import codecs as cs
 import random
-from data_loaders.humanml.networks.modules import *
-from torch.utils.data import DataLoader
-import torch.optim as optim
-from torch.nn.utils import clip_grad_norm_
+
 # import tensorflow as tf
 from collections import OrderedDict
-from data_loaders.humanml.utils.utils import *
 from os.path import join as pjoin
-from data_loaders.humanml.data.dataset import collate_fn
-import codecs as cs
+
+import torch
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.nn.utils import clip_grad_norm_
+from torch.utils.data import DataLoader
+
+from ..data.dataset import collate_fn
+from ..utils.utils import *
+from .modules import *
 
 
 class Logger(object):
@@ -426,7 +429,7 @@ class CompTrainerV6(object):
 
             '''Decoder'''
             dec_in = torch.cat([mov_in, att_vec, z_pri], dim=-1)
-            
+
             fake_mov, hidden_dec = self.seq_dec(dec_in, mov_in, hidden_dec, tta)
 
             # print(fake_mov.shape)

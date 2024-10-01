@@ -3,21 +3,22 @@
 Generate a large batch of image samples from a model and save them as a large
 numpy array. This can be used to produce samples for FID evaluation.
 """
-from utils.fixseed import fixseed
 import os
+import shutil
+
+import data_loaders.humanml.utils.paramUtil as paramUtil
 import numpy as np
 import torch
-from utils.parser_util import generate_args
-from utils.model_util import create_model_and_diffusion, load_saved_model
-from utils import dist_util
-from model.cfg_sampler import ClassifierFreeSampleModel
-from data_loaders.get_data import DatasetConfig, get_dataset_loader
-from data_loaders.humanml.scripts.motion_process import recover_from_ric
-import data_loaders.humanml.utils.paramUtil as paramUtil
-from data_loaders.humanml.utils.plot_script import plot_3d_motion
-import shutil
-from data_loaders.tensors import collate
-from data_loaders.amass.utils.utils import batch_to_dict, dict_to_batch
+
+from ..data_loaders.get_data import DatasetConfig, get_dataset_loader
+from ..data_loaders.humanml.scripts.motion_process import recover_from_ric
+from ..data_loaders.humanml.utils.plot_script import plot_3d_motion
+from ..data_loaders.tensors import collate
+from ..model.cfg_sampler import ClassifierFreeSampleModel
+from ..utils import dist_util
+from ..utils.fixseed import fixseed
+from ..utils.model_util import create_model_and_diffusion, load_saved_model
+from ..utils.parser_util import generate_args
 
 
 def get_max_length(dataset):
@@ -157,10 +158,11 @@ def main():
             sample = sample.view(-1, *sample.shape[2:]).permute(0, 2, 3, 1) # batch_size, n_joints=22, 3, n_frames
 
         elif args.dataset == 'amass':
-            sample = sample.cpu().permute(0, 2, 3, 1) # batch_size, 1, 128, 764
-            sample_dict = batch_to_dict(sample)
-            denormalized_sample_dict = data.dataset.denormalize(sample_dict)
-            sample = dict_to_batch(denormalized_sample_dict)
+            raise NotImplementedError("AMASS dataset has been deprecated")
+            # sample = sample.cpu().permute(0, 2, 3, 1) # batch_size, 1, 128, 764
+            # sample_dict = batch_to_dict(sample)
+            # denormalized_sample_dict = data.dataset.denormalize(sample_dict)
+            # sample = dict_to_batch(denormalized_sample_dict)
 
         rot2xyz_pose_rep = 'xyz' if model.data_rep in ['xyz', 'hml_vec'] else model.data_rep
         rot2xyz_mask = None if rot2xyz_pose_rep == 'xyz' else model_kwargs['y']['mask'].reshape(args.batch_size, n_frames).bool()

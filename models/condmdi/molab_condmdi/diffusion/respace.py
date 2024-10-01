@@ -1,9 +1,10 @@
 # This code is based on https://github.com/openai/guided-diffusion
 from copy import deepcopy
+
 import numpy as np
 import torch as th
 
-from .gaussian_diffusion import GaussianDiffusion, DiffusionConfig
+from .gaussian_diffusion import DiffusionConfig, GaussianDiffusion
 
 
 def space_timesteps(num_timesteps, section_counts):

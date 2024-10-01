@@ -1,20 +1,24 @@
+import codecs as cs
+import os
+import random
+from os.path import join as pjoin
+
+import numpy as np
+import spacy
 import torch
 from torch.utils import data
-import numpy as np
-import os
-from os.path import join as pjoin
-import random
-import codecs as cs
-from tqdm import tqdm
-import spacy
-
 from torch.utils.data._utils.collate import default_collate
-from data_loaders.humanml.utils.word_vectorizer import WordVectorizer
-from data_loaders.humanml.utils.get_opt import get_opt
-from data_loaders.humanml.common.quaternion import qinv, qrot
-from data_loaders.humanml.scripts.motion_process import recover_from_ric, extract_features
-from data_loaders.humanml.utils.paramUtil import *
-from data_loaders.humanml.common.skeleton import Skeleton
+from tqdm import tqdm
+
+from ..common.quaternion import qinv, qrot
+from ..common.skeleton import Skeleton
+from ..scripts.motion_process import (
+    extract_features,
+    recover_from_ric,
+)
+from ..utils.get_opt import get_opt
+from ..utils.paramUtil import *
+from ..utils.word_vectorizer import WordVectorizer
 
 
 def collate_fn(batch):

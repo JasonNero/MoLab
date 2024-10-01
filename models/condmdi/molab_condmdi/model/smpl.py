@@ -1,18 +1,16 @@
 # This code is based on https://github.com/Mathux/ACTOR.git
-import numpy as np
-import torch
-
 import contextlib
 
+import numpy as np
+import torch
 from smplx import SMPLLayer as _SMPLLayer
 from smplx.lbs import vertices2joints
-
 
 # action2motion_joints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 21, 24, 38]
 # change 0 and 8
 action2motion_joints = [8, 1, 2, 3, 4, 5, 6, 7, 0, 9, 10, 11, 12, 13, 14, 21, 24, 38]
 
-from utils.config import SMPL_MODEL_PATH, JOINT_REGRESSOR_TRAIN_EXTRA
+from ..utils.config import SMPL_MODEL_PATH, JOINT_REGRESSOR_TRAIN_EXTRA
 
 JOINTSTYPE_ROOT = {"a2m": 0, # action2motion
                    "smpl": 0,
@@ -70,7 +68,7 @@ class SMPL(_SMPLLayer):
         # remove the verbosity for the 10-shapes beta parameters
         with contextlib.redirect_stdout(None):
             super(SMPL, self).__init__(**kwargs)
-            
+
         J_regressor_extra = np.load(JOINT_REGRESSOR_TRAIN_EXTRA)
         self.register_buffer('J_regressor_extra', torch.tensor(J_regressor_extra, dtype=torch.float32))
         vibe_indexes = np.array([JOINT_MAP[i] for i in JOINT_NAMES])
@@ -82,10 +80,10 @@ class SMPL(_SMPLLayer):
                      "a2m": a2m_indexes,
                      "smpl": smpl_indexes,
                      "a2mpl": a2mpl_indexes}
-        
+
     def forward(self, *args, **kwargs):
         smpl_output = super(SMPL, self).forward(*args, **kwargs)
-        
+
         extra_joints = vertices2joints(self.J_regressor_extra, smpl_output.vertices)
         all_joints = torch.cat([smpl_output.joints, extra_joints], dim=1)
 
@@ -93,5 +91,5 @@ class SMPL(_SMPLLayer):
 
         for joinstype, indexes in self.maps.items():
             output[joinstype] = all_joints[:, indexes]
-            
+
         return output

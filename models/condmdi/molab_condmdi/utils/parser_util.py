@@ -1,10 +1,9 @@
-from argparse import ArgumentParser
-import argparse
-from dataclasses import dataclass, field, fields
-import os
 import json
-from typing import Tuple, Union
-from utils.hfargparse import HfArgumentParser
+import os
+from dataclasses import dataclass, field, fields
+from typing import Tuple
+
+from .hfargparse import HfArgumentParser
 
 
 @dataclass

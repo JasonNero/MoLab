@@ -3,16 +3,17 @@ Generate a large batch of image samples from a model and save them as a large
 numpy array. This can be used to produce samples for FID evaluation.
 """
 import os
-import torch
 import re
 
-from utils import dist_util
-from model.cfg_sampler import ClassifierFreeSampleModel
-from data_loaders.get_data import get_dataset_loader
-from eval.a2m.tools import save_metrics
-from utils.parser_util import evaluation_parser
-from utils.fixseed import fixseed
-from utils.model_util import create_model_and_diffusion, load_model_wo_clip
+import torch
+
+from ..data_loaders.get_data import get_dataset_loader
+from ..model.cfg_sampler import ClassifierFreeSampleModel
+from ..utils import dist_util
+from ..utils.fixseed import fixseed
+from ..utils.model_util import create_model_and_diffusion, load_model_wo_clip
+from ..utils.parser_util import evaluation_parser
+from .a2m.tools import save_metrics
 
 
 def evaluate(args, model, diffusion, data):

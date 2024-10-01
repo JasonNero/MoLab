@@ -1,9 +1,11 @@
-from t2m.data.dataset import Text2MotionDatasetV2, collate_fn
-from t2m.utils.word_vectorizer import WordVectorizer
-import numpy as np
 from os.path import join as pjoin
-from torch.utils.data import DataLoader
+
+import numpy as np
+from t2m.data.dataset import Text2MotionDatasetV2, collate_fn
 from t2m.utils.get_opt import get_opt
+from t2m.utils.word_vectorizer import WordVectorizer
+from torch.utils.data import DataLoader
+
 
 def get_dataset_motion_loader(opt_path, batch_size, device):
     opt = get_opt(opt_path, device)

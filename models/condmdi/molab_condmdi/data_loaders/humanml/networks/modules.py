@@ -1,11 +1,12 @@
+import math
+
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
-import time
-import math
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
+
 # from networks.layers import *
 import torch.nn.functional as F
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 
 class ContrastiveLoss(torch.nn.Module):

@@ -1,18 +1,25 @@
-from utils.parser_util import eval_args # , evaluation_parser
-from utils.fixseed import fixseed
-from datetime import datetime
-from data_loaders.humanml.motion_loaders.model_motion_loaders import get_mdm_loader  # get_motion_loader
-from data_loaders.humanml.utils.metrics import *
-from data_loaders.humanml.networks.evaluator_wrapper import EvaluatorMDMWrapper
 from collections import OrderedDict
-from data_loaders.humanml.scripts.motion_process import *
-from data_loaders.humanml.utils.utils import *
-from utils.model_util import create_model_and_diffusion, load_model_wo_clip, load_saved_model
+from datetime import datetime
 
-from diffusion import logger
-from utils import dist_util
-from data_loaders.get_data import DatasetConfig, get_dataset_loader
-from model.cfg_sampler import ClassifierFreeSampleModel
+import torch
+
+from ..data_loaders.get_data import DatasetConfig, get_dataset_loader
+from ..data_loaders.humanml.motion_loaders.model_motion_loaders import (
+    get_mdm_loader,  # get_motion_loader
+)
+from ..data_loaders.humanml.networks.evaluator_wrapper import EvaluatorMDMWrapper
+from ..data_loaders.humanml.scripts.motion_process import *
+from ..data_loaders.humanml.utils.metrics import *
+from ..data_loaders.humanml.utils.utils import *
+from ..diffusion import logger
+from ..model.cfg_sampler import ClassifierFreeSampleModel
+from ..utils import dist_util
+from ..utils.fixseed import fixseed
+from ..utils.model_util import (
+    create_model_and_diffusion,
+    load_saved_model,
+)
+from ..utils.parser_util import eval_args  # , evaluation_parser
 
 torch.multiprocessing.set_sharing_strategy('file_system')
 
@@ -66,7 +73,7 @@ def evaluate_matching_score(eval_wrapper, motion_loaders, file):
             match_score_dict[motion_loader_name] = matching_score
             R_precision_dict[motion_loader_name] = R_precision
             activation_dict[motion_loader_name] = all_motion_embeddings
-        
+
         if motion_loader_name == "vald":
             # For skating evaluation
             skating_score = skate_ratio_sum / all_size
