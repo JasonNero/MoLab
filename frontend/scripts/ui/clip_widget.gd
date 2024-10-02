@@ -1,7 +1,6 @@
 #@tool
-
-extends Control
 class_name ClipWidget
+extends Control
 
 @onready var _inner_panel = %InnerPanel
 

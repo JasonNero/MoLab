@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="TrackAnimation" load_steps=6 format=3 uid="uid://dcl7ss260wd1r"]
 
-[ext_resource type="Script" path="res://datatypes/track_animation.gd" id="1_dyhw0"]
-[ext_resource type="Script" path="res://datatypes/bvh_track.gd" id="2_vwpuv"]
-[ext_resource type="Script" path="res://datatypes/ttm_track.gd" id="3_e35dv"]
+[ext_resource type="Script" path="res://scripts/datatypes/track_animation.gd" id="1_dyhw0"]
+[ext_resource type="Script" path="res://scripts/datatypes/bvh_track.gd" id="2_vwpuv"]
+[ext_resource type="Script" path="res://scripts/datatypes/ttm_track.gd" id="3_e35dv"]
 
 [sub_resource type="Resource" id="Resource_l5rgw"]
 script = ExtResource("2_vwpuv")

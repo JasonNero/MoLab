@@ -1,13 +1,13 @@
 [gd_resource type="Resource" script_class="TrackAnimation" load_steps=11 format=3]
 
-[ext_resource type="Script" path="res://datatypes/track_animation.gd" id="1_sua2k"]
-[ext_resource type="Script" path="res://datatypes/track.gd" id="2_u78fq"]
-[ext_resource type="Script" path="res://datatypes/bvh_track.gd" id="3_f3c5a"]
-[ext_resource type="Script" path="res://datatypes/ttm_track.gd" id="4_6jcvf"]
-[ext_resource type="Script" path="res://datatypes/tween_track.gd" id="5_hkdfd"]
+[ext_resource type="Script" path="res://scripts/datatypes/track_animation.gd" id="1_wgiqa"]
+[ext_resource type="Script" path="res://scripts/datatypes/track.gd" id="2_8sfn1"]
+[ext_resource type="Script" path="res://scripts/datatypes/bvh_track.gd" id="3_ct8mo"]
+[ext_resource type="Script" path="res://scripts/datatypes/ttm_track.gd" id="4_rymyj"]
+[ext_resource type="Script" path="res://scripts/datatypes/tween_track.gd" id="5_hdlma"]
 
-[sub_resource type="Resource" id="Resource_jh4t7"]
-script = ExtResource("3_f3c5a")
+[sub_resource type="Resource" id="Resource_t0n72"]
+script = ExtResource("3_ct8mo")
 file = "anim/capoeira.bvh"
 name = "Capoeira Choreo"
 in_point = 0
@@ -15,8 +15,8 @@ out_point = 80
 blend_in = 0
 blend_out = 0
 
-[sub_resource type="Resource" id="Resource_mirb3"]
-script = ExtResource("4_6jcvf")
+[sub_resource type="Resource" id="Resource_lonal"]
+script = ExtResource("4_rymyj")
 text = "The athlete jumps"
 model = 0
 name = "Jump"
@@ -25,8 +25,8 @@ out_point = 60
 blend_in = 5
 blend_out = 5
 
-[sub_resource type="Resource" id="Resource_jfd16"]
-script = ExtResource("4_6jcvf")
+[sub_resource type="Resource" id="Resource_3cfqx"]
+script = ExtResource("4_rymyj")
 text = "A person stumbles and falls"
 model = 2
 name = "Fall"
@@ -35,8 +35,8 @@ out_point = 80
 blend_in = 10
 blend_out = 10
 
-[sub_resource type="Resource" id="Resource_vc730"]
-script = ExtResource("3_f3c5a")
+[sub_resource type="Resource" id="Resource_egg6r"]
+script = ExtResource("3_ct8mo")
 file = "anim/capoeira.bvh"
 name = "Tango Dance"
 in_point = 90
@@ -44,8 +44,8 @@ out_point = 200
 blend_in = 0
 blend_out = 20
 
-[sub_resource type="Resource" id="Resource_a6egi"]
-script = ExtResource("5_hkdfd")
+[sub_resource type="Resource" id="Resource_04ix0"]
+script = ExtResource("5_hdlma")
 model = 2
 name = "Transition"
 in_point = 70
@@ -54,5 +54,5 @@ blend_in = 10
 blend_out = 10
 
 [resource]
-script = ExtResource("1_sua2k")
-tracks = Array[ExtResource("2_u78fq")]([SubResource("Resource_jh4t7"), SubResource("Resource_mirb3"), SubResource("Resource_jfd16"), SubResource("Resource_vc730"), SubResource("Resource_a6egi")])
+script = ExtResource("1_wgiqa")
+tracks = Array[ExtResource("2_8sfn1")]([SubResource("Resource_t0n72"), SubResource("Resource_lonal"), SubResource("Resource_3cfqx"), SubResource("Resource_egg6r"), SubResource("Resource_04ix0")])

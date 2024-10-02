@@ -25,7 +25,6 @@ public partial class WebSocketTestCS : Node
 			return;
 		}
 
-
 		var timeoutThreshold = 10;
 
 		while (ws.GetReadyState() != WebSocketPeer.State.Open)

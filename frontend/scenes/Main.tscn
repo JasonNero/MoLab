@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://b871xxj0dvj8w" path="res://scenes/Main3D.tscn" id="1_803a3"]
 [ext_resource type="PackedScene" uid="uid://3cmvat50tv12" path="res://scenes/Sequencer.tscn" id="2_wdk01"]
-[ext_resource type="Script" path="res://scripts/WebSocketTestCS.cs" id="3_gmgu3"]
+[ext_resource type="Script" path="res://scripts/inference/websocket_test.gd" id="3_tutfm"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -39,5 +39,5 @@ layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 3.0
 
-[node name="Node" type="Node" parent="."]
-script = ExtResource("3_gmgu3")
+[node name="BackendWebSocket" type="Node" parent="."]
+script = ExtResource("3_tutfm")

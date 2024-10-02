@@ -1330,10 +1330,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.71331, 0)
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = ExtResource("2_ugxds")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="Floor" type="MeshInstance3D" parent="."]
 mesh = SubResource("PlaneMesh_8o6mo")
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+[node name="Wall" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, -0.000468644, -0.000218554, 0.000515955, 0.87619, 0.481966, -3.43908e-05, -0.481966, 0.87619, 0, 0.460233, -1.83674)
 mesh = SubResource("BoxMesh_orese")
 

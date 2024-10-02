@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://b5pneqhc7amhy"]
 
 [ext_resource type="StyleBox" uid="uid://c5s76rce3vofg" path="res://res/sytle_box_outter.tres" id="2_f2tv2"]
-[ext_resource type="Script" path="res://scripts/clip_widget.gd" id="2_t0u21"]
+[ext_resource type="Script" path="res://scripts/ui/clip_widget.gd" id="2_t0u21"]
 [ext_resource type="StyleBox" uid="uid://ctipn82ef30o1" path="res://res/style_box_inner.tres" id="3_6x5bt"]
 
 [node name="ClipPanelWidget" type="Panel"]

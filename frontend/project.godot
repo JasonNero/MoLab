@@ -15,7 +15,7 @@ config/description="A quick and rather dirty prototype for \"Layer-based Motion 
 (Project is based off Godots \"Control Gallery\" example)"
 config/tags=PackedStringArray("gui")
 run/main_scene="res://scenes/Main.tscn"
-config/features=PackedStringArray("4.3")
+config/features=PackedStringArray("4.3", "C#")
 run/low_processor_mode=true
 config/icon="res://icons/CharacterBody3D.png"
 
