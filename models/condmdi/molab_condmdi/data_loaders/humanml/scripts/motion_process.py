@@ -239,6 +239,7 @@ def extract_features(positions, feet_thre, n_raw_offsets, kinematic_chain, face_
     '''Root rotation and linear velocity'''
     # (seq_len-1, 1) rotation velocity along y-axis
     # (seq_len-1, 2) linear velovity on xz plane
+    r_velocity[r_velocity[..., 0] < 0] *= -1  # Fix for issue HumanML3D#156
     r_velocity = np.arcsin(r_velocity[:, 2:3])
     l_velocity = velocity[:, [0, 2]]
     #     print(r_velocity.shape, l_velocity.shape, root_y.shape)
@@ -443,6 +444,7 @@ def process_file(positions, feet_thre):
     '''Root rotation and linear velocity'''
     # (seq_len-1, 1) rotation velocity along y-axis
     # (seq_len-1, 2) linear velovity on xz plane
+    r_velocity[r_velocity[..., 0] < 0] *= -1  # Fix for issue HumanML3D#156
     r_velocity = np.arcsin(r_velocity[:, 2:3])
     l_velocity = velocity[:, [0, 2]]
     #     print(r_velocity.shape, l_velocity.shape, root_y.shape)
