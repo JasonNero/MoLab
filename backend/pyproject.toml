@@ -13,6 +13,13 @@ dependencies = [
     "uvicorn==0.31.0",
 ]
 
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+backend = "molab_backend.main:main"
+
 [tool.uv]
 dev-dependencies = [
     "black>=24.8.0",

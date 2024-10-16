@@ -34,12 +34,12 @@ clean-build: ## Clean build artifacts
 .PHONY: run-backend
 run-backend: ## Run the backend
 	@echo "🚀 Running the backend"
-	@cd backend && uv run main.py
+	@cd backend && uv run backend
 
 .PHONY: run-worker
 run-worker: ## Run the worker
 	@echo "🚀 Running the worker"
-	@cd models/condmdi && uv run websocket_worker.py
+	@cd models/condmdi && uv run worker
 
 .PHONY: run-frontend
 run-frontend: ## Run the frontend

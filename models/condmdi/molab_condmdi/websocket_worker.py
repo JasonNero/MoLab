@@ -6,7 +6,7 @@ from pathlib import Path
 
 import websockets
 
-from .inference_worker import (
+from molab_condmdi.inference_worker import (
     InferenceArgs,
     InferenceResults,
     ModelArgs,
@@ -22,9 +22,13 @@ worker = None
 def setup_worker():
     """Starts the worker, loading the model checkpoint and arguments."""
     # Setup the MotionInferenceWorker
-    # model_path = Path("./save/condmdi_random_joints/model000750000.pt")
+    # model_path = (
+    #     Path(__file__).parent / "save" / "condmdi_random_joints" / "model000750000.pt"
+    # )
     # logger.info("Using random joints model.")
-    model_path = Path("./save/condmdi_random_frames/model000750000.pt")
+    model_path = (
+        Path(__file__).parent / "save" / "condmdi_random_frames" / "model000750000.pt"
+    )
     logger.info("Using random frames model.")
     assert model_path.is_file(), f"Model checkpoint not found at [{model_path}]"
     model_args_path = model_path.parent / "args.json"
@@ -32,9 +36,9 @@ def setup_worker():
         model_dict = json.load(file)
 
     # Filter out only the model arguments (ignores `EvaluationOptions`)
-    model_args = ModelArgs(
-        **{k: v for k, v in model_dict.items() if k in ModelArgs.__dataclass_fields__}
-    )
+    model_args = ModelArgs(**{
+        k: v for k, v in model_dict.items() if k in ModelArgs.__dataclass_fields__
+    })
     model_args.model_path = model_path
     model_args.num_repetitions = 1
     model_args.num_samples = 1
@@ -86,7 +90,7 @@ async def worker_logic(uri: str):
             worker.stop()
 
 
-if __name__ == "__main__":
+def main():
     if len(sys.argv) > 1:
         uri = "ws://" + sys.argv[1] + "/register_worker"
     else:
@@ -95,3 +99,7 @@ if __name__ == "__main__":
     setup_worker()
     asyncio.run(worker_logic(uri))
     worker.stop()
+
+
+if __name__ == "__main__":
+    main()

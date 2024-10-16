@@ -2,6 +2,7 @@ import codecs as cs
 import os
 import random
 from os.path import join as pjoin
+from pathlib import Path
 
 import numpy as np
 import spacy
@@ -10,6 +11,7 @@ from torch.utils import data
 from torch.utils.data._utils.collate import default_collate
 from tqdm import tqdm
 
+import molab_condmdi
 from molab_condmdi.data_loaders.humanml.common.quaternion import qinv, qrot
 from molab_condmdi.data_loaders.humanml.common.skeleton import Skeleton
 from molab_condmdi.data_loaders.humanml.scripts.motion_process import (
@@ -1049,7 +1051,7 @@ class HumanML3D(data.Dataset):
     def __init__(
             self,
             mode,
-            datapath='./dataset/humanml_opt.txt',
+            datapath='dataset/humanml_opt.txt',
             split="train",
             use_abs3d=False,
             traject_only=False,
@@ -1068,19 +1070,19 @@ class HumanML3D(data.Dataset):
         self.dataname = 't2m'
 
         # Configurations of T2M dataset and KIT dataset is almost the same
-        abs_base_path = '.'
-        dataset_opt_path = pjoin(abs_base_path, datapath)
+        abs_base_path = Path(molab_condmdi.__file__).parent
+        dataset_opt_path = abs_base_path / datapath
         device = None  # torch.device('cuda:4') # This param is not in use in this context
         # TODO: modernize get_opt
         opt = get_opt(dataset_opt_path, device, mode, use_abs3d=use_abs3d, max_motion_length=num_frames)
-        opt.meta_dir = pjoin(abs_base_path, opt.meta_dir)
+        # opt.meta_dir = pjoin(abs_base_path, opt.meta_dir)
+        opt.meta_dir = pjoin(abs_base_path, "dataset")
         opt.motion_dir = pjoin(abs_base_path, opt.motion_dir)
         opt.text_dir = pjoin(abs_base_path, opt.text_dir)
         opt.model_dir = pjoin(abs_base_path, opt.model_dir)
         opt.checkpoints_dir = pjoin(abs_base_path, opt.checkpoints_dir)
         opt.data_root = pjoin(abs_base_path, opt.data_root)
         opt.save_root = pjoin(abs_base_path, opt.save_root)
-        opt.meta_dir = './dataset'
         self.opt = opt
 
         self.absolute_3d = use_abs3d
@@ -1205,7 +1207,7 @@ class HumanML3D(data.Dataset):
                                             'in the README file.'
 
         # Load necessay variables for converting raw motion to processed data
-        data_dir = './dataset/000021.npy'
+        data_dir = pjoin(opt.meta_dir, "000021.npy")
         self.n_raw_offsets = torch.from_numpy(t2m_raw_offsets)
         self.kinematic_chain = t2m_kinematic_chain
         # Get offsets of target skeleton

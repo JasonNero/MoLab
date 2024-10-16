@@ -809,9 +809,10 @@ class MotionInferenceWorker:
         )
 
 
-
 def _test():
-    model_path = Path("./save/condmdi_random_joints/model000750000.pt")
+    # model_path = Path(__file__).parent / "save" / "condmdi_random_joints" / "model000750000.pt"
+    model_path = Path(__file__).parent / "save" / "condmdi_random_frames" / "model000750000.pt"
+
     assert model_path.is_file(), f"Model checkpoint not found at [{model_path}]"
 
     model_args_path = model_path.parent / "args.json"
@@ -964,21 +965,5 @@ def _test():
 
     worker.stop()
 
-##### PROFILING TESTS #####
-
-
-def trace_handler(p):
-    output = p.key_averages().table(sort_by="self_cuda_time_total", row_limit=10)
-    print(output)
-    p.export_chrome_trace("./traces/trace_" + str(p.step_num) + ".json")
-
 if __name__ == "__main__":
-    # from torch.profiler import profile, ProfilerActivity
-    # with profile(
-    #     activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
-    #     on_trace_ready=trace_handler
-    # ) as p:
-    #     _test()
-    #     p.step()
-
     _test()

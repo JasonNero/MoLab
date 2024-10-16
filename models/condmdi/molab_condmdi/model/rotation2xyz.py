@@ -1,7 +1,7 @@
 # This code is based on https://github.com/Mathux/ACTOR.git
 import torch
-from model.smpl import JOINTSTYPE_ROOT, SMPL
 
+from molab_condmdi.model.smpl import JOINTSTYPE_ROOT, SMPL
 from molab_condmdi.utils import rotation_conversions as geometry
 
 # from .get_model import JOINTSTYPES

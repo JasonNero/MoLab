@@ -55,6 +55,10 @@ def worker():
     ],
 )
 def test_inference(worker: MotionInferenceWorker, use_bvh: bool, use_packed_motion: bool, text: str):
+    """Naive test to check if the worker can infer without crashing.
+    TODO: Add more meaningful tests, e.g. test the alignment with the `packed_motion`.
+    TODO: Also override the output folder with a temporary directory (pytest fixture?).
+    """
     packed_motion = {
         "0": [
             [0.006335, 0.925889, 0.022782],
