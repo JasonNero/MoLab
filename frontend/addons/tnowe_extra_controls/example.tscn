@@ -1,0 +1,377 @@
+[gd_scene load_steps=15 format=3 uid="uid://dfsm148biw250"]
+
+[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/draggable.gd" id="1_eddsv"]
+[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/scroll_zoom_view.gd" id="1_pmqwv"]
+[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/view_switcher.gd" id="2_rorhm"]
+[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/properties_box.gd" id="3_nn7w5"]
+[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/scale_container.gd" id="4_c4kjh"]
+[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/max_size_container.gd" id="6_ri1pc"]
+[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/connection_line.gd" id="9_axav4"]
+[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/radial_container_theme.gd" id="9_mu2b1"]
+[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/radial_container.gd" id="10_i8nra"]
+
+[sub_resource type="GDScript" id="GDScript_43ggq"]
+script/source = "extends Control
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+  $\"PropertiesBox\".add_int(\"It's an Int\", 1)
+  $\"PropertiesBox\".add_string(\"It's a String\", \"\")
+  $\"PropertiesBox\".add_group(\"Group\")
+  $\"PropertiesBox\".add_options(\"Take a pick...\", [
+	\"First\",
+	\"Second\",
+	\"Third\",
+  ], 1, true)
+  $\"PropertiesBox\".add_group(\"Nested Group\")
+  $\"PropertiesBox\".add_bool(\"Check!\", false)
+  $\"PropertiesBox\".end_group()
+  $\"PropertiesBox\".add_float(\"Slider!\", 0, 0, 200, 0.1)
+  $\"PropertiesBox\".end_group()
+"
+
+[sub_resource type="LabelSettings" id="LabelSettings_kvdg6"]
+font_size = 12
+
+[sub_resource type="GDScript" id="GDScript_thcdi"]
+script/source = "extends Control
+
+@export var radial_selected_scale := 1.2
+@export var radial_theme_active : RadialContainerTheme
+@export var radial_theme_inactive : RadialContainerTheme
+
+var item_index_prev_selected := -1
+
+func _ready():
+	var wheel := get_child(0)
+	for i in wheel.get_child_count():
+		wheel.set_theme_at(i, radial_theme_inactive)
+
+
+func _input(event : InputEvent):
+	if event is InputEventMouseMotion:
+		var wheel := get_child(0)
+		var item_index := -1
+		if wheel.is_inside_circle(event.global_position):
+			item_index = wheel.get_index_from_global_position(event.global_position)
+
+		if item_index_prev_selected == item_index:
+			return
+
+		if item_index_prev_selected != -1:
+			wheel.set_theme_tweened(item_index_prev_selected, radial_theme_inactive, 0.25, Tween.TRANS_CUBIC)
+
+		wheel.set_theme_tweened(item_index, radial_theme_active if item_index != -1 else radial_theme_inactive, 0.5, Tween.TRANS_ELASTIC)
+		item_index_prev_selected = item_index
+"
+
+[sub_resource type="Resource" id="Resource_fme07"]
+script = ExtResource("9_mu2b1")
+radius_factor_outer = 1.2
+radius_factor_inner = 0.25
+item_radius_factor = 0.5
+item_scale = Vector2(1.2, 1.2)
+color = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_vglod"]
+script = ExtResource("9_mu2b1")
+radius_factor_outer = 1.0
+radius_factor_inner = 0.2
+item_radius_factor = 0.5
+item_scale = Vector2(1, 1)
+color = Color(0.807843, 0.635294, 1, 0.486275)
+
+[node name="ScrollContainer" type="ScrollContainer"]
+clip_contents = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+metadata/_edit_lock_ = true
+
+[node name="Control" type="Control" parent="."]
+custom_minimum_size = Vector2(0, 10000)
+layout_mode = 2
+size_flags_horizontal = 3
+script = SubResource("GDScript_43ggq")
+metadata/_edit_lock_ = true
+
+[node name="ViewSwitcher" type="Control" parent="Control"]
+visible = false
+anchors_preset = 0
+offset_left = 324.0
+offset_top = 115.0
+offset_right = 364.0
+offset_bottom = 155.0
+script = ExtResource("2_rorhm")
+background = NodePath("ColorRect")
+
+[node name="ColorRect" type="ColorRect" parent="Control/ViewSwitcher"]
+layout_mode = 0
+offset_left = -149.0
+offset_top = -29.0
+offset_right = 280.0
+offset_bottom = 247.0
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="Control/ViewSwitcher"]
+layout_mode = 0
+offset_left = -57.0
+offset_top = 37.0
+offset_right = -17.0
+offset_bottom = 77.0
+color = Color(0.682353, 0.615686, 0.615686, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="Control/ViewSwitcher"]
+visible = false
+layout_mode = 0
+offset_left = 5.0
+offset_top = 102.0
+offset_right = 45.0
+offset_bottom = 142.0
+color = Color(0.682353, 0.615686, 0.615686, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="Control/ViewSwitcher"]
+visible = false
+layout_mode = 0
+offset_left = 114.0
+offset_top = 45.0
+offset_right = 154.0
+offset_bottom = 85.0
+color = Color(0.682353, 0.615686, 0.615686, 1)
+
+[node name="PropertiesBox" type="VBoxContainer" parent="Control"]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 36.0
+offset_right = 400.0
+offset_bottom = 256.0
+script = ExtResource("3_nn7w5")
+
+[node name="ScrollZoomViewDemo" type="ColorRect" parent="Control"]
+layout_mode = 2
+offset_left = 416.0
+offset_top = 27.0
+offset_right = 1122.0
+offset_bottom = 551.0
+color = Color(0.258824, 0.321569, 0.756863, 1)
+metadata/_edit_group_ = true
+metadata/_edit_lock_ = true
+
+[node name="ScrollZoomView" type="MarginContainer" parent="Control/ScrollZoomViewDemo"]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+mouse_force_pass_scroll_events = false
+script = ExtResource("1_pmqwv")
+child_size = Vector2(768, 576)
+
+[node name="Control" type="ColorRect" parent="Control/ScrollZoomViewDemo/ScrollZoomView"]
+layout_mode = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0.0509804)
+
+[node name="Draggable3" type="Container" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+offset_left = 69.0
+offset_top = 20.0
+offset_right = 165.0
+offset_bottom = 180.0
+mouse_filter = 0
+script = ExtResource("1_eddsv")
+grid_snap = Vector2(32, 32)
+resize_margin = Vector2(8, 8)
+drop_color = Color(1, 1, 1, 0.501961)
+resize_margin_offset_children = false
+metadata/_edit_group_ = true
+
+[node name="ColorRect2" type="ColorRect" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control/Draggable3"]
+layout_mode = 2
+mouse_filter = 2
+color = Color(1, 0.647, 0.969, 0.5)
+
+[node name="ScaleContainer" type="Container" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control/Draggable3"]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("4_c4kjh")
+stretch_mode = 1
+metadata/_edit_group_ = true
+
+[node name="ColorRect" type="ColorRect" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control/Draggable3/ScaleContainer"]
+self_modulate = Color(1, 1, 1, 0.498039)
+show_behind_parent = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="TextureRect" type="TextureRect" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control/Draggable3/ScaleContainer/ColorRect"]
+self_modulate = Color(1, 1, 1, 0.498039)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+
+[node name="Label" type="Label" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control/Draggable3/ScaleContainer/ColorRect"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -14.0
+offset_top = -14.0
+offset_right = 60.0
+offset_bottom = 23.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.4, 0.4)
+text = "Scale,
+don't resize"
+label_settings = SubResource("LabelSettings_kvdg6")
+horizontal_alignment = 1
+
+[node name="Draggable" type="Container" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+offset_left = 213.0
+offset_top = 128.0
+offset_right = 309.0
+offset_bottom = 384.0
+mouse_filter = 0
+script = ExtResource("1_eddsv")
+can_drag_vertical = false
+grid_snap = Vector2(32, 32)
+resize_margin = Vector2(8, 0)
+drop_color = Color(1, 1, 1, 0.501961)
+resize_margin_offset_children = false
+metadata/_edit_group_ = true
+
+[node name="MaxSizeContainer" type="Container" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control/Draggable"]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("6_ri1pc")
+max_size = Vector2(160, -1)
+
+[node name="ColorRect" type="Panel" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control/Draggable/MaxSizeContainer"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+size_flags_vertical = 6
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control/Draggable/MaxSizeContainer/ColorRect"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -11.5
+offset_right = 40.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Max Size"
+horizontal_alignment = 1
+
+[node name="ColorRect" type="ColorRect" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control/Draggable"]
+layout_mode = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0.5)
+
+[node name="Draggable2" type="Container" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+offset_left = 416.0
+offset_top = 64.0
+offset_right = 480.0
+offset_bottom = 160.0
+mouse_filter = 0
+script = ExtResource("1_eddsv")
+can_drag_horizontal = false
+grid_snap = Vector2(32, 32)
+resize_margin = Vector2(0, 8)
+drop_color = Color(1, 1, 1, 0.501961)
+resize_margin_offset_children = false
+metadata/_edit_group_ = true
+
+[node name="ColorRect" type="ColorRect" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control/Draggable2"]
+layout_mode = 2
+mouse_filter = 2
+color = Color(1, 0.792, 0.255, 0.5)
+
+[node name="Line" type="Control" parent="Control/ScrollZoomViewDemo/ScrollZoomView/Control" node_paths=PackedStringArray("connect_node1", "connect_node2")]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 167.0
+offset_top = 101.813
+offset_right = 414.0
+offset_bottom = 110.768
+script = ExtResource("9_axav4")
+connect_node1 = NodePath("../Draggable3")
+connect_node2 = NodePath("../Draggable2")
+allow_drag_pt1 = true
+allow_drag_pt2 = true
+drag_reattach_call_on_success = "print(\"Connected to: \", name)"
+end_style1 = 2
+
+[node name="RadialMenu" type="Control" parent="Control"]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 147.0
+offset_top = 332.0
+offset_right = 147.0
+offset_bottom = 332.0
+script = SubResource("GDScript_thcdi")
+radial_theme_active = SubResource("Resource_fme07")
+radial_theme_inactive = SubResource("Resource_vglod")
+
+[node name="RadialContainer" type="Container" parent="Control/RadialMenu"]
+layout_mode = 0
+offset_left = 46.0
+offset_top = 22.0
+offset_right = 219.0
+offset_bottom = 242.0
+script = ExtResource("10_i8nra")
+progress_offset = 0.68
+
+[node name="Label" type="Label" parent="Control/RadialMenu/RadialContainer"]
+layout_mode = 2
+text = "0"
+
+[node name="Label2" type="Label" parent="Control/RadialMenu/RadialContainer"]
+layout_mode = 2
+text = "1"
+
+[node name="Label3" type="Button" parent="Control/RadialMenu/RadialContainer"]
+layout_mode = 2
+size_flags_stretch_ratio = 3.0
+text = "2"
+
+[node name="Label4" type="Label" parent="Control/RadialMenu/RadialContainer"]
+layout_mode = 2
+text = "3"
+
+[node name="Label5" type="Label" parent="Control/RadialMenu/RadialContainer"]
+layout_mode = 2
+size_flags_stretch_ratio = 1.5
+text = "4"

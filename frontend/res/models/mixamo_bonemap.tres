@@ -1,0 +1,29 @@
+[gd_resource type="BoneMap" load_steps=2 format=3 uid="uid://b8sar1kom7asd"]
+
+[ext_resource type="SkeletonProfile" uid="uid://capqta6lfckwq" path="res://res/example_inference_skeleton_profile.tres" id="1_ik7ip"]
+
+[resource]
+profile = ExtResource("1_ik7ip")
+bonemap = null
+bone_map/Hips = &"mixamorig_Hips"
+bone_map/LeftUpLeg = &"mixamorig_LeftUpLeg"
+bone_map/LeftLeg = &"mixamorig_LeftLeg"
+bone_map/LeftFoot = &"mixamorig_LeftFoot"
+bone_map/LeftToe = &"mixamorig_LeftToeBase"
+bone_map/RightUpLeg = &"mixamorig_RightUpLeg"
+bone_map/RightLeg = &"mixamorig_RightLeg"
+bone_map/RightFoot = &"mixamorig_RightFoot"
+bone_map/RightToe = &"mixamorig_RightToeBase"
+bone_map/Spine = &"mixamorig_Spine"
+bone_map/Spine1 = &"mixamorig_Spine1"
+bone_map/Spine2 = &"mixamorig_Spine2"
+bone_map/Neck = &"mixamorig_Neck"
+bone_map/Head = &"mixamorig_Head"
+bone_map/LeftShoulder = &"mixamorig_LeftShoulder"
+bone_map/LeftArm = &"mixamorig_LeftArm"
+bone_map/LeftForeArm = &"mixamorig_LeftForeArm"
+bone_map/LeftHand = &"mixamorig_LeftHand"
+bone_map/RightShoulder = &"mixamorig_RightShoulder"
+bone_map/RightArm = &"mixamorig_RightArm"
+bone_map/RightForeArm = &"mixamorig_RightForeArm"
+bone_map/RightHand = &"mixamorig_RightHand"
