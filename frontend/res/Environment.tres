@@ -1,6 +1,8 @@
 [gd_resource type="Environment" load_steps=3 format=3 uid="uid://bcrwyvnfsap3r"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_q5elk"]
+sky_curve = 0.0861524
+ground_curve = 0.119209
 
 [sub_resource type="Sky" id="Sky_uxc2h"]
 sky_material = SubResource("ProceduralSkyMaterial_q5elk")

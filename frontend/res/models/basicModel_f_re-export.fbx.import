@@ -1,0 +1,48 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://cl0l0gd6fvu36"
+path="res://.godot/imported/basicModel_f_re-export.fbx-9f6c8a0e79b12f26a9229191090d1c83.scn"
+
+[deps]
+
+source_file="res://res/models/basicModel_f_re-export.fbx"
+dest_files=["res://.godot/imported/basicModel_f_re-export.fbx-9f6c8a0e79b12f26a9229191090d1c83.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=100.0
+nodes/import_as_skeleton_bones=false
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=true
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
+import_script/path=""
+_subresources={
+"nodes": {
+"PATH:AnimationPlayer": {
+"import/skip_import": true
+},
+"PATH:smpl_f_avg/Skeleton3D": {
+"rest_pose/external_animation_library": null,
+"retarget/bone_map": Object(BoneMap,"resource_local_to_scene":false,"resource_name":"","profile":null,"bonemap":null,"script":null)
+
+}
+}
+}
+fbx/importer=0
+fbx/allow_geometry_helper_nodes=false
+fbx/embedded_image_handling=1

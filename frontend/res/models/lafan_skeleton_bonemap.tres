@@ -1,0 +1,29 @@
+[gd_resource type="BoneMap" load_steps=2 format=3 uid="uid://b8sar1kom7pdl"]
+
+[ext_resource type="SkeletonProfile" uid="uid://capqta6lfckwq" path="res://res/example_inference_skeleton_profile.tres" id="1_ik7ip"]
+
+[resource]
+profile = ExtResource("1_ik7ip")
+bonemap = null
+bone_map/Hips = &"Model_Hips"
+bone_map/LeftUpLeg = &"Model_LeftUpLeg"
+bone_map/LeftLeg = &"Model_LeftLeg"
+bone_map/LeftFoot = &"Model_LeftFoot"
+bone_map/LeftToe = &"Model_LeftToe"
+bone_map/RightUpLeg = &"Model_RightUpLeg"
+bone_map/RightLeg = &"Model_RightLeg"
+bone_map/RightFoot = &"Model_RightFoot"
+bone_map/RightToe = &"Model_RightToe"
+bone_map/Spine = &"Model_Spine"
+bone_map/Spine1 = &"Model_Spine1"
+bone_map/Spine2 = &"Model_Spine2"
+bone_map/Neck = &"Model_Neck"
+bone_map/Head = &"Model_Head"
+bone_map/LeftShoulder = &"Model_LeftShoulder"
+bone_map/LeftArm = &"Model_LeftArm"
+bone_map/LeftForeArm = &"Model_LeftForeArm"
+bone_map/LeftHand = &"Model_LeftHand"
+bone_map/RightShoulder = &"Model_RightShoulder"
+bone_map/RightArm = &"Model_RightArm"
+bone_map/RightForeArm = &"Model_RightForeArm"
+bone_map/RightHand = &"Model_RightHand"
