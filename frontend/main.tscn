@@ -100,22 +100,26 @@ layout_mode = 2
 theme_override_constants/side_margin = 0
 current_tab = 0
 
-[node name="Layer Properties" type="Control" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer"]
+[node name="Layer Properties" type="MarginContainer" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer"]
 layout_mode = 2
 metadata/_tab_index = 0
 
 [node name="PropertiesPanel" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer/Layer Properties" instance=ExtResource("6_xpiwg")]
 unique_name_in_owner = true
-layout_mode = 0
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
-[node name="Settings" type="Control" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer"]
+[node name="Settings" type="MarginContainer" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer"]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 
 [node name="SettingsPanel" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer/Settings" instance=ExtResource("7_hq551")]
 unique_name_in_owner = true
-layout_mode = 0
+layout_mode = 2
 
 [node name="PanelContainer" type="PanelContainer" parent="UIRoot/VSplitContainer"]
 layout_mode = 2

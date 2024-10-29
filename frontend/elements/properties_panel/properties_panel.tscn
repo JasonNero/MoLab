@@ -3,17 +3,52 @@
 [ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/properties_box.gd" id="1_0a6n2"]
 [ext_resource type="Script" path="res://elements/properties_panel/properties_panel.gd" id="1_wb38d"]
 
-[node name="PropertiesPanel" type="Control"]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 476.0
+[node name="PropertiesPanel" type="MarginContainer" node_paths=PackedStringArray("properties")]
+offset_right = 88.0
+offset_bottom = 78.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
 script = ExtResource("1_wb38d")
+properties = NodePath("VBoxContainer/LayerPropertiesBox")
 
-[node name="LayerPropertiesBox" type="VBoxContainer" parent="."]
-layout_mode = 0
-offset_right = 476.0
-offset_bottom = 922.0
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="LayerPropertiesBox" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
 size_flags_vertical = 3
 script = ExtResource("1_0a6n2")
+
+[node name="AlternativeGridContainer" type="GridContainer" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+columns = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/AlternativeGridContainer"]
+layout_mode = 2
+text = "String Property"
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer/AlternativeGridContainer"]
+layout_mode = 2
+text = "Value"
+
+[node name="Label2" type="Label" parent="VBoxContainer/AlternativeGridContainer"]
+layout_mode = 2
+text = "Integer Property"
+
+[node name="SpinBox" type="SpinBox" parent="VBoxContainer/AlternativeGridContainer"]
+layout_mode = 2
+value = 100.0
+
+[node name="GenerateBtn" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Generate"
+
+[node name="ImportBtn" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Import"

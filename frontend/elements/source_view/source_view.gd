@@ -39,7 +39,8 @@ func update(sources: Array[Source]) -> void:
 
 ####################### SIGNALS #######################
 
-func _on_tree_item_selected(index: int) -> void:
+func _on_tree_item_selected() -> void:
+	var index = item_tree.get_selected().get_index()
 	print("Selected item: {0}".format([index]))
 	source_selected.emit(index)
 
