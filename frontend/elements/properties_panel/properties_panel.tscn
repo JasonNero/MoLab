@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://ce0hivbcfu6j2"]
+
+[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/properties_box.gd" id="1_0a6n2"]
+[ext_resource type="Script" path="res://elements/properties_panel/properties_panel.gd" id="1_wb38d"]
+
+[node name="PropertiesPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 476.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_wb38d")
+
+[node name="LayerPropertiesBox" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 476.0
+offset_bottom = 922.0
+size_flags_vertical = 3
+script = ExtResource("1_0a6n2")

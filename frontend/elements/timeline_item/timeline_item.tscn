@@ -1,0 +1,59 @@
+[gd_scene load_steps=6 format=3 uid="uid://b1tn1c80fphqp"]
+
+[ext_resource type="Script" path="res://elements/timeline_item/timeline_item.gd" id="1_l74uu"]
+[ext_resource type="StyleBox" uid="uid://ctipn82ef30o1" path="res://res/style_box_inner.tres" id="1_xhrwv"]
+[ext_resource type="Script" path="res://datamodels/source.gd" id="2_vwreo"]
+
+[sub_resource type="Resource" id="Resource_lqbs1"]
+script = ExtResource("2_vwreo")
+name = "Test Layer"
+in_point = 200
+out_point = 700
+blend_in = 50
+blend_out = 100
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vjxfu"]
+bg_color = Color(0.278431, 0.470588, 0.811765, 0.501961)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="TimelineItem" type="HBoxContainer" node_paths=PackedStringArray("inner_panel", "outter_panel", "source_label")]
+custom_minimum_size = Vector2(700, 27)
+theme_override_constants/separation = 0
+script = ExtResource("1_l74uu")
+source = SubResource("Resource_lqbs1")
+inner_panel = NodePath("InnerPanel")
+outter_panel = NodePath("OutterPanel")
+source_label = NodePath("InnerPanel/SourceLabel")
+
+[node name="OutterPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(100, 28)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_vjxfu")
+
+[node name="InnerPanel" type="Panel" parent="."]
+custom_minimum_size = Vector2(100, 28)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_styles/panel = ExtResource("1_xhrwv")
+
+[node name="SourceLabel" type="Label" parent="InnerPanel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -47.0
+offset_top = -11.5
+offset_right = 47.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Test Layer"
+horizontal_alignment = 1

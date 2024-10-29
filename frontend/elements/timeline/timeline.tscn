@@ -1,0 +1,56 @@
+[gd_scene load_steps=5 format=3 uid="uid://crrcxddhn28g5"]
+
+[ext_resource type="Script" path="res://elements/timeline/timeline.gd" id="1_c21w7"]
+[ext_resource type="Theme" uid="uid://cyjh5uyspkac1" path="res://tmp/test_theme.tres" id="1_r0i64"]
+[ext_resource type="Script" path="res://scripts/ui/source_panel.gd" id="2_yeobt"]
+[ext_resource type="PackedScene" uid="uid://b1tn1c80fphqp" path="res://elements/timeline_item/timeline_item.tscn" id="5_0v331"]
+
+[node name="Timeline" type="VBoxContainer" node_paths=PackedStringArray("item_container")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+script = ExtResource("1_c21w7")
+item_container = NodePath("BGPanel/ScrollContainer/TimelineItemContainer")
+item_scene = ExtResource("5_0v331")
+
+[node name="TimelineScrollBar" type="HScrollBar" parent="."]
+layout_mode = 2
+theme = ExtResource("1_r0i64")
+
+[node name="OldSourcePanel" type="Panel" parent="."]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("2_yeobt")
+
+[node name="BGPanel" type="Panel" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="BGPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="TimelineItemContainer" type="VBoxContainer" parent="BGPanel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="TimelineItem" parent="BGPanel/ScrollContainer/TimelineItemContainer" instance=ExtResource("5_0v331")]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
