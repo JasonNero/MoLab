@@ -31,10 +31,9 @@ func _get_placeholder_comp() -> Composition:
 	return _comp
 
 func update() -> void:
-	# properties_panel.update(_composition.sources[_selected_source_idx])
+	properties_panel.update(_composition.sources[_selected_source_idx])
 	source_view.update(_composition.sources)
 	timeline.update(_composition.sources)
-	pass
 
 func save_to_file(path: String) -> void:
 	ResourceSaver.save(_composition, path)
@@ -63,6 +62,7 @@ func _on_source_property_changed(index: int, property: String, value: Variant) -
 
 func _on_source_selected(index: int) -> void:
 	_selected_source_idx = index
+	properties_panel.update(_composition.sources[_selected_source_idx])
 
 func _on_source_added(source: Source) -> void:
 	_composition.insert_source(source, 0)

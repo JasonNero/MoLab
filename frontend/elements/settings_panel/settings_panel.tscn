@@ -2,13 +2,14 @@
 
 [ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/properties_box.gd" id="1_inv3v"]
 
-[node name="SettingsPanel" type="Control"]
-layout_mode = 3
-anchors_preset = 0
+[node name="SettingsPanel" type="MarginContainer"]
 offset_right = 476.0
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
 
 [node name="LayerPropertiesBox" type="VBoxContainer" parent="."]
-offset_right = 476.0
-offset_bottom = 922.0
+layout_mode = 2
 size_flags_vertical = 3
 script = ExtResource("1_inv3v")
