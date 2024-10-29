@@ -1,0 +1,60 @@
+[gd_scene load_steps=6 format=3 uid="uid://ciiwhd2gr2lde"]
+
+[ext_resource type="Texture2D" uid="uid://br3fjrbblqywp" path="res://res/icons/PlayBackwards.png" id="1_s6ep1"]
+[ext_resource type="Texture2D" uid="uid://b2a2gegy6yij3" path="res://res/icons/PlayStartBackwards.png" id="2_d8w17"]
+[ext_resource type="Texture2D" uid="uid://dxdbp3d5t4f28" path="res://res/icons/Stop.png" id="3_ech3g"]
+[ext_resource type="Texture2D" uid="uid://cl6uyhyp8i2cx" path="res://res/icons/PlayStart.png" id="4_giyxf"]
+[ext_resource type="Texture2D" uid="uid://bn2kjy7h7vk8e" path="res://res/icons/Play.png" id="5_abj0c"]
+
+[node name="TimeControls" type="HBoxContainer"]
+alignment = 1
+
+[node name="ControllFill" type="Control" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="btn_skip_rev" type="Button" parent="."]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+icon = ExtResource("1_s6ep1")
+expand_icon = true
+
+[node name="btn_play_rev" type="Button" parent="."]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+icon = ExtResource("2_d8w17")
+expand_icon = true
+
+[node name="btn_stop" type="Button" parent="."]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+icon = ExtResource("3_ech3g")
+expand_icon = true
+
+[node name="btn_play" type="Button" parent="."]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+icon = ExtResource("4_giyxf")
+expand_icon = true
+
+[node name="btn_skip" type="Button" parent="."]
+custom_minimum_size = Vector2(32, 0)
+layout_mode = 2
+icon = ExtResource("5_abj0c")
+expand_icon = true
+
+[node name="Control" type="Control" parent="."]
+custom_minimum_size = Vector2(30, 2.08165e-12)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "Frame:"
+
+[node name="SpinBox" type="SpinBox" parent="."]
+layout_mode = 2
+allow_greater = true
+
+[node name="ControllFill2" type="Control" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3

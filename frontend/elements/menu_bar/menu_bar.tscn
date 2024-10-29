@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://bmyqi2jgi8j7a"]
+
+[ext_resource type="Script" path="res://elements/menu_bar/menu_bar.gd" id="1_timqx"]
+
+[node name="MenuBar" type="MenuBar"]
+prefer_global_menu = false
+script = ExtResource("1_timqx")

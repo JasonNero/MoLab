@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3 uid="uid://owicx12nvrk6"]
+
+[ext_resource type="Texture2D" uid="uid://bbiu6ywr2xfl1" path="res://res/icons/Add.png" id="1_7t8ua"]
+[ext_resource type="Script" path="res://elements/source_view/source_view.gd" id="1_j26j5"]
+
+[node name="SourceView" type="VBoxContainer" node_paths=PackedStringArray("item_tree", "add_menu")]
+size_flags_horizontal = 3
+script = ExtResource("1_j26j5")
+item_tree = NodePath("ItemTree")
+add_menu = NodePath("MenuButton")
+
+[node name="MenuButton" type="MenuButton" parent="."]
+custom_minimum_size = Vector2(200, 32)
+layout_mode = 2
+text = "Add Track"
+icon = ExtResource("1_7t8ua")
+flat = false
+alignment = 0
+expand_icon = true
+
+[node name="ItemTree" type="Tree" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/item_margin = 0
+theme_override_constants/v_separation = 2
+
+[connection signal="item_activated" from="ItemTree" to="." method="_on_tree_item_activated"]
+[connection signal="item_edited" from="ItemTree" to="." method="_on_tree_item_edited"]
+[connection signal="item_selected" from="ItemTree" to="." method="_on_tree_item_selected"]

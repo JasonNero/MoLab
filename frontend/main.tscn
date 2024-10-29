@@ -1,0 +1,160 @@
+[gd_scene load_steps=13 format=3 uid="uid://bna0c1t5re2pk"]
+
+[ext_resource type="Script" path="res://main.gd" id="1_lekfy"]
+[ext_resource type="Script" path="res://elements/backend_websocket/backend_websocket.gd" id="2_eh8nn"]
+[ext_resource type="Script" path="res://elements/dcc_websocket/dcc_websocket.gd" id="3_8vcxv"]
+[ext_resource type="PackedScene" uid="uid://bmyqi2jgi8j7a" path="res://elements/menu_bar/menu_bar.tscn" id="4_i4x4a"]
+[ext_resource type="Script" path="res://elements/composer/composer.gd" id="4_mdoll"]
+[ext_resource type="PackedScene" uid="uid://b871xxj0dvj8w" path="res://elements/world/world.tscn" id="5_yu1xy"]
+[ext_resource type="PackedScene" uid="uid://ce0hivbcfu6j2" path="res://elements/properties_panel/properties_panel.tscn" id="6_xpiwg"]
+[ext_resource type="PackedScene" uid="uid://c81twr00tcsm6" path="res://elements/settings_panel/settings_panel.tscn" id="7_hq551"]
+[ext_resource type="PackedScene" uid="uid://ciiwhd2gr2lde" path="res://elements/time_controls/time_controls.tscn" id="8_l2oqf"]
+[ext_resource type="PackedScene" uid="uid://crrcxddhn28g5" path="res://elements/timeline/timeline.tscn" id="10_8jxrt"]
+[ext_resource type="PackedScene" uid="uid://owicx12nvrk6" path="res://elements/source_view/source_view.tscn" id="13_et6qg"]
+[ext_resource type="PackedScene" uid="uid://dtv8qlb6r06l7" path="res://elements/status_bar/status_bar.tscn" id="20_8cgeg"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_lekfy")
+
+[node name="BackendWebSocket" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_eh8nn")
+
+[node name="DCCWebSocket" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_8vcxv")
+
+[node name="Composer" type="Node" parent="." node_paths=PackedStringArray("backend", "dcc", "animation_player", "properties_panel", "source_view", "timeline", "world")]
+unique_name_in_owner = true
+script = ExtResource("4_mdoll")
+backend = NodePath("../BackendWebSocket")
+dcc = NodePath("../DCCWebSocket")
+animation_player = NodePath("../AnimationPlayer")
+properties_panel = NodePath("../UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer/Layer Properties/PropertiesPanel")
+source_view = NodePath("../UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/SourceView")
+timeline = NodePath("../UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/Timeline")
+world = NodePath("../UIRoot/VSplitContainer/HSplitContainer/Viewport/SubViewport/World")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="UIRoot" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="UIRoot"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_bottom = -2
+
+[node name="MenuBar" parent="UIRoot/MarginContainer" instance=ExtResource("4_i4x4a")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="VSplitContainer" type="VSplitContainer" parent="UIRoot"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="HSplitContainer" type="HSplitContainer" parent="UIRoot/VSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+theme_override_constants/separation = 0
+
+[node name="Viewport" type="SubViewportContainer" parent="UIRoot/VSplitContainer/HSplitContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="UIRoot/VSplitContainer/HSplitContainer/Viewport"]
+handle_input_locally = false
+size = Vector2i(1436, 953)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="World" parent="UIRoot/VSplitContainer/HSplitContainer/Viewport/SubViewport" node_paths=PackedStringArray("anim_player") instance=ExtResource("5_yu1xy")]
+unique_name_in_owner = true
+anim_player = NodePath("../../../../../../AnimationPlayer")
+
+[node name="PanelContainer" type="PanelContainer" parent="UIRoot/VSplitContainer/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TabContainer" type="TabContainer" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/side_margin = 0
+current_tab = 0
+
+[node name="Layer Properties" type="Control" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer"]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="PropertiesPanel" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer/Layer Properties" instance=ExtResource("6_xpiwg")]
+unique_name_in_owner = true
+layout_mode = 0
+
+[node name="Settings" type="Control" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="SettingsPanel" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer/Settings" instance=ExtResource("7_hq551")]
+unique_name_in_owner = true
+layout_mode = 0
+
+[node name="PanelContainer" type="PanelContainer" parent="UIRoot/VSplitContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+metadata/_edit_horizontal_guides_ = [79.0]
+
+[node name="MarginContainer" type="MarginContainer" parent="UIRoot/VSplitContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIRoot/VSplitContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="TimeControls" parent="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer" instance=ExtResource("8_l2oqf")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HSplitContainer" type="HSplitContainer" parent="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SourceView" parent="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer" instance=ExtResource("13_et6qg")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Timeline" parent="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer" instance=ExtResource("10_8jxrt")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="StatusBar" parent="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer" instance=ExtResource("20_8cgeg")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[connection signal="character_changed" from="UIRoot/VSplitContainer/HSplitContainer/Viewport/SubViewport/World" to="Composer" method="on_character_changed"]
+[connection signal="source_added" from="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/SourceView" to="Composer" method="_on_source_added"]
+[connection signal="source_property_changed" from="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/SourceView" to="Composer" method="_on_source_property_changed"]
+[connection signal="source_selected" from="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/SourceView" to="Composer" method="_on_source_selected"]

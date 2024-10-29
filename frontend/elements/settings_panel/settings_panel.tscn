@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://c81twr00tcsm6"]
+
+[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/properties_box.gd" id="1_inv3v"]
+
+[node name="SettingsPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 476.0
+
+[node name="LayerPropertiesBox" type="VBoxContainer" parent="."]
+offset_right = 476.0
+offset_bottom = 922.0
+size_flags_vertical = 3
+script = ExtResource("1_inv3v")

@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://dtv8qlb6r06l7"]
+
+[node name="StatusBar" type="HBoxContainer"]
+size_flags_vertical = 8
+alignment = 2
+
+[node name="SpacerControl" type="Control" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "Status:"
+
+[node name="StatusLineEdit" type="LineEdit" parent="."]
+custom_minimum_size = Vector2(400, 2.08165e-12)
+layout_mode = 2
+text = "Processing Layers ..."
+editable = false
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+custom_minimum_size = Vector2(200, 2.08165e-12)
+layout_mode = 2
+value = 16.0
