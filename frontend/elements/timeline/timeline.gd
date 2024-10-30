@@ -10,7 +10,7 @@ func clear() -> void:
 		item_container.remove_child(child)
 		child.queue_free()
 
-func update(sources: Array[Source]):
+func view(sources: Array[Source]):
 	clear()
 	for source in sources:
 		var item = item_scene.instantiate()

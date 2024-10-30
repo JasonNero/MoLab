@@ -31,9 +31,9 @@ func _get_placeholder_comp() -> Composition:
 	return _comp
 
 func update() -> void:
-	properties_panel.update(_composition.sources[_selected_source_idx])
-	source_view.update(_composition.sources)
-	timeline.update(_composition.sources)
+	properties_panel.view(_composition.sources[_selected_source_idx])
+	source_view.view(_composition.sources)
+	timeline.view(_composition.sources)
 
 func save_to_file(path: String) -> void:
 	ResourceSaver.save(_composition, path)
@@ -44,16 +44,12 @@ func load_from_file(path: String) -> void:
 func connect_character() -> void:
 	var anim_root = world.get_current_skeleton().get_parent().get_path()
 	animation_player.set_root(anim_root)
+	animation_player.current_animation = "test_animation"
 
-####################### SIGNALS #######################
+#################### SOURCE/COMP SIGNALS ####################
 
-# func _on_source_changed(source: Source) -> void:
-# 	print("Source {0} has been changed".format([source.name]))
-# 	update()
-
-# func _on_source_renamed(index: int, new_name: String) -> void:
-# 	_composition.sources[index].name = new_name
-# 	update()
+func _on_current_source_property_changed(property: String, value: Variant) -> void:
+	_on_source_property_changed(_selected_source_idx, property, value)
 
 func _on_source_property_changed(index: int, property: String, value: Variant) -> void:
 	print("Source {0} property {1} changed to {2}".format([index, property, value]))
@@ -62,7 +58,7 @@ func _on_source_property_changed(index: int, property: String, value: Variant) -
 
 func _on_source_selected(index: int) -> void:
 	_selected_source_idx = index
-	properties_panel.update(_composition.sources[_selected_source_idx])
+	properties_panel.view(_composition.sources[_selected_source_idx])
 
 func _on_source_added(source: Source) -> void:
 	_composition.insert_source(source, 0)
@@ -71,21 +67,38 @@ func _on_source_added(source: Source) -> void:
 func _on_composition_changed() -> void:
 	print("Composition changed")
 
-func _on_pause_pressed() -> void:
-	print("Pause pressed")
-	animation_player.pause()
+####################### TIME SIGNALS #######################
 
-func _on_play_pressed() -> void:
-	print("Play pressed")
-	animation_player.play()
+func _on_play_pause_pressed() -> void:
+	print("Play/Pause pressed")
+	if animation_player.is_playing():
+		animation_player.stop()
+	else:
+		animation_player.play()
 
-func _on_stop_pressed() -> void:
-	print("Stop pressed")
+func _on_step_forward_pressed() -> void:
+	print("Step Forward pressed (TODO: This needs to be in frames not seconds)")
+	_on_seek(animation_player.current_animation_position + 1)
+
+func _on_step_backward_pressed() -> void:
+	print("Step Backward pressed (TODO: This needs to be in frames not seconds)")
+	_on_seek(animation_player.current_animation_position - 1)
+
+func _on_seek_start_pressed() -> void:
+	print("Seek Start pressed")
 	animation_player.stop()  # Resets to 0
+
+func _on_seek_end_pressed() -> void:
+	print("Seek End pressed")
+	animation_player.pause()  # Resets to 0
+	animation_player.seek(animation_player.current_animation_length)
 
 func _on_seek(seconds: float) -> void:
 	print("Seeking to ", seconds)
+	animation_player.pause()
 	animation_player.seek(seconds)
+
+####################### OTHER SIGNALS #######################
 
 func _on_import_pressed() -> void:
 	print("Import pressed")
@@ -109,3 +122,6 @@ func _on_new_pressed() -> void:
 func _on_character_changed() -> void:
 	print("Character changed")
 	connect_character()
+
+func _on_test() -> void:
+	print("Test")
