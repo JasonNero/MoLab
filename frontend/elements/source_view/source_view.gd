@@ -26,7 +26,7 @@ func _ready() -> void:
 
 	popup.index_pressed.connect(_on_add_menu_item_selected)
 
-func update(sources: Array[Source]) -> void:
+func view(sources: Array[Source]) -> void:
 	item_tree.clear()
 	item_tree.create_item()
 	item_tree.set_hide_root(true)

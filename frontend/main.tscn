@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://bna0c1t5re2pk"]
+[gd_scene load_steps=15 format=3 uid="uid://bna0c1t5re2pk"]
 
 [ext_resource type="Script" path="res://main.gd" id="1_lekfy"]
 [ext_resource type="Script" path="res://elements/backend_websocket/backend_websocket.gd" id="2_eh8nn"]
@@ -12,6 +12,29 @@
 [ext_resource type="PackedScene" uid="uid://crrcxddhn28g5" path="res://elements/timeline/timeline.tscn" id="10_8jxrt"]
 [ext_resource type="PackedScene" uid="uid://owicx12nvrk6" path="res://elements/source_view/source_view.tscn" id="13_et6qg"]
 [ext_resource type="PackedScene" uid="uid://dtv8qlb6r06l7" path="res://elements/status_bar/status_bar.tscn" id="20_8cgeg"]
+
+[sub_resource type="Animation" id="Animation_vahhn"]
+resource_name = "test_animation"
+loop_mode = 1
+tracks/0/type = "method"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("%Composer")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"_on_test"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_1s4ov"]
+_data = {
+"test_animation": SubResource("Animation_vahhn")
+}
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -36,12 +59,16 @@ script = ExtResource("4_mdoll")
 backend = NodePath("../BackendWebSocket")
 dcc = NodePath("../DCCWebSocket")
 animation_player = NodePath("../AnimationPlayer")
-properties_panel = NodePath("../UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer/Layer Properties/PropertiesPanel")
+properties_panel = NodePath("../UIRoot/VSplitContainer/HSplitContainer/TabContainer/Layer Properties/PropertiesPanel")
 source_view = NodePath("../UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/SourceView")
 timeline = NodePath("../UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/Timeline")
 world = NodePath("../UIRoot/VSplitContainer/HSplitContainer/Viewport/SubViewport/World")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_1s4ov")
+}
+autoplay = "test_animation"
 
 [node name="UIRoot" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -50,15 +77,17 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 0
 
 [node name="MarginContainer" type="MarginContainer" parent="UIRoot"]
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/margin_left = 2
 theme_override_constants/margin_top = 2
-theme_override_constants/margin_bottom = -2
 
-[node name="MenuBar" parent="UIRoot/MarginContainer" instance=ExtResource("4_i4x4a")]
+[node name="PanelContainer" type="PanelContainer" parent="UIRoot/MarginContainer"]
+layout_mode = 2
+
+[node name="MenuBar" parent="UIRoot/MarginContainer/PanelContainer" instance=ExtResource("4_i4x4a")]
 unique_name_in_owner = true
 layout_mode = 2
 
@@ -83,7 +112,7 @@ stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="UIRoot/VSplitContainer/HSplitContainer/Viewport"]
 handle_input_locally = false
-size = Vector2i(1436, 953)
+size = Vector2i(1436, 954)
 size_2d_override_stretch = true
 render_target_update_mode = 4
 
@@ -91,20 +120,17 @@ render_target_update_mode = 4
 unique_name_in_owner = true
 anim_player = NodePath("../../../../../../AnimationPlayer")
 
-[node name="PanelContainer" type="PanelContainer" parent="UIRoot/VSplitContainer/HSplitContainer"]
+[node name="TabContainer" type="TabContainer" parent="UIRoot/VSplitContainer/HSplitContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="TabContainer" type="TabContainer" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer"]
-layout_mode = 2
 theme_override_constants/side_margin = 0
 current_tab = 0
 
-[node name="Layer Properties" type="MarginContainer" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer"]
+[node name="Layer Properties" type="MarginContainer" parent="UIRoot/VSplitContainer/HSplitContainer/TabContainer"]
 layout_mode = 2
 metadata/_tab_index = 0
 
-[node name="PropertiesPanel" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer/Layer Properties" instance=ExtResource("6_xpiwg")]
+[node name="PropertiesPanel" parent="UIRoot/VSplitContainer/HSplitContainer/TabContainer/Layer Properties" instance=ExtResource("6_xpiwg")]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/margin_left = 8
@@ -112,12 +138,12 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="Settings" type="MarginContainer" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer"]
+[node name="Settings" type="MarginContainer" parent="UIRoot/VSplitContainer/HSplitContainer/TabContainer"]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 
-[node name="SettingsPanel" parent="UIRoot/VSplitContainer/HSplitContainer/PanelContainer/TabContainer/Settings" instance=ExtResource("7_hq551")]
+[node name="SettingsPanel" parent="UIRoot/VSplitContainer/HSplitContainer/TabContainer/Settings" instance=ExtResource("7_hq551")]
 unique_name_in_owner = true
 layout_mode = 2
 
@@ -159,6 +185,12 @@ unique_name_in_owner = true
 layout_mode = 2
 
 [connection signal="character_changed" from="UIRoot/VSplitContainer/HSplitContainer/Viewport/SubViewport/World" to="Composer" method="on_character_changed"]
+[connection signal="current_source_property_changed" from="UIRoot/VSplitContainer/HSplitContainer/TabContainer/Layer Properties/PropertiesPanel" to="Composer" method="_on_current_source_property_changed"]
+[connection signal="play_pause_pressed" from="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/TimeControls" to="Composer" method="_on_play_pause_pressed"]
+[connection signal="seek_end_pressed" from="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/TimeControls" to="Composer" method="_on_seek_end_pressed"]
+[connection signal="seek_start_pressed" from="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/TimeControls" to="Composer" method="_on_seek_start_pressed"]
+[connection signal="step_backwards_pressed" from="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/TimeControls" to="Composer" method="_on_step_backward_pressed"]
+[connection signal="step_forwards_pressed" from="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/TimeControls" to="Composer" method="_on_step_forward_pressed"]
 [connection signal="source_added" from="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/SourceView" to="Composer" method="_on_source_added"]
 [connection signal="source_property_changed" from="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/SourceView" to="Composer" method="_on_source_property_changed"]
 [connection signal="source_selected" from="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/HSplitContainer/SourceView" to="Composer" method="_on_source_selected"]
