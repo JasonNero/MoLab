@@ -2,7 +2,7 @@ class_name Composition
 extends Resource
 
 signal selection_changed(source: Source)
-signal source_added(source: Source)
+signal source_added(index: int, source: Source)
 signal source_removed(source: Source)
 signal source_modified(source: Source)
 
@@ -25,9 +25,12 @@ func clear() -> void:
 
 func insert_source(source: Source, index: int = 0) -> void:
 	sources.insert(index, source)
-	source_added.emit(source)
+	source_added.emit(index, source)
 
 func remove_source(source: Source) -> void:
+	if selected_source == source:
+		selected_source = null
+		selection_changed.emit(selected_source)
 	sources.erase(source)
 	source_removed.emit(source)
 

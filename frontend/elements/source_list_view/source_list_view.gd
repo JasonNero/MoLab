@@ -11,12 +11,18 @@ signal source_deleted(source: Source)
 var source_items: Dictionary = {}  # Source -> Item
 var source_btn_group: ButtonGroup = ButtonGroup.new()
 
-func add_source(source: Source) -> void:
-	if source in source_items:
-		return
+func setup(sources: Array[Source]) -> void:
+	for source in sources:
+		add_source(source)
 
+func insert_source(index: int, source: Source) -> void:
 	var item = _create_source_item(source)
+	container.move_child(item, index)
 	source_items[source] = item
+
+func add_source(source: Source) -> void:
+	# Insert source at the end
+	insert_source(-1, source)
 
 func remove_source(source: Source) -> void:
 	if source in source_items:
