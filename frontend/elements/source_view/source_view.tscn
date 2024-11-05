@@ -1,29 +1,26 @@
-[gd_scene load_steps=3 format=3 uid="uid://owicx12nvrk6"]
+[gd_scene load_steps=4 format=3 uid="uid://ta5cvu80f4ar"]
 
-[ext_resource type="Texture2D" uid="uid://bbiu6ywr2xfl1" path="res://res/icons/Add.png" id="1_7t8ua"]
 [ext_resource type="Script" path="res://elements/source_view/source_view.gd" id="1_j26j5"]
+[ext_resource type="PackedScene" uid="uid://owicx12nvrk6" path="res://elements/source_list_view/source_list_view.tscn" id="1_yxqcl"]
+[ext_resource type="PackedScene" uid="uid://crrcxddhn28g5" path="res://elements/timeline/timeline.tscn" id="2_h3oqp"]
 
-[node name="SourceView" type="VBoxContainer" node_paths=PackedStringArray("item_tree", "add_menu")]
+[node name="SourceView" type="HSplitContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
-script = ExtResource("1_j26j5")
-item_tree = NodePath("ItemTree")
-add_menu = NodePath("MenuButton")
-
-[node name="MenuButton" type="MenuButton" parent="."]
-custom_minimum_size = Vector2(200, 32)
-layout_mode = 2
-text = "Add Track"
-icon = ExtResource("1_7t8ua")
-flat = false
-alignment = 0
-expand_icon = true
-
-[node name="ItemTree" type="Tree" parent="."]
-layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/item_margin = 0
-theme_override_constants/v_separation = 2
+theme_override_constants/separation = 0
+theme_override_constants/minimum_grab_thickness = 0
+script = ExtResource("1_j26j5")
+metadata/_edit_horizontal_guides_ = [36.0, 67.0]
 
-[connection signal="item_activated" from="ItemTree" to="." method="_on_tree_item_activated"]
-[connection signal="item_edited" from="ItemTree" to="." method="_on_tree_item_edited"]
-[connection signal="item_selected" from="ItemTree" to="." method="_on_tree_item_selected"]
+[node name="SourceListView" parent="." instance=ExtResource("1_yxqcl")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Timeline" parent="." instance=ExtResource("2_h3oqp")]
+unique_name_in_owner = true
+layout_mode = 2

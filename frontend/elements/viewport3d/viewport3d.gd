@@ -1,5 +1,5 @@
-class_name World
-extends Node3D
+class_name Viewport3D
+extends SubViewportContainer
 
 enum CHARACTER {
 	SMPL_FEMALE = 0,
@@ -15,12 +15,6 @@ signal character_changed()
 	set(value):
 		character_type = value
 		character_changed.emit()
-
-# @onready var smpl_f: PackedScene = preload("res://res/models/basicModel_f_re-export.fbx")
-# @onready var smpl_m: PackedScene = preload("res://res/models/basicModel_m_re-export.fbx")
-# @onready var lafan: PackedScene = preload("res://res/models/lafan_skeleton.fbx")
-# @onready var mixamo_akai: PackedScene = preload("res://res/models/Longbow Locomotion Pack/akai_e_espiritu.fbx")
-# @onready var mixamo_markerman: PackedScene = preload("res://res/models/Passive_Marker_Man.glb")
 
 @export var smpl_f: PackedScene
 @export var smpl_m: PackedScene
@@ -57,19 +51,8 @@ func _update_character() -> void:
 
 	add_child(current_char)
 	current_skel = current_char.find_child("GeneralSkeleton", true)
-
-	# TODO: Move this to Composer
-	# if anim_player == null:
-	# 	print("Animation Player not set")
-	# 	return
-	# else:
-	# 	anim_player.set_root(current_skel.get_parent().get_path())
-	# 	anim_player.play("example_inference_animation")
+	anim_player.set_root(current_skel.get_parent().get_path())
 
 
-func get_current_char() -> Node:
-	return current_char
-
-
-func get_current_skeleton() -> Skeleton3D:
-	return current_char.find_child("GeneralSkeleton", true)
+func get_animation_player() -> AnimationPlayer:
+	return anim_player

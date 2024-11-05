@@ -1,71 +1,99 @@
+# source_view.gd
 class_name SourceView
-extends VBoxContainer
+extends Control
 
-@export var icon_size: int = 16
-
-@export var item_tree: Tree
-@export var add_menu: MenuButton
-
-# signal source_renamed(index: int, new_name: String)
-signal source_property_changed(index: int, property: String, value: Variant)
-signal source_selected(index: int)
 signal source_added(source: Source)
+signal source_selected(source: Source)
+signal source_moved(source: Source, time: float)
+signal source_resized(source: Source, edge: String, time: float)
+signal source_deleted(source: Source)
 
-var previous_selected_item: TreeItem
+@onready var source_list: SourceListView = %SourceListView
+@onready var timeline: Timeline = %Timeline
+# @onready var zoom_slider: HSlider = $ZoomControl/ZoomSlider
 
-# Called when the node enters the scene item_tree for the first time.
+var composition: Composition
+
 func _ready() -> void:
-	var popup = add_menu.get_popup()
-	popup.add_icon_item(Globals.bvh_tex, "BVH Source", 0)
-	popup.add_icon_item(Globals.ttm_tex, "Text To Motion", 1)
-	popup.add_icon_item(Globals.tween_tex, "Tween", 2)
-	# TODO: Use a theme instead?
-	popup.set_item_icon_max_width(0, icon_size)
-	popup.set_item_icon_max_width(1, icon_size)
-	popup.set_item_icon_max_width(2, icon_size)
+	# Connect zoom slider
+	# zoom_slider.value_changed.connect(_on_zoom_changed)
+	# zoom_slider.min_value = timeline.MIN_PIXELS_PER_SECOND
+	# zoom_slider.max_value = timeline.MAX_PIXELS_PER_SECOND
+	# zoom_slider.value = timeline.pixels_per_second
 
-	popup.index_pressed.connect(_on_add_menu_item_selected)
+	# Connect internal signals
+	source_list.source_selected.connect(_on_list_source_selected)
+	source_list.source_deleted.connect(_on_list_source_deleted)
 
-func view(sources: Array[Source]) -> void:
-	item_tree.clear()
-	item_tree.create_item()
-	item_tree.set_hide_root(true)
+	timeline.source_selected.connect(_on_timeline_source_selected)
+	timeline.source_moved.connect(_on_timeline_source_moved)
+	timeline.source_resized.connect(_on_timeline_source_resized)
+
+func setup(p_composition: Composition) -> void:
+	composition = p_composition
+
+	# Connect composition signals
+	composition.source_added.connect(_on_source_added)
+	composition.source_removed.connect(_on_source_removed)
+	composition.source_modified.connect(_on_source_modified)
+	composition.selection_changed.connect(_on_selection_changed)
+
+	# Initial update
+	update_view()
+
+func update_view() -> void:
+	# Update both source list and timeline
+	var sources = composition.sources if composition else []
+	timeline.set_sources(sources)
+
+	# Clear and rebuild source list
 	for source in sources:
-		var item := item_tree.create_item(item_tree.get_root())
-		item.set_text(0, source.name)
-		item.set_icon(0, Globals._get_source_icon(source))
-		item.set_icon_max_width(0, icon_size)
-		# TODO: Use `add_button` to add Solo/Mute/Delete buttons later on
+		source_list.add_source(source)
 
-####################### SIGNALS #######################
+func update_source_position(source: Source) -> void:
+	timeline.update_source(source)
 
-func _on_tree_item_selected() -> void:
-	var index = item_tree.get_selected().get_index()
-	print("Selected item: {0}".format([index]))
-	source_selected.emit(index)
+func update_playhead(time: float) -> void:
+	timeline.set_playhead_position(time)
 
-# Activated by double-clicking or Enter key
-func _on_tree_item_activated():
-	var item = item_tree.get_selected()
-	print("Activated item: {0}".format([item.get_index()]))
-	item.set_editable(0, true)
+func update_selection(source: Source) -> void:
+	source_list.set_selected(source)
+	timeline.set_selected(source)
 
-	if previous_selected_item != null and previous_selected_item != item:
-		previous_selected_item.set_editable(0, false)
-	previous_selected_item = item
+# Source list signal handlers
+func _on_list_source_selected(source: Source) -> void:
+	source_selected.emit(source)
 
-func _on_add_menu_item_selected(index: int) -> void:
-	match index:
-		0:
-			source_added.emit(SourceBVH.new("New BVH Source"))
-		1:
-			source_added.emit(SourceTTM.new("New TTM Source"))
-		2:
-			source_added.emit(SourceTween.new("New Tween Source"))
+func _on_list_source_deleted(source: Source) -> void:
+	source_deleted.emit(source)
 
-func _on_tree_item_edited() -> void:
-	var item = item_tree.get_selected()
-	print("Edited item: {0}".format([item.get_index()]))
-	item.set_editable(0, false)
-	# source_renamed.emit(item.get_index(), item.get_text(0))
-	source_property_changed.emit(item.get_index(), "name", item.get_text(0))
+# Timeline signal handlers
+func _on_timeline_source_selected(source: Source) -> void:
+	source_selected.emit(source)
+
+func _on_timeline_source_moved(source: Source, time: float) -> void:
+	source_moved.emit(source, time)
+
+func _on_timeline_source_resized(source: Source, edge: String, time: float) -> void:
+	source_resized.emit(source, edge, time)
+
+# Composition signal handlers
+func _on_source_added(source: Source) -> void:
+	source_list.add_source(source)
+	timeline.set_sources(composition.sources)
+
+func _on_source_removed(source: Source) -> void:
+	source_list.remove_source(source)
+	timeline.set_sources(composition.sources)
+
+func _on_source_modified(source: Source) -> void:
+	source_list.update_source(source)
+	timeline.update_source(source)
+
+func _on_selection_changed(source: Source) -> void:
+	update_selection(source)
+
+# Zoom control
+func _on_zoom_changed(value: float) -> void:
+	timeline.pixels_per_second = value
+	timeline.queue_redraw()

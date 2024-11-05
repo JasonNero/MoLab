@@ -1,0 +1,58 @@
+[gd_scene load_steps=9 format=3 uid="uid://dhruddvkpc5q2"]
+
+[ext_resource type="Script" path="res://elements/viewport3d/viewport3d.gd" id="1_gpng3"]
+[ext_resource type="PackedScene" uid="uid://cl0l0gd6fvu36" path="res://res/models/basicModel_f_re-export.fbx" id="2_7tqhv"]
+[ext_resource type="PackedScene" uid="uid://dp4amaj712edi" path="res://res/models/basicModel_m_re-export.fbx" id="3_akrgk"]
+[ext_resource type="PackedScene" uid="uid://0l4n2h8tcog1" path="res://res/models/lafan_skeleton.fbx" id="4_vcuq3"]
+[ext_resource type="PackedScene" uid="uid://dpjjl0bpoj5y6" path="res://res/models/Longbow Locomotion Pack/akai_e_espiritu.fbx" id="5_y8lc2"]
+[ext_resource type="PackedScene" uid="uid://x8ai0ts8hh2j" path="res://res/models/Passive_Marker_Man.glb" id="6_kef4r"]
+[ext_resource type="Environment" uid="uid://bcrwyvnfsap3r" path="res://res/Environment.tres" id="7_8f7hm"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_xc4hr"]
+top_radius = 40.0
+bottom_radius = 0.0
+height = 0.001
+rings = 0
+cap_bottom = false
+
+[node name="Viewport3D" type="SubViewportContainer" node_paths=PackedStringArray("anim_player")]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 3.0
+stretch = true
+script = ExtResource("1_gpng3")
+smpl_f = ExtResource("2_7tqhv")
+smpl_m = ExtResource("3_akrgk")
+lafan = ExtResource("4_vcuq3")
+mixamo_akai = ExtResource("5_y8lc2")
+mixamo_markerman = ExtResource("6_kef4r")
+anim_player = NodePath("SubViewport/World/AnimationPlayer")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+handle_input_locally = false
+size = Vector2i(2, 2)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="World" type="Node3D" parent="SubViewport"]
+
+[node name="Camera3D" type="Camera3D" parent="SubViewport/World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 8)
+environment = ExtResource("7_8f7hm")
+current = true
+fov = 40.0
+
+[node name="LightmapProbe" type="LightmapProbe" parent="SubViewport/World"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.71331, 0)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="SubViewport/World"]
+environment = ExtResource("7_8f7hm")
+
+[node name="Floor" type="MeshInstance3D" parent="SubViewport/World"]
+mesh = SubResource("CylinderMesh_xc4hr")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="SubViewport/World"]
+transform = Transform3D(0.52792, -0.378794, 0.760142, 9.42615e-10, 0.895028, 0.44601, -0.849294, -0.235458, 0.472503, 0, 2.47369, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="SubViewport/World"]
+unique_name_in_owner = true
