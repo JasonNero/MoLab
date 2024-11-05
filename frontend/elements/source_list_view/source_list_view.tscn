@@ -16,6 +16,7 @@ script = ExtResource("1_j26j5")
 item_template = ExtResource("3_wdhrk")
 
 [node name="MenuButton" type="MenuButton" parent="."]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 32)
 layout_mode = 2
 text = "Add Track"

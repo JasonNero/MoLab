@@ -82,7 +82,7 @@ func _create_property_control(_name: String, property_info: Dictionary) -> Contr
 			else:
 				input = LineEdit.new()
 				input.text = property_info.value
-				input.text_changed.connect(
+				input.text_submitted.connect(
 					_on_property_changed.bind(_name)
 				)
 		TYPE_INT:

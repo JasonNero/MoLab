@@ -2,8 +2,6 @@ class_name Timeline
 extends VBoxContainer
 
 signal source_selected(source: Source)
-signal source_moved(source: Source, time: float)
-signal source_resized(source: Source, edge: String, time: float)
 signal property_changed(source: Source, property: String, value: Variant)
 
 @export var scroll_container: ScrollContainer
@@ -31,9 +29,13 @@ func update_source(source: Source) -> void:
 func insert_source(index: int, source: Source) -> void:
 	var item: TimelineItem = item_scene.instantiate()
 	item_container.add_child(item)
+	if index > -1:
+		# Adding 1 to account for the playhead
+		index += 1
 	item_container.move_child(item, index)
 	item.source = source
 	item.property_changed.connect(property_changed.emit)
+	item.item_selected.connect(source_selected.emit)
 	source_items[source] = item
 
 func add_source(source: Source) -> void:

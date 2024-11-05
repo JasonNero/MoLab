@@ -76,6 +76,11 @@ func _validate_property_change(source: Source, property: String, value: Variant)
 
 
 func _on_view_property_changed(source: Source, property: String, value: Variant) -> void:
+	# Select the source if it's not already selected
+	if composition.get_selected_source() != source:
+		composition.set_selected_source(source)
+
+	# Validate the property change before applying it
 	if _validate_property_change(source, property, value):
 		# print("Valid property change: ", property, value)
 		source.set_property(property, value)
