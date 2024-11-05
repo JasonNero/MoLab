@@ -1,21 +1,15 @@
 class_name Composition
 extends Resource
 
+signal selection_changed(source: Source)
+signal source_added(source: Source)
+signal source_removed(source: Source)
+signal source_modified(source: Source)
+
 @export var name: String = "Untitled"
-@export var sources: Array[Source] = []:
-	set(new_value):
-		if sources != new_value:
-			sources = new_value
-			emit_changed()
+@export var sources: Array[Source] = []
 
-func _init() -> void:
-	changed.connect(func (): print("Composition {0} changed".format([name])))
-
-func _to_string() -> String:
-	var string = "<Composition#{}#{}>\n".format([get_instance_id(), name], "{}")
-	for source in sources:
-		string += "    " + source.to_string() + "\n"
-	return string
+var selected_source: Source
 
 func get_time_range() -> Array:
 	var min_time = 0
@@ -28,17 +22,19 @@ func get_time_range() -> Array:
 func clear() -> void:
 	name = "Untitled"
 	sources.clear()
-	emit_changed()
 
 func insert_source(source: Source, index: int = 0) -> void:
 	sources.insert(index, source)
-	emit_changed()
-
-func remove_source_at(index: int) -> void:
-	sources.pop_at(index)
-	emit_changed()
+	source_added.emit(source)
 
 func remove_source(source: Source) -> void:
 	sources.erase(source)
-	emit_changed()
+	source_removed.emit(source)
 
+func set_selected_source(source: Source) -> void:
+	if selected_source != source:
+		selected_source = source
+		selection_changed.emit(source)
+
+func get_selected_source() -> Source:
+	return selected_source

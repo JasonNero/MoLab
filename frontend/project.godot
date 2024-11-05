@@ -16,7 +16,7 @@ config/description="Alpha prototype for \"Layer-based Motion Editing\", develope
 https://ai.hdm-stuttgart.de/research/kollani/"
 config/version="0.1.0"
 config/tags=PackedStringArray("gui")
-run/main_scene="res://main.tscn"
+run/main_scene="res://main_editor.tscn"
 config/features=PackedStringArray("4.3")
 run/low_processor_mode=true
 config/icon="res://res/icons/CharacterBody3D.png"

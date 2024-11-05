@@ -1,4 +1,9 @@
+class_name TimeControls
 extends HBoxContainer
+
+signal play_pause_pressed(should_play: bool)
+signal time_changed(new_time: int)
+signal seek_requested(time: int)
 
 @export var seek_start_btn: Button
 @export var step_backwards_btn: Button
@@ -8,29 +13,27 @@ extends HBoxContainer
 
 @export var frame_spinbox: SpinBox
 
-signal seek_start_pressed()
-signal step_backwards_pressed()
-signal play_pause_pressed()
-signal step_forwards_pressed()
-signal seek_end_pressed()
-
 var pause_icon: CompressedTexture2D = preload("res://res/icons/Pause.png")
 var play_icon: CompressedTexture2D = preload("res://res/icons/PlayStart.png")
+
+var current_frame: int = 0
+var is_playing: bool = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	# Forwards signals
-	seek_start_btn.pressed.connect(seek_start_pressed.emit)
-	step_backwards_btn.pressed.connect(step_backwards_pressed.emit)
-	play_pause_btn.pressed.connect(play_pause_pressed.emit)
-	step_forwards_btn.pressed.connect(step_forwards_pressed.emit)
-	seek_end_btn.pressed.connect(seek_end_pressed.emit)
+	play_pause_btn.pressed.connect(switch_play_pause)
 
-func set_frame(frame: int) -> void:
-	frame_spinbox.value = frame
+func update_time(new_time: int) -> void:
+	current_frame = new_time
+	frame_spinbox.value = new_time
 
-func switch_play_pause(is_playing: bool) -> void:
+func update_play_state(should_play: bool) -> void:
+	is_playing = should_play
 	if is_playing:
 		play_pause_btn.icon = pause_icon
 	else:
 		play_pause_btn.icon = play_icon
+
+func switch_play_pause() -> void:
+	play_pause_pressed.emit(not is_playing)

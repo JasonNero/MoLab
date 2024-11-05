@@ -1,69 +1,107 @@
+# properties_panel.gd
 class_name PropertiesPanel
 extends Control
 
-@export var properties: PropertiesBox
+signal property_changed(source: Source, property: String, value: Variant)
 
-var remap_keys := {
-	"Name": "name",
-	"In Point": "in_point",
-	"Out Point": "out_point",
-	"Blend In": "blend_in",
-	"Blend Out": "blend_out",
-	"BVH File": "file",
-	"Text": "text",
-	"Inference Model": "modeltype"
-}
+var current_source: Source
+var property_controls: Dictionary = {}
 
-signal current_source_property_changed(property: String, value: Variant)
+func setup_for_source(source: Source) -> void:
+	clear()
+	current_source = source
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	properties.value_changed.connect(_on_value_changed)
+	if not source:
+		return
 
-# TODO: Do granular changes (instead of re-creating all widgets)
-func view(source: Source) -> void:
-	var class_string := ""
-	if source is SourceBVH:
-		class_string = "SourceBVH"
-	elif source is SourceTTM:
-		class_string = "SourceTTM"
-	elif source is SourceTween:
-		class_string = "SourceTween"
+	var properties = source.get_properties()
+	for property_name in properties:
+		var property = properties[property_name]
+		var control = _create_property_control(
+			property_name,
+			property
+		)
+		property_controls[property_name] = control
+		%PropertiesContainer.add_child(control)
 
-	properties.clear()
-	properties.add_group("General Properties")
-	_add_line_edit("Name", source.name)
-	_add_int_edit("In Point", source.in_point)
-	_add_int_edit("Out Point", source.out_point)
-	_add_int_edit("Blend In", source.blend_in)
-	_add_int_edit("Blend Out", source.blend_out)
-	properties.end_group()
+func clear() -> void:
+	current_source = null
+	for control in property_controls.values():
+		control.queue_free()
+	property_controls.clear()
 
-	properties.add_group("Source Specific")
-	match class_string:
-		"SourceBVH":
-			_add_line_edit("BVH File", source.file)
-		"SourceTTM":
-			_add_line_edit("Text", source.text)
-			properties.add_options("Inference Model", SourceTTM.MODELTYPE.keys(), source.modeltype)
-		"SourceTween":
-			properties.add_options("Inference Model", SourceTTM.MODELTYPE.keys(), source.modeltype)
+func _create_property_control(name: String, property_info: Dictionary) -> Control:
+	var container = HBoxContainer.new()
+	var label = Label.new()
+	label.text = name
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	container.add_child(label)
 
-# Like `add_string` but only triggers on submit, not on every change.
-func _add_line_edit(key: StringName, value: String):
-	var editor = LineEdit.new()
-	editor.text = value
-	properties._add_property_editor(key, editor, editor.text_submitted, properties._on_string_changed)
+	var input: Control
+	match property_info.type:
+		TYPE_STRING:
+			if property_info.get("hint") == PROPERTY_HINT_MULTILINE_TEXT:
+				input = TextEdit.new()
+				input.text = property_info.value
+				input.custom_minimum_size.y = 100  # Give some vertical space
+				input.text_changed.connect(
+					_on_property_changed.bind(name)
+				)
+			else:
+				input = LineEdit.new()
+				input.text = property_info.value
+				input.text_changed.connect(
+					_on_property_changed.bind(name)
+				)
+		TYPE_INT:
+			if property_info.get("hint") == PROPERTY_HINT_ENUM:
+				input = OptionButton.new()
+				var options = property_info.get("hint_string", "").split(",")
+				for i in options.size():
+					input.add_item(options[i], i)
+				input.selected = property_info.value
+				input.item_selected.connect(
+					_on_property_changed.bind(name)
+				)
+			else:
+				input = SpinBox.new()
+				input.allow_greater = true
+				input.value = property_info.value
+				input.value_changed.connect(
+					_on_property_changed.bind(name)
+				)
+		TYPE_FLOAT:
+			input = SpinBox.new()
+			input.step = 0.1  # Smaller steps for float values
+			input.allow_greater = true
+			input.value = property_info.value
+			input.value_changed.connect(
+				_on_property_changed.bind(name)
+			)
+	input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-# Like `add_int` but allows greater values.
-# TODO: Just copy/paste/modify the full PropertiesBox.gd file instead...
-func _add_int_edit(key: StringName, value: int):
-	var editor = SpinBox.new()
-	editor.allow_greater = true
-	editor.value = value
-	properties._add_property_editor(key, editor, editor.value_changed, properties._on_number_changed)
+	container.add_child(input)
+	return container
 
-func _on_value_changed(key: StringName, new_value: Variant):
-	print("Value changed: {0} = {1}".format([key, new_value]))
-	current_source_property_changed.emit(remap_keys[key], new_value)
+# Handle different control types when updating property values
+func update_property(property: String, value: Variant) -> void:
+	var control = property_controls.get(property)
+	if control:
+		var input = control.get_child(1)  # Get the input control
+		input.set_block_signals(true)
 
+		# Handle different control types
+		if input is OptionButton:
+			input.selected = value
+		elif input is TextEdit:
+			input.text = value
+		elif input is LineEdit:
+			input.text = value
+		elif input is SpinBox:
+			input.value = value
+
+		input.set_block_signals(false)
+
+func _on_property_changed(value: Variant, property: String) -> void:
+	if current_source:
+		property_changed.emit(current_source, property, value)

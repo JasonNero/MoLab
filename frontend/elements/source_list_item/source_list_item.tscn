@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://cajayh1h0gl63"]
+
+[ext_resource type="Texture2D" uid="uid://bu232vjuq7bpl" path="res://res/icons/Blend.png" id="1_5f5e8"]
+[ext_resource type="Script" path="res://elements/source_list_item/source_list_item.gd" id="1_f3g4g"]
+[ext_resource type="Texture2D" uid="uid://ev8qkhac4q1y" path="res://res/icons/Duplicate.png" id="2_7563h"]
+[ext_resource type="Texture2D" uid="uid://bq0d7stuqvbvl" path="res://res/icons/Remove.png" id="2_rjp8i"]
+
+[node name="SourceListItem" type="HBoxContainer"]
+custom_minimum_size = Vector2(0, 28)
+offset_right = 195.0
+offset_bottom = 31.0
+script = ExtResource("1_f3g4g")
+
+[node name="SourceButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/icon_max_width = 16
+toggle_mode = true
+text = "Example Source"
+icon = ExtResource("1_5f5e8")
+alignment = 0
+text_overrun_behavior = 3
+expand_icon = true
+
+[node name="DuplicateButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+icon = ExtResource("2_7563h")
+expand_icon = true
+
+[node name="RemoveButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+icon = ExtResource("2_rjp8i")
+expand_icon = true

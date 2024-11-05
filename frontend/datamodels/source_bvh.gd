@@ -8,10 +8,20 @@ func _init(_name="untitled", _in_point=0, _out_point=10, _blend_in=0, _blend_out
 	super(_name, _in_point, _out_point, _blend_in, _blend_out)
 	self.file = _file
 
-func _to_string() -> String:
-	return "<SourceBVH#{} ({}, {}, {}, {}, {})>".format(
-		[get_instance_id(), name, in_point, out_point, blend_in, blend_out, file], "{}")
+# Override get_properties to include base properties and TTM-specific ones
+func get_properties() -> Dictionary:
+	# Get base properties from parent class
+	var props = super.get_properties()
 
-static func from_file(_file: String) -> SourceBVH:
-	var source = SourceBVH.new()
-	return source
+	# Add BVH-specific properties
+	props["file"] = {
+		"type": TYPE_STRING,
+		"value": file,
+		"hint": PROPERTY_HINT_FILE
+	}
+
+	return props
+
+# Override set_property to handle the new properties
+func set_property(property: String, value: Variant) -> void:
+	set(property, value)

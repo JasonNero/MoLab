@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://crrcxddhn28g5"]
+
+[ext_resource type="Script" path="res://elements/timeline/timeline.gd" id="1_c21w7"]
+[ext_resource type="Theme" uid="uid://cyjh5uyspkac1" path="res://tmp/test_theme.tres" id="1_r0i64"]
+
+[node name="Timeline" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 2.0
+script = ExtResource("1_c21w7")
+
+[node name="TimelineScrollBar" type="HScrollBar" parent="."]
+layout_mode = 2
+theme = ExtResource("1_r0i64")
