@@ -35,8 +35,6 @@ func _ready() -> void:
 	outter_handle_left.gui_input.connect(_handle_drag.bind(outter_handle_left, "in_point"))
 	outter_handle_right.gui_input.connect(_handle_drag.bind(outter_handle_right, "out_point"))
 
-	# outter_panel.
-
 func update():
 	outter_panel.position.x = source.in_point * px_per_frame
 	outter_panel.size.x = (source.out_point - source.in_point) * px_per_frame
@@ -83,3 +81,8 @@ func _handle_drag(event: InputEvent, handle: ReferenceRect, property: String) ->
 			new_value = _drag_start_value - frames_delta
 
 		property_changed.emit(source, property, new_value)
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			item_selected.emit(source)

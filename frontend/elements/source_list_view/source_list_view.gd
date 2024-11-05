@@ -2,14 +2,26 @@
 class_name SourceListView
 extends Control
 
+signal source_added(source: Source)
 signal source_selected(source: Source)
 signal source_deleted(source: Source)
 
 @export var item_template: PackedScene
 @onready var container: VBoxContainer = %Container
+@onready var add_btn: MenuButton = %MenuButton
 
 var source_items: Dictionary = {}  # Source -> Item
 var source_btn_group: ButtonGroup = ButtonGroup.new()
+
+func _ready() -> void:
+	var add_popup: PopupMenu = add_btn.get_popup()
+	add_popup.add_icon_item(Globals.bvh_tex, "BVH Track")
+	add_popup.add_icon_item(Globals.ttm_tex, "TTM Track")
+	add_popup.add_icon_item(Globals.tween_tex, "Tween Track")
+	add_popup.set_item_icon_max_width(0, 16)
+	add_popup.set_item_icon_max_width(1, 16)
+	add_popup.set_item_icon_max_width(2, 16)
+	add_popup.id_pressed.connect(_on_add_btn_pressed)
 
 func setup(sources: Array[Source]) -> void:
 	for source in sources:
@@ -54,3 +66,13 @@ func _on_button_pressed(source: Source) -> void:
 
 func _on_delete_pressed(source: Source) -> void:
 	source_deleted.emit(source)
+
+func _on_add_btn_pressed(menu_btn_index: int) -> void:
+	var source: Source
+	if menu_btn_index == 0:
+		source = SourceBVH.new()
+	elif menu_btn_index == 1:
+		source = SourceTTM.new()
+	elif menu_btn_index == 2:
+		source = SourceTween.new()
+	source_added.emit(source)

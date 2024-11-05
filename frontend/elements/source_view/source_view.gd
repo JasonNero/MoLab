@@ -5,30 +5,20 @@ extends Control
 signal source_added(source: Source)
 signal source_selected(source: Source)
 signal source_moved(source: Source, time: float)
-signal source_resized(source: Source, edge: String, time: float)
 signal source_deleted(source: Source)
 signal property_changed(source: Source, property: String, value: Variant)
 
 @onready var source_list: SourceListView = %SourceListView
 @onready var timeline: Timeline = %Timeline
-# @onready var zoom_slider: HSlider = $ZoomControl/ZoomSlider
 
 var composition: Composition
 
 func _ready() -> void:
-	# Connect zoom slider
-	# zoom_slider.value_changed.connect(_on_zoom_changed)
-	# zoom_slider.min_value = timeline.MIN_PIXELS_PER_SECOND
-	# zoom_slider.max_value = timeline.MAX_PIXELS_PER_SECOND
-	# zoom_slider.value = timeline.pixels_per_second
-
-	# Connect internal signals
-	source_list.source_selected.connect(_on_list_source_selected)
-	source_list.source_deleted.connect(_on_list_source_deleted)
-
-	timeline.source_selected.connect(_on_timeline_source_selected)
-	timeline.source_moved.connect(_on_timeline_source_moved)
-	timeline.source_resized.connect(_on_timeline_source_resized)
+	# Bubble up signals from sub-views
+	source_list.source_added.connect(source_added.emit)
+	source_list.source_selected.connect(source_selected.emit)
+	source_list.source_deleted.connect(source_deleted.emit)
+	timeline.source_selected.connect(source_selected.emit)
 	timeline.property_changed.connect(property_changed.emit)
 
 func setup(p_composition: Composition) -> void:
@@ -50,23 +40,6 @@ func update_playhead(time: float) -> void:
 func update_selection(source: Source) -> void:
 	source_list.set_selected(source)
 	timeline.set_selected(source)
-
-# Source list signal handlers
-func _on_list_source_selected(source: Source) -> void:
-	source_selected.emit(source)
-
-func _on_list_source_deleted(source: Source) -> void:
-	source_deleted.emit(source)
-
-# Timeline signal handlers
-func _on_timeline_source_selected(source: Source) -> void:
-	source_selected.emit(source)
-
-func _on_timeline_source_moved(source: Source, time: float) -> void:
-	source_moved.emit(source, time)
-
-func _on_timeline_source_resized(source: Source, edge: String, time: float) -> void:
-	source_resized.emit(source, edge, time)
 
 # Composition signal handlers
 func _on_composition_source_added(index: int, source: Source) -> void:
