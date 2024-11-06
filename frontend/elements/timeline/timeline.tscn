@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://elements/timeline/timeline_item_container.gd" id="5_5xgsp"]
 [ext_resource type="Texture2D" uid="uid://ds3e6imjqhjr8" path="res://res/icons/TimelineIndicator.png" id="5_bfr3m"]
 
-[node name="Timeline" type="VBoxContainer" node_paths=PackedStringArray("scroll_container", "item_container")]
+[node name="Timeline" type="VBoxContainer" node_paths=PackedStringArray("item_container")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -15,7 +15,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 2.0
 script = ExtResource("1_c21w7")
-scroll_container = NodePath("BGPanel/ScrollContainer")
 item_container = NodePath("BGPanel/ScrollContainer/TimelineItemContainer")
 item_scene = ExtResource("5_0v331")
 
@@ -70,7 +69,5 @@ offset_bottom = 1004.0
 
 [node name="__PREVIEW__" parent="BGPanel/ScrollContainer/TimelineItemContainer" instance=ExtResource("5_0v331")]
 visible = false
-custom_minimum_size = Vector2(1400, 28)
 layout_mode = 2
 size_flags_horizontal = 0
-px_per_frame = 4.0

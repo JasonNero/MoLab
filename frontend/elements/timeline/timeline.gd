@@ -4,12 +4,18 @@ extends VBoxContainer
 signal source_selected(source: Source)
 signal property_changed(source: Source, property: String, value: Variant)
 
-@export var scroll_container: ScrollContainer
-@export var item_container: VBoxContainer
+@export var item_container: TimelineItemContainer
 @export var item_scene: PackedScene
 
 var current_time: float = 6.5
 var source_items: Dictionary = {}  # Source -> Item
+var px_per_frame: float = 2.0:
+	set(value):
+		# TODO: Clean this up by combining Timeline and TimelineItemContainer?
+		px_per_frame = value
+		item_container._px_per_frame = value
+		for source in source_items:
+			source_items[source]._px_per_frame = value
 
 func setup(sources: Array[Source]) -> void:
 	clear()
@@ -56,3 +62,12 @@ func set_playhead_position(time: float) -> void:
 	current_time = time
 	item_container.ensure_time_visible(time)
 	queue_redraw()
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.shift_pressed:
+			# NOTE: MacOS automatically translates [shift+wheel up/down] to [wheel left/right]
+			if event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_LEFT]:
+				px_per_frame *= 1.1
+			elif event.button_index in [MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_RIGHT]:
+				px_per_frame /= 1.1

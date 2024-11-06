@@ -1,3 +1,4 @@
+class_name TimelineItemContainer
 extends VBoxContainer
 
 const MAJOR_GRID_SECONDS := 5.0  # Major line every second
@@ -7,19 +8,22 @@ const MINOR_GRID_COLOR := Color(1, 1, 1, 0.1)
 
 var current_time: float = 6.5
 var frames_per_second: int = 25
-var px_per_frame: float = 2.0
+var _px_per_frame: float = 2.0:
+	set(value):
+		_px_per_frame = value
+		queue_redraw()
 
 var scroll_container: ScrollContainer
-
-func ensure_time_visible(time: float) -> void:
-	var x = _time_to_pixels(time)
-	if x < scroll_container.scroll_horizontal or x > scroll_container.scroll_horizontal + scroll_container.size.x:
-		scroll_container.scroll_horizontal = x - scroll_container.size.x / 2
 
 func _ready() -> void:
 	scroll_container = get_parent()
 	if not scroll_container is ScrollContainer:
 		push_error("Timeline must be a child of ScrollContainer")
+
+func ensure_time_visible(time: float) -> void:
+	var x = _time_to_pixels(time)
+	if x < scroll_container.scroll_horizontal or x > scroll_container.scroll_horizontal + scroll_container.size.x:
+		scroll_container.scroll_horizontal = x - scroll_container.size.x / 2
 
 func _format_time(time: float) -> String:
 	var minutes = floor(time / 60)
@@ -28,10 +32,10 @@ func _format_time(time: float) -> String:
 	return "%02d:%02d.%02d" % [minutes, seconds, frames]
 
 func _time_to_pixels(seconds: float) -> float:
-	return seconds * frames_per_second * px_per_frame
+	return seconds * frames_per_second * _px_per_frame
 
 func _pixels_to_time(pixels: int) -> float:
-	return pixels / px_per_frame / frames_per_second
+	return pixels / _px_per_frame / frames_per_second
 
 func _draw_grid() -> void:
 	if not scroll_container:

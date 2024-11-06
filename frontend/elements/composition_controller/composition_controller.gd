@@ -8,9 +8,6 @@ var properties_panel: PropertiesPanel
 var time_controls: TimeControls
 var animation_composer: AnimationComposer
 
-# Configuration
-const MIN_SOURCE_DURATION := 0.1
-
 func initialize(
 	p_composition: Composition,
 	p_source_view: SourceView,
@@ -73,7 +70,6 @@ func _validate_property_change(source: Source, property: String, value: Variant)
 			return value >= 0 and value <= source.get_duration()
 		_:
 			return true
-
 
 func _on_view_property_changed(source: Source, property: String, value: Variant) -> void:
 	# Select the source if it's not already selected
