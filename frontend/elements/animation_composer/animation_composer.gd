@@ -25,11 +25,8 @@ func initialize(p_composition: Composition, p_animation_player: AnimationPlayer)
 func _configure_animation_player() -> void:
 	animation_player.callback_mode_process = PLAYBACK_PROCESS_MODE
 	animation_player.playback_default_blend_time = 0
-	print(animation_player.get_animation_library_list())
 	animation_player.clear_queue()
-	print(animation_player.get_animation_library_list())
 	animation_player.add_animation_library(ANIMATION_LIBRARY_NAME, AnimationLibrary.new())
-	print(animation_player.get_animation_library_list())
 
 func _connect_signals() -> void:
 	composition.source_modified.connect(_on_composition_changed)

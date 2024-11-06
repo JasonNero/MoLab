@@ -46,8 +46,6 @@ var menuItems = {
 }
 
 func _ready():
-	print('Creating Menu')
-
 	for menu in menuItems:
 		add_child(createSubmenu(menu, menuItems[menu]))
 
