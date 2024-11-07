@@ -98,6 +98,7 @@ func _create_property_control(_name: String, property_info: Dictionary) -> Contr
 			else:
 				input = SpinBox.new()
 				input.allow_greater = true
+				input.allow_lesser = true
 				input.value = property_info.value
 				input.value_changed.connect(
 					_on_property_changed.bind(_name)
@@ -106,6 +107,7 @@ func _create_property_control(_name: String, property_info: Dictionary) -> Contr
 			input = SpinBox.new()
 			input.step = 0.1  # Smaller steps for float values
 			input.allow_greater = true
+			input.allow_lesser = true
 			input.value = property_info.value
 			input.value_changed.connect(
 				_on_property_changed.bind(_name)

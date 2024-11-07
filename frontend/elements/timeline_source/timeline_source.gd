@@ -30,12 +30,12 @@ func _draw_background() -> void:
     style.draw(get_canvas_item(), Rect2(Vector2(), size))
 
 func _draw_blend_regions() -> void:
-    if source.blend_in > 0:
-        var blend_width = source.blend_in * get_parent().pixels_per_second
+    if source.in_offset > 0:
+        var blend_width = source.in_offset * get_parent().pixels_per_second
         draw_rect(Rect2(0, 0, blend_width, size.y), Color(0.2, 0.5, 1.0, 0.3))
 
-    if source.blend_out > 0:
-        var blend_width = source.blend_out * get_parent().pixels_per_second
+    if source.out_offset > 0:
+        var blend_width = source.out_offset * get_parent().pixels_per_second
         draw_rect(Rect2(size.x - blend_width, 0, blend_width, size.y),
                  Color(0.2, 0.5, 1.0, 0.3))
 

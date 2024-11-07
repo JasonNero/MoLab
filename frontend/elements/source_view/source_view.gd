@@ -4,7 +4,7 @@ extends Control
 
 signal source_added(source: Source)
 signal source_selected(source: Source)
-signal source_moved(source: Source, time: float)
+signal source_moved(source: Source, in_point: int)
 signal source_deleted(source: Source)
 signal property_changed(source: Source, property: String, value: Variant)
 
@@ -20,6 +20,7 @@ func _ready() -> void:
 	source_list.source_deleted.connect(source_deleted.emit)
 	timeline.source_selected.connect(source_selected.emit)
 	timeline.property_changed.connect(property_changed.emit)
+	timeline.source_moved.connect(source_moved.emit)
 
 func setup(p_composition: Composition) -> void:
 	composition = p_composition

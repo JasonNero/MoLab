@@ -29,6 +29,7 @@ func _connect_signals() -> void:
 	source_view.source_added.connect(_on_view_source_added)
 	source_view.source_selected.connect(_on_view_source_selected)
 	source_view.source_deleted.connect(_on_view_source_deleted)
+	source_view.source_moved.connect(_on_view_source_moved)
 	source_view.property_changed.connect(_on_view_property_changed)
 
 	properties_panel.property_changed.connect(_on_view_property_changed)
@@ -56,7 +57,12 @@ func _on_view_source_selected(source: Source) -> void:
 func _on_view_source_deleted(source: Source) -> void:
 	composition.remove_source(source)
 
-# Property Management
+func _on_view_source_moved(source: Source, in_point: int) -> void:
+	var delta = in_point - source.in_point
+	source.in_point = in_point
+	source.out_point += delta
+	composition.source_modified.emit(source)
+
 func _validate_source_position(source: Source) -> bool:
 	return source.is_valid()
 
@@ -64,10 +70,20 @@ func _validate_property_change(source: Source, property: String, value: Variant)
 	match property:
 		"name":
 			return value.strip_edges().length() > 0
-		"in_point", "out_point":
-			return value >= 0
-		"blend_in", "blend_out":
-			return value >= 0 and value <= source.get_duration()
+		"in_point":
+			return source.animation == null and value < source.out_point
+		"out_point":
+			return source.animation == null and value > source.in_point
+		"in_offset":
+			return (
+				value >= 0 and
+				value <= (source.out_point - source.in_point - source.out_offset)
+			)
+		"out_offset":
+			return (
+				value >= 0 and
+				value <= (source.out_point - source.in_point - source.in_offset)
+			)
 		_:
 			return true
 

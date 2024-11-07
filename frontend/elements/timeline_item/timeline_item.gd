@@ -4,6 +4,7 @@ class_name TimelineItem
 extends HBoxContainer
 
 signal property_changed(source: Source, property: String, value: Variant)
+signal item_moved(source: Source, in_point: int)
 signal item_selected(source: Source)
 
 @export var source: Source
@@ -35,8 +36,8 @@ var _dragging_handle: ReferenceRect
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	inner_handle_left.gui_input.connect(_on_handle_gui_input.bind(inner_handle_left, "blend_in"))
-	inner_handle_right.gui_input.connect(_on_handle_gui_input.bind(inner_handle_right, "blend_out"))
+	inner_handle_left.gui_input.connect(_on_handle_gui_input.bind(inner_handle_left, "in_offset"))
+	inner_handle_right.gui_input.connect(_on_handle_gui_input.bind(inner_handle_right, "out_offset"))
 	outter_handle_left.gui_input.connect(_on_handle_gui_input.bind(outter_handle_left, "in_point"))
 	outter_handle_right.gui_input.connect(_on_handle_gui_input.bind(outter_handle_right, "out_point"))
 	inner_panel.gui_input.connect(_on_inner_panel_gui_input)
@@ -44,8 +45,8 @@ func _ready() -> void:
 func update() -> void:
 	outter_panel.position.x = source.in_point * _px_per_frame
 	outter_panel.size.x = (source.out_point - source.in_point) * _px_per_frame
-	inner_panel.position.x = (source.in_point + source.blend_in) * _px_per_frame
-	inner_panel.size.x = (source.out_point - source.in_point - source.blend_in - source.blend_out) * _px_per_frame
+	inner_panel.position.x = (source.in_point + source.in_offset) * _px_per_frame
+	inner_panel.size.x = (source.out_point - source.in_point - source.in_offset - source.out_offset) * _px_per_frame
 	source_label.text = source.name
 
 	# Required to trigger scrollbars higher up the hierarchy
@@ -73,7 +74,6 @@ func _on_handle_gui_input(event: InputEvent, handle: ReferenceRect, property: St
 				# Using global to avoid parent transforms; we only care about the x delta
 				_drag_start_xpos = get_global_mouse_position().x
 				_drag_start_handle_value = source.get(property)
-				handle.grab_focus()
 			else:
 				_dragging = false
 
@@ -82,8 +82,8 @@ func _on_handle_gui_input(event: InputEvent, handle: ReferenceRect, property: St
 		var frames_delta: float = snappedf(delta / _px_per_frame, 1.0)
 		var new_value: float = _drag_start_handle_value + frames_delta
 
-		# For blend_out we want to invert the direction
-		if property == "blend_out":
+		# For out_offset we want to invert the direction
+		if property == "out_offset":
 			new_value = _drag_start_handle_value - frames_delta
 
 		property_changed.emit(source, property, new_value)
@@ -98,7 +98,6 @@ func _on_inner_panel_gui_input(event: InputEvent) -> void:
 				_drag_start_xpos = get_global_mouse_position().x
 				_drag_start_in_point = source.in_point
 				_drag_start_out_point = source.out_point
-				inner_panel.grab_focus()
 				inner_panel.mouse_default_cursor_shape = CursorShape.CURSOR_DRAG
 			else:
 				_dragging = false
@@ -108,7 +107,5 @@ func _on_inner_panel_gui_input(event: InputEvent) -> void:
 		var delta: float = get_global_mouse_position().x - _drag_start_xpos
 		var frames_delta: float = snappedf(delta / _px_per_frame, 1.0)
 		var new_in_point: float = _drag_start_in_point + frames_delta
-		var new_out_point: float = _drag_start_out_point + frames_delta
-		property_changed.emit(source, "in_point", new_in_point)
-		property_changed.emit(source, "out_point", new_out_point)
+		item_moved.emit(source, new_in_point)
 
