@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://main_editor.gd" id="1_1pk6w"]
 [ext_resource type="Script" path="res://elements/backend_websocket/backend_websocket.gd" id="2_b8832"]
-[ext_resource type="Resource" uid="uid://crs5qkbm52567" path="res://res/test_composition.tres" id="2_gq1js"]
+[ext_resource type="Resource" uid="uid://cu2m87y4p5oem" path="res://res/test_composition_with_anim.tres" id="2_rbcj2"]
 [ext_resource type="Script" path="res://elements/dcc_websocket/dcc_websocket.gd" id="3_hnnsg"]
 [ext_resource type="Script" path="res://elements/animation_composer/animation_composer.gd" id="4_of3hi"]
 [ext_resource type="PackedScene" uid="uid://bmyqi2jgi8j7a" path="res://elements/menu_bar/menu_bar.tscn" id="5_em8n2"]
@@ -16,6 +16,7 @@
 
 [sub_resource type="Animation" id="Animation_vahhn"]
 resource_name = "test_animation"
+length = 15.0
 loop_mode = 1
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_1s4ov"]
@@ -37,7 +38,7 @@ time_controls = NodePath("UIRoot/VSplitContainer/PanelContainer/MarginContainer/
 viewport_3d = NodePath("UIRoot/VSplitContainer/HSplitContainer/Viewport3D")
 composition_controller = NodePath("CompositionController")
 animation_composer = NodePath("AnimationComposer")
-composition = ExtResource("2_gq1js")
+composition = ExtResource("2_rbcj2")
 
 [node name="BackendWebSocket" type="Node" parent="."]
 unique_name_in_owner = true

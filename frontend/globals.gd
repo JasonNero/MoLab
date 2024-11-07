@@ -8,6 +8,7 @@ var bvh_color: Color = Color("#114153")
 var ttm_color: Color = Color("#264115")
 var tween_color: Color = Color("#134137")
 
+var FPS: int = 25
 
 func _get_source_icon(source: Source) -> Texture2D:
 	if source is SourceBVH:

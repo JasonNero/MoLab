@@ -77,16 +77,16 @@ func _merge_source_animation(target: Animation, source: Source) -> void:
 			var new_time := time + source.in_point
 
 			# Handle blending if needed
-			if time < source.blend_in:
+			if time < source.in_offset:
 				value = _blend_with_previous_value(
 					target,
 					new_track_idx,
 					new_time,
 					value,
-					time / source.blend_in
+					time / source.in_offset
 				)
-			elif time > (source.get_duration() - source.blend_out):
-				var blend_factor := (source.get_duration() - time) / source.blend_out
+			elif time > (source.get_animation_frames() - source.out_offset):
+				var blend_factor := (source.get_animation_frames() - time) / source.out_offset
 				value = _blend_with_next_value(
 					target,
 					new_track_idx,

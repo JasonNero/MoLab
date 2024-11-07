@@ -8,13 +8,13 @@ enum MODELTYPE {DEFAULT, LEGACY, EXPERIMENTAL}
 
 var is_dirty: bool = false
 
-func _init(_name="untitled", _in_point=0, _out_point=10, _blend_in=0, _blend_out=0, _modeltype=MODELTYPE.DEFAULT) -> void:
-	super(_name, _in_point, _out_point, _blend_in, _blend_out)
+func _init(_name="untitled", _in_point=0, _out_point=10, _in_offset=0, _out_offset=0, _modeltype=MODELTYPE.DEFAULT) -> void:
+	super(_name, _in_point, _out_point, _in_offset, _out_offset)
 	self.modeltype = _modeltype
 
 func _to_string() -> String:
 	return "<SourceTween#{} ({}, {}, {}, {}, {}, {})>".format(
-		[get_instance_id(), name, in_point, out_point, blend_in, blend_out, modeltype], "{}")
+		[get_instance_id(), name, in_point, out_point, in_offset, out_offset, modeltype], "{}")
 
 
 func process_data() -> void:

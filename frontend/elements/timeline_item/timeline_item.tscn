@@ -9,8 +9,8 @@ script = ExtResource("2_vwreo")
 name = "Test Layer"
 in_point = 50
 out_point = 350
-blend_in = 25
-blend_out = 50
+in_offset = 25
+out_offset = 50
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vjxfu"]
 bg_color = Color(0.278431, 0.470588, 0.811765, 0.501961)
@@ -44,11 +44,10 @@ custom_minimum_size = Vector2(16, 0)
 layout_mode = 1
 anchors_preset = -1
 anchor_bottom = 1.0
-offset_left = -8.0
+offset_left = -12.0
 grow_vertical = 2
 mouse_default_cursor_shape = 15
 border_color = Color(1, 0, 0, 0.623529)
-editor_only = false
 
 [node name="HandleRight" type="ReferenceRect" parent="OutterPanel"]
 custom_minimum_size = Vector2(16, 0)
@@ -57,12 +56,11 @@ anchors_preset = -1
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 8.0
+offset_right = 12.0
 grow_horizontal = 0
 grow_vertical = 2
 mouse_default_cursor_shape = 15
 border_color = Color(1, 0, 0, 0.623529)
-editor_only = false
 
 [node name="InnerPanel" type="Panel" parent="."]
 custom_minimum_size = Vector2(0, 31)
@@ -92,10 +90,8 @@ custom_minimum_size = Vector2(16, 0)
 layout_mode = 1
 anchors_preset = -1
 anchor_bottom = 1.0
-offset_left = -8.0
 grow_vertical = 2
 mouse_default_cursor_shape = 15
-editor_only = false
 
 [node name="HandleRight" type="ReferenceRect" parent="InnerPanel"]
 custom_minimum_size = Vector2(16, 0)
@@ -104,8 +100,6 @@ anchors_preset = -1
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 8.0
 grow_horizontal = 0
 grow_vertical = 2
 mouse_default_cursor_shape = 15
-editor_only = false

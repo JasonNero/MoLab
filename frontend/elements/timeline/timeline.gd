@@ -2,6 +2,7 @@ class_name Timeline
 extends VBoxContainer
 
 signal source_selected(source: Source)
+signal source_moved(source: Source, in_point: int)
 signal property_changed(source: Source, property: String, value: Variant)
 
 @export var item_container: TimelineItemContainer
@@ -41,6 +42,7 @@ func insert_source(index: int, source: Source) -> void:
 	item_container.move_child(item, index)
 	item.source = source
 	item.property_changed.connect(property_changed.emit)
+	item.item_moved.connect(source_moved.emit)
 	item.item_selected.connect(source_selected.emit)
 	source_items[source] = item
 
