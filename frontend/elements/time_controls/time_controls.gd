@@ -24,9 +24,9 @@ func _ready() -> void:
 	# Forwards signals
 	play_pause_btn.pressed.connect(switch_play_pause)
 
-func update_time(new_time: int) -> void:
-	current_frame = new_time
-	frame_spinbox.value = new_time
+func update_time(new_time: float) -> void:
+	current_frame = int(new_time * Globals.FPS)
+	frame_spinbox.value = current_frame
 
 func update_play_state(should_play: bool) -> void:
 	is_playing = should_play

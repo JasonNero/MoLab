@@ -62,6 +62,7 @@ func set_selected(selected_source: Source) -> void:
 
 func set_playhead_position(time: float) -> void:
 	current_time = time
+	item_container.set_playhead_position(time)
 	item_container.ensure_time_visible(time)
 	queue_redraw()
 

@@ -35,7 +35,7 @@ func _ready() -> void:
 
 func _update_character() -> void:
 	if current_char != null:
-		remove_child(current_char)
+		%World.remove_child(current_char)
 
 	match character_type:
 		CHARACTER.SMPL_FEMALE:
@@ -49,7 +49,7 @@ func _update_character() -> void:
 		CHARACTER.MIXAMO_MARKERMAN:
 			current_char = mixamo_markerman.instantiate()
 
-	add_child(current_char)
+	%World.add_child(current_char)
 	current_skel = current_char.find_child("GeneralSkeleton", true)
 	anim_player.set_root(current_skel.get_parent().get_path())
 

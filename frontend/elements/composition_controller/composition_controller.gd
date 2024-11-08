@@ -123,6 +123,6 @@ func _on_seek_requested(time: int) -> void:
 	animation_composer.seek(time)
 	time_controls.update_time(time)
 
-func _on_playback_time_changed(time: int) -> void:
+func _on_playback_time_changed(time: float) -> void:
 	time_controls.update_time(time)
 	source_view.update_playhead(time)

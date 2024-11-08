@@ -11,7 +11,7 @@ signal source_modified(source: Source)
 
 var selected_source: Source
 
-func get_time_range() -> Array:
+func get_frame_range() -> Array:
 	var min_time = 0
 	var max_time = 0
 	for source in sources:

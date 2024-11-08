@@ -1,8 +1,8 @@
-[gd_scene load_steps=16 format=3 uid="uid://bna0c1t5re2pk"]
+[gd_scene load_steps=14 format=3 uid="uid://bna0c1t5re2pk"]
 
 [ext_resource type="Script" path="res://main_editor.gd" id="1_1pk6w"]
 [ext_resource type="Script" path="res://elements/backend_websocket/backend_websocket.gd" id="2_b8832"]
-[ext_resource type="Resource" uid="uid://cu2m87y4p5oem" path="res://res/test_composition_with_anim.tres" id="2_rbcj2"]
+[ext_resource type="Resource" uid="uid://dam8s43cadnfo" path="res://res/test_composition_with_anim_mixamo.tres" id="2_sqx4j"]
 [ext_resource type="Script" path="res://elements/dcc_websocket/dcc_websocket.gd" id="3_hnnsg"]
 [ext_resource type="Script" path="res://elements/animation_composer/animation_composer.gd" id="4_of3hi"]
 [ext_resource type="PackedScene" uid="uid://bmyqi2jgi8j7a" path="res://elements/menu_bar/menu_bar.tscn" id="5_em8n2"]
@@ -14,21 +14,15 @@
 [ext_resource type="PackedScene" uid="uid://ta5cvu80f4ar" path="res://elements/source_view/source_view.tscn" id="10_31fti"]
 [ext_resource type="PackedScene" uid="uid://dtv8qlb6r06l7" path="res://elements/status_bar/status_bar.tscn" id="12_nnb0x"]
 
-[sub_resource type="Animation" id="Animation_vahhn"]
-resource_name = "test_animation"
-length = 15.0
-loop_mode = 1
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_1s4ov"]
-_data = {
-"test_animation": SubResource("Animation_vahhn")
-}
-
 [node name="MainEditor" type="Control" node_paths=PackedStringArray("source_view", "properties_panel", "time_controls", "viewport_3d", "composition_controller", "animation_composer")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = 1.0
+offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_1pk6w")
@@ -38,7 +32,7 @@ time_controls = NodePath("UIRoot/VSplitContainer/PanelContainer/MarginContainer/
 viewport_3d = NodePath("UIRoot/VSplitContainer/HSplitContainer/Viewport3D")
 composition_controller = NodePath("CompositionController")
 animation_composer = NodePath("AnimationComposer")
-composition = ExtResource("2_rbcj2")
+composition = ExtResource("2_sqx4j")
 
 [node name="BackendWebSocket" type="Node" parent="."]
 unique_name_in_owner = true
@@ -55,12 +49,6 @@ script = ExtResource("4_of3hi")
 [node name="CompositionController" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("5_opwlq")
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-"": SubResource("AnimationLibrary_1s4ov")
-}
-autoplay = "test_animation"
 
 [node name="UIRoot" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -97,6 +85,7 @@ theme_override_constants/separation = 0
 [node name="Viewport3D" parent="UIRoot/VSplitContainer/HSplitContainer" instance=ExtResource("8_8jre6")]
 unique_name_in_owner = true
 layout_mode = 2
+character_type = 3
 
 [node name="TabContainer" type="TabContainer" parent="UIRoot/VSplitContainer/HSplitContainer"]
 layout_mode = 2
