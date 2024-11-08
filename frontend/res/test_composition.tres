@@ -13,8 +13,8 @@ modeltype = 2
 name = "Fall"
 in_point = 300
 out_point = 500
-blend_in = 100
-blend_out = 0
+in_offset = 100
+out_offset = 0
 
 [sub_resource type="Resource" id="Resource_1ia20"]
 script = ExtResource("4_ehwu6")
@@ -22,8 +22,8 @@ file = "capoeira.bvh"
 name = "Capoeira Choreo"
 in_point = 200
 out_point = 400
-blend_in = 0
-blend_out = 0
+in_offset = 0
+out_offset = 0
 
 [sub_resource type="Resource" id="Resource_6cb56"]
 script = ExtResource("5_kye71")
@@ -31,8 +31,8 @@ modeltype = 0
 name = "Dance To Fight"
 in_point = 100
 out_point = 300
-blend_in = 50
-blend_out = 50
+in_offset = 50
+out_offset = 50
 
 [sub_resource type="Resource" id="Resource_7eqfw"]
 script = ExtResource("4_ehwu6")
@@ -40,8 +40,8 @@ file = "./tango.bvh"
 name = "Tango Dance"
 in_point = 0
 out_point = 200
-blend_in = 0
-blend_out = 0
+in_offset = 0
+out_offset = 0
 
 [resource]
 script = ExtResource("1_8jkv0")

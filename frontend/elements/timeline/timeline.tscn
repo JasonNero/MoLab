@@ -41,16 +41,14 @@ theme_override_constants/separation = 1
 script = ExtResource("5_5xgsp")
 
 [node name="IndicatorPanel" type="Panel" parent="BGPanel/ScrollContainer/TimelineItemContainer"]
-unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
 
-[node name="Control" type="Control" parent="BGPanel/ScrollContainer/TimelineItemContainer/IndicatorPanel"]
+[node name="PlayHead" type="Control" parent="BGPanel/ScrollContainer/TimelineItemContainer/IndicatorPanel"]
+unique_name_in_owner = true
 anchors_preset = 0
-offset_left = 32.0
-offset_right = 32.0
 
-[node name="TextureButton" type="TextureButton" parent="BGPanel/ScrollContainer/TimelineItemContainer/IndicatorPanel/Control"]
+[node name="TextureButton" type="TextureButton" parent="BGPanel/ScrollContainer/TimelineItemContainer/IndicatorPanel/PlayHead"]
 layout_mode = 2
 offset_left = -16.0
 offset_top = 4.0
@@ -58,7 +56,7 @@ offset_right = 16.0
 offset_bottom = 36.0
 texture_normal = ExtResource("5_bfr3m")
 
-[node name="ColorRect" type="ColorRect" parent="BGPanel/ScrollContainer/TimelineItemContainer/IndicatorPanel/Control"]
+[node name="ColorRect" type="ColorRect" parent="BGPanel/ScrollContainer/TimelineItemContainer/IndicatorPanel/PlayHead"]
 z_index = 1
 custom_minimum_size = Vector2(2, 0)
 layout_mode = 0

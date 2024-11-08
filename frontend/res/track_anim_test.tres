@@ -10,8 +10,8 @@ file = ""
 name = ""
 in_point = 0
 out_point = 0
-blend_in = 0
-blend_out = 0
+in_offset = 0
+out_offset = 0
 
 [sub_resource type="Resource" id="Resource_6nu5s"]
 script = ExtResource("3_e35dv")
@@ -19,8 +19,8 @@ text = ""
 name = ""
 in_point = 0
 out_point = 0
-blend_in = 0
-blend_out = 0
+in_offset = 0
+out_offset = 0
 
 [resource]
 script = ExtResource("1_dyhw0")

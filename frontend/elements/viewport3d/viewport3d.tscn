@@ -16,6 +16,11 @@ rings = 0
 cap_bottom = false
 
 [node name="Viewport3D" type="SubViewportContainer" node_paths=PackedStringArray("anim_player")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 3.0
@@ -30,11 +35,12 @@ anim_player = NodePath("SubViewport/World/AnimationPlayer")
 
 [node name="SubViewport" type="SubViewport" parent="."]
 handle_input_locally = false
-size = Vector2i(2, 2)
+size = Vector2i(1920, 1600)
 size_2d_override_stretch = true
 render_target_update_mode = 4
 
 [node name="World" type="Node3D" parent="SubViewport"]
+unique_name_in_owner = true
 
 [node name="Camera3D" type="Camera3D" parent="SubViewport/World"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 8)

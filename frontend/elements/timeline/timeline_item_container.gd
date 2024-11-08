@@ -14,11 +14,15 @@ var _px_per_frame: float = 2.0:
 		queue_redraw()
 
 var scroll_container: ScrollContainer
+@onready var playhead: Control = %PlayHead
 
 func _ready() -> void:
 	scroll_container = get_parent()
 	if not scroll_container is ScrollContainer:
 		push_error("Timeline must be a child of ScrollContainer")
+
+func set_playhead_position(time: float) -> void:
+	playhead.position.x = _time_to_pixels(time)
 
 func ensure_time_visible(time: float) -> void:
 	var x = _time_to_pixels(time)
@@ -92,4 +96,3 @@ func _draw_grid() -> void:
 
 func _draw() -> void:
 	_draw_grid()
-
