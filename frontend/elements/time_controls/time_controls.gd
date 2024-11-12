@@ -2,8 +2,7 @@ class_name TimeControls
 extends HBoxContainer
 
 signal play_pause_pressed(should_play: bool)
-signal time_changed(new_time: int)
-signal seek_requested(time: int)
+signal seek_requested(time: float)
 
 @export var seek_start_btn: Button
 @export var step_backwards_btn: Button

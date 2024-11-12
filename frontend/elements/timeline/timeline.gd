@@ -4,6 +4,7 @@ extends VBoxContainer
 signal source_selected(source: Source)
 signal source_moved(source: Source, in_point: int)
 signal property_changed(source: Source, property: String, value: Variant)
+signal playhead_moved(time: float)
 
 @export var item_container: TimelineItemContainer
 @export var item_scene: PackedScene
@@ -17,6 +18,9 @@ var px_per_frame: float = 2.0:
 		item_container._px_per_frame = value
 		for source in source_items:
 			source_items[source]._px_per_frame = value
+
+func _ready() -> void:
+	item_container.playhead_moved.connect(playhead_moved.emit)
 
 func setup(sources: Array[Source]) -> void:
 	clear()
@@ -64,7 +68,6 @@ func set_playhead_position(time: float) -> void:
 	current_time = time
 	item_container.set_playhead_position(time)
 	item_container.ensure_time_visible(time)
-	queue_redraw()
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
