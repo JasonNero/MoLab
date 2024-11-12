@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dhruddvkpc5q2"]
+[gd_scene load_steps=10 format=3 uid="uid://dhruddvkpc5q2"]
 
 [ext_resource type="Script" path="res://elements/viewport3d/viewport3d.gd" id="1_gpng3"]
 [ext_resource type="PackedScene" uid="uid://cl0l0gd6fvu36" path="res://res/models/basicModel_f_re-export.fbx" id="2_7tqhv"]
@@ -7,9 +7,10 @@
 [ext_resource type="PackedScene" uid="uid://dpjjl0bpoj5y6" path="res://res/models/Longbow Locomotion Pack/akai_e_espiritu.fbx" id="5_y8lc2"]
 [ext_resource type="PackedScene" uid="uid://x8ai0ts8hh2j" path="res://res/models/Passive_Marker_Man.glb" id="6_kef4r"]
 [ext_resource type="Environment" uid="uid://bcrwyvnfsap3r" path="res://res/Environment.tres" id="7_8f7hm"]
+[ext_resource type="Script" path="res://elements/viewport3d/world.gd" id="7_anjmo"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_xc4hr"]
-top_radius = 40.0
+top_radius = 50.0
 bottom_radius = 0.0
 height = 0.001
 rings = 0
@@ -41,6 +42,10 @@ render_target_update_mode = 4
 
 [node name="World" type="Node3D" parent="SubViewport"]
 unique_name_in_owner = true
+script = ExtResource("7_anjmo")
+grid_size = Vector2(100, 100)
+grid_color = Color(0.35, 0.35, 0.35, 1)
+main_line_color = Color(0.85, 0.85, 0.85, 1)
 
 [node name="Camera3D" type="Camera3D" parent="SubViewport/World"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 8)
@@ -49,7 +54,6 @@ current = true
 fov = 40.0
 
 [node name="LightmapProbe" type="LightmapProbe" parent="SubViewport/World"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.71331, 0)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="SubViewport/World"]
 environment = ExtResource("7_8f7hm")

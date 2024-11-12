@@ -1,6 +1,8 @@
 class_name TimelineItemContainer
 extends VBoxContainer
 
+signal playhead_moved(time: float)
+
 const MAJOR_GRID_SECONDS := 5.0  # Major line every second
 const MINOR_GRID_DIVISIONS := 5    # Number of minor lines between major lines
 const MAJOR_GRID_COLOR := Color(1, 1, 1, 0.3)
@@ -12,14 +14,17 @@ var _px_per_frame: float = 2.0:
 	set(value):
 		_px_per_frame = value
 		queue_redraw()
-
 var scroll_container: ScrollContainer
 @onready var playhead: Control = %PlayHead
+
+var _dragging_playhead: bool = false
 
 func _ready() -> void:
 	scroll_container = get_parent()
 	if not scroll_container is ScrollContainer:
 		push_error("Timeline must be a child of ScrollContainer")
+	playhead.gui_input.connect(_on_playhead_input)
+
 
 func set_playhead_position(time: float) -> void:
 	playhead.position.x = _time_to_pixels(time)
@@ -28,6 +33,18 @@ func ensure_time_visible(time: float) -> void:
 	var x = _time_to_pixels(time)
 	if x < scroll_container.scroll_horizontal or x > scroll_container.scroll_horizontal + scroll_container.size.x:
 		scroll_container.scroll_horizontal = x - scroll_container.size.x / 2
+
+func _on_playhead_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			_dragging_playhead = event.pressed
+			print(event.as_text(), " at ", event.position)
+
+	elif event is InputEventMouseMotion and _dragging_playhead:
+		# Get event position in parent space
+		var pos = playhead.position + event.position
+		var time = _pixels_to_time(pos.x)
+		playhead_moved.emit(time)
 
 func _format_time(time: float) -> String:
 	var minutes = floor(time / 60)

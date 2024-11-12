@@ -7,6 +7,7 @@ signal source_selected(source: Source)
 signal source_moved(source: Source, in_point: int)
 signal source_deleted(source: Source)
 signal property_changed(source: Source, property: String, value: Variant)
+signal playhead_moved(time: float)
 
 @onready var source_list: SourceListView = %SourceListView
 @onready var timeline: Timeline = %Timeline
@@ -21,6 +22,7 @@ func _ready() -> void:
 	timeline.source_selected.connect(source_selected.emit)
 	timeline.property_changed.connect(property_changed.emit)
 	timeline.source_moved.connect(source_moved.emit)
+	timeline.playhead_moved.connect(playhead_moved.emit)
 
 func setup(p_composition: Composition) -> void:
 	composition = p_composition

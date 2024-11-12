@@ -46,23 +46,26 @@ layout_mode = 2
 
 [node name="PlayHead" type="Control" parent="BGPanel/ScrollContainer/TimelineItemContainer/IndicatorPanel"]
 unique_name_in_owner = true
-anchors_preset = 0
+layout_mode = 1
+offset_left = -16.0
+offset_right = 16.0
+offset_bottom = 1000.0
+pivot_offset = Vector2(16, 0)
+mouse_default_cursor_shape = 10
 
 [node name="TextureButton" type="TextureButton" parent="BGPanel/ScrollContainer/TimelineItemContainer/IndicatorPanel/PlayHead"]
 layout_mode = 2
-offset_left = -16.0
-offset_top = 4.0
-offset_right = 16.0
-offset_bottom = 36.0
+offset_right = 32.0
+offset_bottom = 32.0
 texture_normal = ExtResource("5_bfr3m")
 
 [node name="ColorRect" type="ColorRect" parent="BGPanel/ScrollContainer/TimelineItemContainer/IndicatorPanel/PlayHead"]
 z_index = 1
 custom_minimum_size = Vector2(2, 0)
 layout_mode = 0
-offset_left = -1.0
+offset_left = 15.0
 offset_top = 4.0
-offset_right = 1.0
+offset_right = 17.0
 offset_bottom = 1004.0
 
 [node name="__PREVIEW__" parent="BGPanel/ScrollContainer/TimelineItemContainer" instance=ExtResource("5_0v331")]

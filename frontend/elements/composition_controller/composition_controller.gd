@@ -31,11 +31,11 @@ func _connect_signals() -> void:
 	source_view.source_deleted.connect(_on_view_source_deleted)
 	source_view.source_moved.connect(_on_view_source_moved)
 	source_view.property_changed.connect(_on_view_property_changed)
+	source_view.playhead_moved.connect(_on_seek_requested)
 
 	properties_panel.property_changed.connect(_on_view_property_changed)
 
 	time_controls.play_pause_pressed.connect(_on_playback_requested)
-	time_controls.time_changed.connect(_on_time_changed)
 	time_controls.seek_requested.connect(_on_seek_requested)
 
 	# Animation signals
@@ -116,10 +116,10 @@ func _on_playback_requested(should_play: bool) -> void:
 		animation_composer.pause()
 	time_controls.update_play_state(should_play)
 
-func _on_time_changed(new_time: int) -> void:
+func _on_time_changed(new_time: float) -> void:
 	animation_composer.seek(new_time)
 
-func _on_seek_requested(time: int) -> void:
+func _on_seek_requested(time: float) -> void:
 	animation_composer.seek(time)
 	time_controls.update_time(time)
 
