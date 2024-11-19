@@ -15,7 +15,7 @@ var source_btn_group: ButtonGroup = ButtonGroup.new()
 
 func _ready() -> void:
 	var add_popup: PopupMenu = add_btn.get_popup()
-	add_popup.add_icon_item(Globals.bvh_tex, "BVH Track")
+	add_popup.add_icon_item(Globals.file_tex, "File Track")
 	add_popup.add_icon_item(Globals.ttm_tex, "TTM Track")
 	add_popup.add_icon_item(Globals.tween_tex, "Tween Track")
 	add_popup.set_item_icon_max_width(0, 16)
@@ -55,7 +55,7 @@ func _create_source_item(source: Source) -> SourceListItem:
 	var item: SourceListItem = item_template.instantiate()
 	container.add_child(item)
 	item.source_btn.text = source.name
-	item.source_btn.icon = Globals._get_source_icon(source)
+	item.source_btn.icon = Globals.get_source_icon(source)
 	item.source_btn.button_group = source_btn_group
 	item.source_btn.pressed.connect(_on_button_pressed.bind(source))
 	item.remove_btn.pressed.connect(_on_delete_pressed.bind(source))
@@ -70,10 +70,10 @@ func _on_delete_pressed(source: Source) -> void:
 func _on_add_btn_pressed(menu_btn_index: int) -> void:
 	var source: Source
 	if menu_btn_index == 0:
-		var dialog = get_node("/root/MainEditor/ImportBVHDialog")
+		var dialog = get_node("/root/MainEditor/ImportDialog")
 		dialog.show()
 		var animation: Animation = await dialog.animation_imported
-		source = SourceBVH.new()
+		source = SourceFile.new()
 		source.name = animation.resource_name
 		source.out_point = int(animation.length * Globals.FPS)
 		source.animation = animation

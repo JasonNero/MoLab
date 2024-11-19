@@ -1,12 +1,12 @@
-class_name ImportBVHDialog
-extends FileDialog
+class_name BVHIO
+extends Node
 
-# This BVH Importer is adapted from
-# https://github.com/JosephCatrambone/godot-bvh-import
+## This BVH Importer is adapted from
+## https://github.com/JosephCatrambone/godot-bvh-import
+## But it seems to be a bit broken. I'm going with glTF for now.
 
-signal animation_imported(animation: Animation)
-
-# We keep in our bone_to_index_map a mapping of bone names (string) to an array of indices.  The index values are determined by this:
+# We keep in our bone_to_index_map a mapping of bone names (string) to an array of indices.
+# The index values are determined by this:
 const XPOS = "Xposition"
 const YPOS = "Yposition"
 const ZPOS = "Zposition"
@@ -39,25 +39,10 @@ var config = {
 	"bone_remapping_json": {}
 }
 
-
+## The bonemap used to remap bones from the BVH file to the skeleton.
 @export var bonemap: BoneMap
 
-func _ready() -> void:
-	file_selected.connect(_on_file_selected)
-
-#
-# Ideally the material below should not touch UI.  Everything here is concerned with importing and manipulating BVH.
-# The user interface and reading of config data should happen above here.
-# Global configurations and tweaks should go into the config data.
-#
-
-func _on_file_selected(file: String):
-	var animation_name = file.get_file()  # Godot String function to get just the filename.
-	var animation := _load_bvh_filename(file)
-	animation.resource_name = animation_name
-	animation_imported.emit(animation)
-
-func _load_bvh_filename(filename: String) -> Animation:
+func load_animation_from_file(filename: String) -> Animation:
 	if !FileAccess.file_exists(filename):
 		printerr("Filename ", filename, " does not exist or cannot be accessed.")
 		return null
@@ -68,12 +53,21 @@ func _load_bvh_filename(filename: String) -> Animation:
 	var hierarchy_lines = parsed_file[0]
 	var motion_lines = parsed_file[1]
 
-	var hdata = parse_hierarchy(hierarchy_lines)
+	var hdata = _parse_hierarchy(hierarchy_lines)
 	var bone_names: Array = hdata[0]
 	var bone_index_map: Dictionary = hdata[1]
 	var bone_offsets: Dictionary = hdata[2]
 
-	return _parse_motion(bone_names, bone_index_map, bone_offsets, motion_lines)
+	var animation := _parse_motion(bone_names, bone_index_map, bone_offsets, motion_lines)
+	var animation_name = filename.get_file()  # Godot String function to get just the filename.
+	animation.resource_name = animation_name
+
+	return animation
+
+
+func save_animation_to_file(animation: Animation, filename: String):
+	printerr("Saving BVH animations is not implemented.")
+
 
 func _parse_bvh(fulltext: String) -> Array:
 	# Split the fulltext by the elements from HIERARCHY to MOTION, and MOTION until the end of file.
@@ -103,7 +97,7 @@ func _parse_bvh(fulltext: String) -> Array:
 
 	return [hierarchy_lines, motion_lines]
 
-func parse_hierarchy(text: Array): # -> [String, Array, Dictionary, Dictionary]:
+func _parse_hierarchy(text: Array): # -> [String, Array, Dictionary, Dictionary]:
 	# Given the plaintext HIERARCHY from HIERARCHY until MOTION,
 	# pull out the bones AND the order of the features AND the bone offsets,
 	# returning a list of the order of the element names.

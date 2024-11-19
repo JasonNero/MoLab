@@ -9,7 +9,7 @@ enum MODELTYPE {DEFAULT, LEGACY, EXPERIMENTAL}
 
 var is_dirty: bool = false
 
-func _init(_name="untitled", _in_point=0, _out_point=10, _in_offset=0, _out_offset=0, _text="", _modeltype=MODELTYPE.DEFAULT) -> void:
+func _init(_name="untitled", _in_point=0, _out_point=100, _in_offset=0, _out_offset=0, _text="", _modeltype=MODELTYPE.DEFAULT) -> void:
 	super(_name, _in_point, _out_point, _in_offset, _out_offset)
 	self.text = _text
 	self.modeltype = _modeltype
@@ -40,7 +40,7 @@ func get_properties() -> Dictionary:
 		"type": TYPE_INT,  # Enums are internally stored as ints
 		"value": modeltype,
 		"hint": PROPERTY_HINT_ENUM,
-		"hint_string": "Default,Legacy,Experimental"  # Comma-separated enum values
+		"hint_string": ",".join(MODELTYPE.keys())  # Comma-separated enum values
 	}
 
 	return props
