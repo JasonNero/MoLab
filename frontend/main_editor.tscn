@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://bna0c1t5re2pk"]
+[gd_scene load_steps=15 format=3 uid="uid://bna0c1t5re2pk"]
 
 [ext_resource type="Script" path="res://main_editor.gd" id="1_1pk6w"]
 [ext_resource type="Script" path="res://elements/backend_websocket/backend_websocket.gd" id="2_b8832"]
@@ -13,8 +13,9 @@
 [ext_resource type="PackedScene" uid="uid://ciiwhd2gr2lde" path="res://elements/time_controls/time_controls.tscn" id="9_2o78g"]
 [ext_resource type="PackedScene" uid="uid://ta5cvu80f4ar" path="res://elements/source_view/source_view.tscn" id="10_31fti"]
 [ext_resource type="PackedScene" uid="uid://dtv8qlb6r06l7" path="res://elements/status_bar/status_bar.tscn" id="12_nnb0x"]
+[ext_resource type="PackedScene" uid="uid://bxacget48pliq" path="res://elements/import_bvh_dialog/import_bvh_dialog.tscn" id="14_6wudy"]
 
-[node name="MainEditor" type="Control" node_paths=PackedStringArray("source_view", "properties_panel", "time_controls", "viewport_3d", "composition_controller", "animation_composer")]
+[node name="MainEditor" type="Control" node_paths=PackedStringArray("source_view", "properties_panel", "time_controls", "viewport_3d", "composition_controller", "animation_composer", "import_bvh_dialog")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,6 +33,7 @@ time_controls = NodePath("UIRoot/VSplitContainer/PanelContainer/MarginContainer/
 viewport_3d = NodePath("UIRoot/VSplitContainer/HSplitContainer/Viewport3D")
 composition_controller = NodePath("CompositionController")
 animation_composer = NodePath("AnimationComposer")
+import_bvh_dialog = NodePath("ImportBVHDialog")
 composition = ExtResource("2_sqx4j")
 
 [node name="BackendWebSocket" type="Node" parent="."]
@@ -141,3 +143,7 @@ layout_mode = 2
 [node name="StatusBar" parent="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer" instance=ExtResource("12_nnb0x")]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="ImportBVHDialog" parent="." instance=ExtResource("14_6wudy")]
+unique_name_in_owner = true
+visible = false

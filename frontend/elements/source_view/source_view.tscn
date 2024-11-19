@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://elements/source_view/source_view.gd" id="1_j26j5"]
 [ext_resource type="PackedScene" uid="uid://owicx12nvrk6" path="res://elements/source_list_view/source_list_view.tscn" id="1_yxqcl"]
-[ext_resource type="PackedScene" uid="uid://crrcxddhn28g5" path="res://elements/timeline_new/timeline.tscn" id="2_h3oqp"]
+[ext_resource type="PackedScene" uid="uid://crrcxddhn28g5" path="res://elements/timeline/timeline.tscn" id="2_h3oqp"]
 
 [node name="SourceView" type="HSplitContainer"]
 anchors_preset = 15

@@ -1834,6 +1834,9 @@ _subresources={
 }
 },
 "nodes": {
+"PATH:AnimationPlayer": {
+"optimizer/enabled": false
+},
 "PATH:sample00_rep00/Skeleton3D": {
 "rest_pose/external_animation_library": null,
 "retarget/bone_map": Object(BoneMap,"resource_local_to_scene":false,"resource_name":"","profile":null,"bonemap":null,"script":null)

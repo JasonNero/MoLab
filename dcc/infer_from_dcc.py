@@ -17,7 +17,7 @@ except ImportError as e:
     raise e
 
 # TODO: Remove this
-sys.path.append("/Users/jason/repos/diffusion-motion-inbetweening")
+sys.path.append("/Users/jason/repos/MoLab")
 
 if sys.modules.get("maya"):
     from dcc.maya import motion_io

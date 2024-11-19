@@ -8,6 +8,7 @@ extends Control
 @export var viewport_3d: Viewport3D
 @export var composition_controller: CompositionController
 @export var animation_composer: AnimationComposer
+@export var import_bvh_dialog: ImportBVHDialog
 
 # Resource reference
 @export var composition: Composition
