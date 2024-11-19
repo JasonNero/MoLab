@@ -17,7 +17,9 @@ def get_hierarchy(joint) -> list[str]:
 
 
 def get_transform_key_at_frame(joint, frame) -> dict[str, list]:
-    """Get the keyframe values for the given joint at the given frame."""
+    """Get the keyframe values for the given joint at the given frame.
+    The rotate order is assumed to be XYZ (see get_selected_skeleton).
+    """
     result = {}
     for attr in ["translate", "rotate", "scale"]:
         key = pmc.keyframe(
@@ -34,9 +36,8 @@ def get_transform_key_at_frame(joint, frame) -> dict[str, list]:
 
 def get_selected_skeleton():
     """Get and validate the selected skeleton."""
-
     selected_joints = pmc.ls(selection=True, type="joint")
-    assert len(selected_joints) == 1
+    assert len(selected_joints) == 1, "Select a single root joint!"
     joints = get_hierarchy(selected_joints[0])
 
     assert len(joints) == 22, f"Expected 22 joints, got {len(joints)}!"

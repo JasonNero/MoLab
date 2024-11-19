@@ -70,7 +70,13 @@ func _on_delete_pressed(source: Source) -> void:
 func _on_add_btn_pressed(menu_btn_index: int) -> void:
 	var source: Source
 	if menu_btn_index == 0:
+		var dialog = get_node("/root/MainEditor/ImportBVHDialog")
+		dialog.show()
+		var animation: Animation = await dialog.animation_imported
 		source = SourceBVH.new()
+		source.name = animation.resource_name
+		source.out_point = int(animation.length * Globals.FPS)
+		source.animation = animation
 	elif menu_btn_index == 1:
 		source = SourceTTM.new()
 	elif menu_btn_index == 2:

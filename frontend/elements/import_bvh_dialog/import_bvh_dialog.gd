@@ -1,5 +1,10 @@
+class_name ImportBVHDialog
+extends FileDialog
+
 # This BVH Importer is adapted from
 # https://github.com/JosephCatrambone/godot-bvh-import
+
+signal animation_imported(animation: Animation)
 
 # We keep in our bone_to_index_map a mapping of bone names (string) to an array of indices.  The index values are determined by this:
 const XPOS = "Xposition"
@@ -18,55 +23,27 @@ var channel_index_map = {
 	ZROT: 5
 }
 # Constants we use in our config.
-const SKELETON_PATH = "skeleton_path"
-const ANIM_PLAYER_NAME = "animation_player_name"
-const NEW_ANIM_NAME = "new_animation_name"
-const IGNORE_OFFSETS = "ignore_offsets"
-const TRANSFORM_SCALING = "transform_scaling"
-const BONE_REMAPPING_JSON = "bone_remapping_json"
 var AXIS_ORDERING_NAMES = ["Native", "XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX", "Reverse Native"]
 enum AXIS_ORDERING {NATIVE = 0, XYZ, XZY, YXZ, YZX, ZXY, ZYX, REVERSE}
 const AXIS_ORDER = "force_axis_ordering"
-const FORWARD_VECTOR = "forward_vector"
-const UP_VECTOR = "up_vector"
-const RIGHT_VECTOR = "right_vector"
 
-# Godot + OpenGL are left-handed.  -Z is forward.  +Y is up.
-# Blender:
-# GX1 -> +X is right.
-# GZ1 -> +Z is up.
-# GY1 -> +Y is forward.
+var config = {
+	"skeleton_path": "%GeneralSkeleton",
+	# Rest can be left at default
+	"ignore_offsets": false,
+	"transform_scaling": 1,
+	"force_axis_ordering": 0,
+	"right_vector": Vector3(1, 0, 0),
+	"up_vector": Vector3(0, 1, 0),
+	"forward_vector": Vector3(0, 0, 1),
+	"bone_remapping_json": {}
+}
 
-func get_config_data() -> Dictionary:
-	# Reads from our UI and returns a dictionary of String -> Value.
-	# This will do all of the node reading and accessing, next to ready.
-	var config = Dictionary()
-	# config[SKELETON_PATH] = skeleton_path_input.text
-	# config[ANIM_PLAYER_NAME] = animation_player_name_input.text
-	# config[NEW_ANIM_NAME] = animation_name_input.text
-	# config[IGNORE_OFFSETS] = ignore_offsets_option.pressed
-	# config[TRANSFORM_SCALING] = transform_scaling_spinbox.value
-	# config[AXIS_ORDER] = axis_ordering_dropdown.selected
-	# config[RIGHT_VECTOR] = Vector3(x_axis_remap_x.value, x_axis_remap_y.value, x_axis_remap_z.value)
-	# config[UP_VECTOR] = Vector3(y_axis_remap_x.value, y_axis_remap_y.value, y_axis_remap_z.value)
-	# config[FORWARD_VECTOR] = Vector3(z_axis_remap_x.value, z_axis_remap_y.value, z_axis_remap_z.value)
-	# config[BONE_REMAPPING_JSON] = JSON.new().parse(remapping_json_input.text)
 
-	config = {
-		"skeleton_path": "Armature",
-		"animation_player_name": "AnimationPlayer",
-		"new_animation_name": "BVH Animation 00",
-		# Rest can be left at default
-		"ignore_offsets": false,
-		"transform_scaling": 1,
-		"force_axis_ordering": 0,
-		"right_vector": Vector3(1, 0, 0),
-		"up_vector": Vector3(0, 1, 0),
-		"forward_vector": Vector3(0, 0, 1),
-		"bone_remapping_json": {}
-	}
+@export var bonemap: BoneMap
 
-	return config
+func _ready() -> void:
+	file_selected.connect(_on_file_selected)
 
 #
 # Ideally the material below should not touch UI.  Everything here is concerned with importing and manipulating BVH.
@@ -74,43 +51,20 @@ func get_config_data() -> Dictionary:
 # Global configurations and tweaks should go into the config data.
 #
 
-func _make_animation(file: String):
-	var config = get_config_data()
-	var animation = load_bvh_filename(file)
+func _on_file_selected(file: String):
+	var animation_name = file.get_file()  # Godot String function to get just the filename.
+	var animation := _load_bvh_filename(file)
+	animation.resource_name = animation_name
+	animation_imported.emit(animation)
 
-	var animation_player: AnimationPlayer = EditorInterface.get_edited_scene_root().get_node(config[ANIM_PLAYER_NAME])
-	if animation_player == null:
-		printerr("AnimationPlayer is null. Trying selection instead.")
-		var editor_selection = EditorInterface.get_selection()
-		var selected_nodes = editor_selection.get_selected_nodes()
-		if len(selected_nodes) == 0:
-			printerr("No nodes selected. Please select the target animation player.")
-			return
-		elif selected_nodes[0] is AnimationPlayer:
-			animation_player = selected_nodes[0]
-			print("AnimationPlayer found: ", animation_player)
-		else:
-			printerr("No AnimationPlayer selected. Please select the target animation player.")
-			return
-
-	var animation_name = config[NEW_ANIM_NAME]
-	var animation_lib: AnimationLibrary = animation_player.get_animation_library(animation_player.get_animation_library_list()[0])
-
-	if animation_lib.has_animation(animation_name):
-		# TODO: Animation exists.  Prompt to overwrite.
-		animation_lib.remove_animation(animation_name)
-
-	animation_lib.add_animation(animation_name, animation)
-	animation_player.set_current_animation(animation_name)
-
-func load_bvh_filename(filename: String) -> Animation:
+func _load_bvh_filename(filename: String) -> Animation:
 	if !FileAccess.file_exists(filename):
 		printerr("Filename ", filename, " does not exist or cannot be accessed.")
 		return null
 	var file = FileAccess.open(filename, FileAccess.READ) # "user://some_data"
 	var plaintext = file.get_as_text()
 
-	var parsed_file = parse_bvh(plaintext)
+	var parsed_file = _parse_bvh(plaintext)
 	var hierarchy_lines = parsed_file[0]
 	var motion_lines = parsed_file[1]
 
@@ -119,9 +73,9 @@ func load_bvh_filename(filename: String) -> Animation:
 	var bone_index_map: Dictionary = hdata[1]
 	var bone_offsets: Dictionary = hdata[2]
 
-	return parse_motion(bone_names, bone_index_map, bone_offsets, motion_lines)
+	return _parse_motion(bone_names, bone_index_map, bone_offsets, motion_lines)
 
-func parse_bvh(fulltext: String) -> Array:
+func _parse_bvh(fulltext: String) -> Array:
 	# Split the fulltext by the elements from HIERARCHY to MOTION, and MOTION until the end of file.
 	# Returns an array of [[hierarchy lines], [motion lines]]
 	var lines = fulltext.split("\n", false)
@@ -173,14 +127,17 @@ func parse_hierarchy(text: Array): # -> [String, Array, Dictionary, Dictionary]:
 		elif line.begins_with("CHANNELS"):
 			var data: Array = line.split(" ", false)
 			var num_channels = data[1].to_int()
-			print("Reading " + str(num_channels) + " data channel(s) for bone " + current_bone)
+			# print("Reading " + str(num_channels) + " data channel(s) for bone " + current_bone)
 			for c in range(num_channels):
 				var chan = data[2 + c]
 				bone_index_map[current_bone][chan] = data_index
-				print(current_bone + " " + chan + ": " + str(data_index))
+				# print(current_bone + " " + chan + ": " + str(data_index))
 				data_index += 1
 		elif line.begins_with("JOINT"):
 			current_bone = line.split(" ", false)[1].replace(":", "_")
+			var remapped_name = bonemap.find_profile_bone_name(current_bone)
+			if remapped_name:
+				current_bone = remapped_name
 			bone_names.append(current_bone)
 			bone_index_map[current_bone] = Dictionary() # -1 means not in collection.
 			bone_offsets[current_bone] = Vector3()
@@ -193,13 +150,11 @@ func parse_hierarchy(text: Array): # -> [String, Array, Dictionary, Dictionary]:
 	return [bone_names, bone_index_map, bone_offsets]
 
 # WARNING: This method will mutate the input text array.
-func parse_motion(bone_names: Array, bone_index_map: Dictionary, bone_offsets: Dictionary, text: Array) -> Animation:
-	var config = get_config_data()
-
-	var rig_name = config[SKELETON_PATH]
+func _parse_motion(bone_names: Array, bone_index_map: Dictionary, bone_offsets: Dictionary, text: Array) -> Animation:
+	var rig_name = config["skeleton_path"]
 
 	var num_frames = 0
-	var timestep = 0.033333
+	var timestep = 1.0/Globals.FPS
 	var read_header = true
 	while read_header:
 		read_header = false
@@ -215,6 +170,7 @@ func parse_motion(bone_names: Array, bone_index_map: Dictionary, bone_offsets: D
 	var animation: Animation = Animation.new()
 
 	# Set the length of the animation to match the BVH length.
+	print("Loading Animation with ", num_frames, " at ", 1.0/timestep, " FPS.")
 	animation.length = num_frames * timestep
 
 	# Create new tracks.
@@ -243,7 +199,7 @@ func parse_motion(bone_names: Array, bone_index_map: Dictionary, bone_offsets: D
 			var rotation_z_index = bone_index_map[bone_name].get(ZROT, -1)
 
 			var translation = Vector3()
-			if not config[IGNORE_OFFSETS]: # These are the _starting_ offsets, not the translations.
+			if not config["ignore_offsets"]: # These are the _starting_ offsets, not the translations.
 				translation = Vector3(
 					bone_offsets[bone_name].x,
 					bone_offsets[bone_name].y,
@@ -255,7 +211,7 @@ func parse_motion(bone_names: Array, bone_index_map: Dictionary, bone_offsets: D
 				translation.y += values[translation_y_index]
 			if translation_z_index != -1:
 				translation.z += values[translation_z_index]
-			translation *= config[TRANSFORM_SCALING]
+			translation *= config["transform_scaling"]
 
 			# Godot: +X right, -Z forward, +Y up.
 			# BVH: +Y up.
@@ -275,13 +231,14 @@ func parse_motion(bone_names: Array, bone_index_map: Dictionary, bone_offsets: D
 				rotation_x_index = AXIS_ORDERING_NAMES[config[AXIS_ORDER]].find('X')
 				rotation_y_index = AXIS_ORDERING_NAMES[config[AXIS_ORDER]].find('Y')
 				rotation_z_index = AXIS_ORDERING_NAMES[config[AXIS_ORDER]].find('Z')
-			var rotation = _bvh_zxy_to_quaternion(raw_rotation_values.x, raw_rotation_values.y, raw_rotation_values.z, rotation_x_index, rotation_y_index, rotation_z_index)
-			# CAVEAT SCRIPTOR: rotation_*_index is not valid after this operation!
 
-			# Apply bone-name remapping _just_ before we actually set the track.
-			if config[BONE_REMAPPING_JSON] and bone_name in config[BONE_REMAPPING_JSON]:
-				bone_name = config[BONE_REMAPPING_JSON][bone_name]
-				# TODO: Option to skip unmapped bones.  Leaving as is for now because people can remove them manually.
+			var rotation = _bvh_zxy_to_quaternion(raw_rotation_values.x, raw_rotation_values.y, raw_rotation_values.z, rotation_x_index, rotation_y_index, rotation_z_index)
+			if bone_name == "LeftUpLeg":
+				print("LeftUpLeg Rotation Conversion")
+				print("\tRaw :  ", raw_rotation_values)
+				print("\tQuat:  ", rotation)
+				print("\tEuler: ", rotation.get_euler() * 57.2958)  # Convert to degrees.
+			# CAVEAT SCRIPTOR: rotation_*_index is not valid after this operation!
 
 			animation.track_set_path(pos_track_index, rig_name + ":" + bone_name)
 			animation.track_set_path(rot_track_index, rig_name + ":" + bone_name)
@@ -300,17 +257,26 @@ class FirstIndexSort:
 			return true
 		return false
 
+# func _bvh_zxy_to_quaternion(x: float, y: float, z: float, x_idx: int, y_idx: int, z_idx: int) -> Quaternion:
+# 	# From BVH documentation: "it goes Z rotation, followed by the X rotation and finally the Y rotation."
+# 	# But there are some applications which change the ordering.
+# 	var rotation := Quaternion.from_euler(Vector3(deg_to_rad(y), deg_to_rad(x), deg_to_rad(z)))
+# 	return rotation
+
 func _bvh_zxy_to_quaternion(x: float, y: float, z: float, x_idx: int, y_idx: int, z_idx: int) -> Quaternion:
 	# From BVH documentation: "it goes Z rotation, followed by the X rotation and finally the Y rotation."
 	# But there are some applications which change the ordering.
-	var config = get_config_data()
 	var rotation := Quaternion.IDENTITY
-	var x_rot = Quaternion(config[RIGHT_VECTOR], deg_to_rad(x))
-	var y_rot = Quaternion(config[UP_VECTOR], deg_to_rad(y))
-	var z_rot = Quaternion(config[FORWARD_VECTOR], deg_to_rad(z))
+	var x_rot = Quaternion(config["right_vector"], deg_to_rad(x))  	# TODO: Make sure this needs to be Radians
+	var y_rot = Quaternion(config["up_vector"], deg_to_rad(y))		# TODO: Make sure this needs to be Radians
+	var z_rot = Quaternion(config["forward_vector"], deg_to_rad(z))	# TODO: Make sure this needs to be Radians
+
 	# This is a lazy way of sorting the actions into appropriate order.
 	var rotation_matrices = [[x_idx, x_rot], [y_idx, y_rot], [z_idx, z_rot]]
 	rotation_matrices.sort_custom(FirstIndexSort.sort_ascending)
 	for r in rotation_matrices:
 		rotation *= r[1]
 	return rotation
+
+	# return x_rot * y_rot * z_rot
+	# return z_rot * y_rot * x_rot

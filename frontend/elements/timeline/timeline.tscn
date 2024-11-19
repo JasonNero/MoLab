@@ -47,6 +47,7 @@ layout_mode = 2
 [node name="PlayHead" type="Control" parent="BGPanel/ScrollContainer/TimelineItemContainer/IndicatorPanel"]
 unique_name_in_owner = true
 layout_mode = 1
+anchors_preset = 0
 offset_left = -16.0
 offset_right = 16.0
 offset_bottom = 1000.0
