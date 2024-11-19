@@ -9,7 +9,6 @@ const MAJOR_GRID_COLOR := Color(1, 1, 1, 0.3)
 const MINOR_GRID_COLOR := Color(1, 1, 1, 0.1)
 
 var current_time: float = 6.5
-var frames_per_second: int = 25
 var _px_per_frame: float = 2.0:
 	set(value):
 		_px_per_frame = value
@@ -49,14 +48,14 @@ func _on_playhead_input(event: InputEvent) -> void:
 func _format_time(time: float) -> String:
 	var minutes = floor(time / 60)
 	var seconds = fmod(time, 60)
-	var frames = int(time * frames_per_second) % frames_per_second
+	var frames = int(time * Globals.FPS) % Globals.FPS
 	return "%02d:%02d.%02d" % [minutes, seconds, frames]
 
 func _time_to_pixels(seconds: float) -> float:
-	return seconds * frames_per_second * _px_per_frame
+	return seconds * Globals.FPS * _px_per_frame
 
 func _pixels_to_time(pixels: int) -> float:
-	return pixels / _px_per_frame / frames_per_second
+	return pixels / _px_per_frame / Globals.FPS
 
 func _draw_grid() -> void:
 	if not scroll_container:
