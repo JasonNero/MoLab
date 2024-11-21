@@ -10,6 +10,7 @@ enum CHARACTER {
 }
 
 signal character_changed()
+signal animation_player_changed(player: AnimationPlayer)
 
 @export var character_type: CHARACTER = CHARACTER.LAFAN:
 	set(value):
@@ -22,8 +23,7 @@ signal character_changed()
 @export var mixamo_akai: PackedScene
 @export var mixamo_markerman: PackedScene
 
-@export var anim_player: AnimationPlayer
-
+var current_player: AnimationPlayer
 var current_char: Node
 var current_skel: Skeleton3D
 
@@ -31,7 +31,6 @@ var current_skel: Skeleton3D
 func _ready() -> void:
 	character_changed.connect(_update_character)
 	_update_character()
-
 
 func _update_character() -> void:
 	if current_char != null:
@@ -50,9 +49,8 @@ func _update_character() -> void:
 			current_char = mixamo_markerman.instantiate()
 
 	%World.add_child(current_char)
-	current_skel = current_char.find_child("GeneralSkeleton", true)
-	anim_player.set_root(current_skel.get_parent().get_path())
-
-
-func get_animation_player() -> AnimationPlayer:
-	return anim_player
+	current_char.set_owner(%World)
+	current_skel = current_char.find_child("GeneralSkeleton")
+	current_player = current_char.find_child("AnimationPlayer")
+	current_player.remove_animation_library("")  # Get rid of the default library
+	animation_player_changed.emit(current_player)

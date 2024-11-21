@@ -16,7 +16,7 @@ height = 0.001
 rings = 0
 cap_bottom = false
 
-[node name="Viewport3D" type="SubViewportContainer" node_paths=PackedStringArray("anim_player")]
+[node name="Viewport3D" type="SubViewportContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -32,7 +32,6 @@ smpl_m = ExtResource("3_akrgk")
 lafan = ExtResource("4_vcuq3")
 mixamo_akai = ExtResource("5_y8lc2")
 mixamo_markerman = ExtResource("6_kef4r")
-anim_player = NodePath("SubViewport/World/AnimationPlayer")
 
 [node name="SubViewport" type="SubViewport" parent="."]
 handle_input_locally = false
@@ -63,6 +62,3 @@ mesh = SubResource("CylinderMesh_xc4hr")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="SubViewport/World"]
 transform = Transform3D(0.52792, -0.378794, 0.760142, 9.42615e-10, 0.895028, 0.44601, -0.849294, -0.235458, 0.472503, 0, 2.47369, 0)
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="SubViewport/World"]
-unique_name_in_owner = true

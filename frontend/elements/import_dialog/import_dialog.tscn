@@ -9,6 +9,7 @@ initial_position = 2
 size = Vector2i(676, 400)
 visible = true
 ok_button_text = "Open"
+mode_overrides_title = false
 file_mode = 0
 access = 2
 filters = PackedStringArray("*.gltf,*.glb;glTF", "*.bvh;Biovision Hierarchy")

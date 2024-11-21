@@ -10,6 +10,7 @@ signal animation_imported(animation: Animation)
 
 func _ready() -> void:
 	file_selected.connect(_on_file_selected)
+	title = "Import Animation"
 
 func _on_file_selected(filepath: String):
 	var animation: Animation = null

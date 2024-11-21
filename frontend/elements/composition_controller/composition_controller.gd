@@ -3,6 +3,7 @@ class_name CompositionController
 extends Node
 
 var composition: Composition
+var menu_bar: MenuBar
 var source_view: SourceView
 var properties_panel: PropertiesPanel
 var time_controls: TimeControls
@@ -10,12 +11,14 @@ var animation_composer: AnimationComposer
 
 func initialize(
 	p_composition: Composition,
+	p_menu_bar: MenuBar,
 	p_source_view: SourceView,
 	p_properties_panel: PropertiesPanel,
 	p_time_controls: TimeControls,
 	p_animation_composer: AnimationComposer
 ) -> void:
 	composition = p_composition
+	menu_bar = p_menu_bar
 	source_view = p_source_view
 	properties_panel = p_properties_panel
 	time_controls = p_time_controls
@@ -25,6 +28,11 @@ func initialize(
 	_initialize_views()
 
 func _connect_signals() -> void:
+	menu_bar.new_composition_clicked.connect(_on_new_composition_clicked)
+	menu_bar.open_composition_clicked.connect(_on_open_composition_clicked)
+	menu_bar.save_composition_clicked.connect(_on_save_composition_clicked)
+	menu_bar.export_composition_clicked.connect(_on_export_composition_clicked)
+
 	# View signals (user actions)
 	source_view.source_added.connect(_on_view_source_added)
 	source_view.source_selected.connect(_on_view_source_selected)
@@ -46,6 +54,59 @@ func _initialize_views() -> void:
 	source_view.setup(composition)
 	time_controls.update_time(0)
 	time_controls.update_play_state(false)
+
+func _on_new_composition_clicked(_dict) -> void:
+	composition.clear()
+
+func _on_open_composition_clicked(_dict) -> void:
+	# TODO: Create a FileDialog scene instead
+	var dialog: FileDialog = find_child("OpenDialog")
+	if dialog == null:
+		dialog = FileDialog.new()
+		# dialog.use_native_dialog = true
+		dialog.name = "OpenDialog"
+		dialog.access = FileDialog.ACCESS_FILESYSTEM
+		dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+		dialog.add_filter("*.tres,*.res", "Composition")
+		dialog.file_selected.connect(_on_file_dialog_composition_selected)
+		add_child(dialog)
+	dialog.popup_centered(Vector2(600, 400))
+
+func _on_file_dialog_composition_selected(filepath: String) -> void:
+	# TODO: Implement this properly (do I need to reconnect all signals?...)
+	var new_composition = ResourceLoader.load(filepath) as Composition
+	if new_composition:
+		print("Clearing")
+		composition.clear()
+		composition.name = new_composition.name
+		for source in new_composition.sources:
+			print("Adding source: ", source.name)
+			composition.insert_source(source)
+			composition.source_modified.emit(source)
+
+func _on_save_composition_clicked(_dict) -> void:
+	# TODO: Cleanup this hack and add a save dialog
+	(get_parent() as MainEditor).save_composition()
+
+func _on_export_composition_clicked(_dict) -> void:
+	print("Exporting composition to GLTF...")
+	var character_node = get_parent().find_child("GeneralSkeleton").get_parent()
+
+	var dialog: FileDialog = find_child("ExportDialog")
+	if dialog == null:
+		dialog = FileDialog.new()
+		# dialog.use_native_dialog = true
+		dialog.name = "ExportDialog"
+		dialog.access = FileDialog.ACCESS_FILESYSTEM
+		dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+		dialog.add_filter("*.gltf,*.glb", "glTF")
+		dialog.file_selected.connect(
+			func (filepath: String) -> void: GLTFIO.save_node_to_file(character_node, filepath)
+		)
+		add_child(dialog)
+	dialog.popup_centered(Vector2(600, 400))
+
+	# GLTFIO.save_node_to_file(character_node, "user://exported_scene.gltf")
 
 # Source Management Handlers
 func _on_view_source_added(source: Source) -> void:
