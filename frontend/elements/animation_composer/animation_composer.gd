@@ -60,7 +60,7 @@ func update_animation() -> void:
 	# Merge all source animations from bottom to top
 	for i in range(composition.sources.size() - 1, -1, -1):
 		var source := composition.sources[i]
-		_merge_source_animation(current_animation, source)
+		current_animation = source.apply(current_animation)
 
 	ResourceSaver.save(current_animation, "res://debug_latest_anim.tres")
 
@@ -73,80 +73,6 @@ func update_animation() -> void:
 	var current_time := get_current_time()
 	if current_time > current_animation.length:
 		seek(current_animation.length)
-
-
-func _get_or_create_track(anim: Animation, track_path: NodePath, track_type: int) -> int:
-	var track_idx := anim.find_track(track_path, track_type)
-	if track_idx == -1:
-		track_idx = anim.add_track(track_type)
-		anim.track_set_path(track_idx, track_path)
-	return track_idx
-
-func _merge_source_animation(target: Animation, source: Source) -> void:
-	var source_anim: Animation = source.animation
-	if not source_anim:
-		print("Skipping source without animation: ", source.name)
-		return
-
-	# NOTE: The source properties are all in frames, whereas
-	# 		the `Animation` and `AnimationPlayer` use seconds.
-	# Converting all frames to time (seconds)
-	var in_point_sec := float(source.in_point) / Globals.FPS
-	var out_point_sec := float(source.out_point) / Globals.FPS
-	var in_offset_sec := float(source.in_offset) / Globals.FPS
-	var out_offset_sec := float(source.out_offset) / Globals.FPS
-
-	var override_start := in_point_sec + in_offset_sec
-	var override_end := out_point_sec - out_offset_sec
-
-	print("Merging into latest: ", source.name)
-	# print("\tin_point_sec: ", in_point_sec, "s out_point_sec: ", out_point_sec, "s")
-	# print("\toverride_start: ", override_start, "s (", override_start * Globals.FPS, "f)", " override_end: ", override_end, "s (", override_end * Globals.FPS, "f)")
-
-	# Overwrite the target animation with the source animation
-	for source_track_idx in source_anim.get_track_count():
-		var track_type := source_anim.track_get_type(source_track_idx)
-		var track_path := source_anim.track_get_path(source_track_idx)
-
-		var target_track_idx := _get_or_create_track(target, track_path, track_type)
-
-		# Make sure we disable "wrapping" to prevent sliding keyframes
-		target.track_set_interpolation_loop_wrap(target_track_idx, false)
-
-		# Remove keyframes in the target range before overwriting
-		# Use reverse order to prevent index shifting
-		var key_count := target.track_get_key_count(target_track_idx)
-		var to_remove := []
-		for key_idx in key_count:
-			var key_time := target.track_get_key_time(target_track_idx, key_idx)
-			if key_time >= override_start and key_time <= override_end:
-				to_remove.append(key_idx)
-		to_remove.reverse()
-		for key_idx in to_remove:
-			target.track_remove_key(target_track_idx, key_idx)
-
-		# Copy and offset all keyframes
-		key_count = source_anim.track_get_key_count(source_track_idx)
-		for key_idx in key_count:
-			var local_time := source_anim.track_get_key_time(source_track_idx, key_idx)
-			if local_time < in_offset_sec or local_time > out_point_sec - in_point_sec - out_offset_sec:
-				# Skip keyframes outside the inner range
-				continue
-
-			var value = source_anim.track_get_key_value(source_track_idx, key_idx)
-
-			# Offset local_time by source in_point
-			var global_time := local_time + in_point_sec
-
-			# TODO: Root Transform "Offset" (to match prev_source last position at source.in_point)
-
-			# Insert the keyframe
-			target.track_insert_key(
-				target_track_idx,
-				global_time,
-				value,
-				# transition,
-			)
 
 # Playback Control
 func play() -> void:
