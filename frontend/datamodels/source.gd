@@ -35,3 +35,7 @@ func get_properties() -> Dictionary:
 
 func set_property(property: String, value: Variant) -> void:
 	set(property, value)  # Using built-in setter
+
+func apply(target_animation: Animation) -> Animation:
+	push_warning("This source will not affect the target animation.")
+	return target_animation
