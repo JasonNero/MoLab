@@ -34,7 +34,7 @@ static func load_animation_from_file(file_path: String, bonemap: BoneMap = null,
 	# Free the leftover scene
 	loaded_scene.queue_free()
 
-	# Remap the animation to the "%GeneralSkeletion" skeleton
+	# Remap the animation to the "%GeneralSkeleton" skeleton
 	if do_remap:
 		var to_delete: Array[int] = []
 		for track_id in range(anim.get_track_count()):
@@ -72,6 +72,12 @@ static func save_node_to_file(node: Node, file_path: String):
 	if err != OK:
 		printerr("Unable to save model")
 		return
+
+	# print("glTF Export Summary:")
+	# print("  Nodes: ", state.get_nodes().size())
+	# print("  Skeletons: ", state.get_skeletons().size())
+	# print("  AnimationPlayers: ", state.get_animation_players_count(0))
+	# print("  Animations: ", state.get_animations().size())
 
 	err = gltf.write_to_filesystem(state, file_path)
 	if err != OK:

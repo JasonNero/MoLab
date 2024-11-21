@@ -1,5 +1,10 @@
 extends MenuBar
 
+signal new_composition_clicked(dict)
+signal open_composition_clicked(dict)
+signal save_composition_clicked(dict)
+signal export_composition_clicked(dict)
+
 func createShortcut(letter: Key, ctrl: bool = false, shift: bool = false, alt: bool = false) -> Shortcut:
 	var shortcut = Shortcut.new()
 
@@ -18,24 +23,20 @@ var menuItems = {
 	'File': {
 		'New Composition': {
 			'shortcut': createShortcut(KEY_N, true),
-			'callback': func(_args = {}): print('New Composition'),
+			'callback': new_composition_clicked.emit,
 		},
 		'Open Composition': {
 			'shortcut': createShortcut(KEY_O, true),
-			'callback': func(_args = {}): print('Open Composition'),
+			'callback': open_composition_clicked.emit,
 		},
 		'Save Composition': {
 			'shortcut': createShortcut(KEY_S, true),
-			'callback': func(_args = {}): print('Save Composition'),
+			'callback': save_composition_clicked.emit,
 			'add_seperator': true,
 		},
-		'Import Motion': {
-			'shortcut': createShortcut(KEY_I, true),
-			'callback': func(_args = {}): print('Import Motion'),
-		},
-		'Export Motion': {
+		'Export Composition': {
 			'shortcut': createShortcut(KEY_E, true),
-			'callback': func(_args = {}): print('Export Motion'),
+			'callback': export_composition_clicked.emit,
 		},
 	},
 	'Help': {

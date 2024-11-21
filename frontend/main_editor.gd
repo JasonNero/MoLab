@@ -2,6 +2,7 @@ class_name MainEditor
 extends Control
 
 # Scene references
+@export var menu_bar: MenuBar
 @export var source_view: SourceView
 @export var properties_panel: PropertiesPanel
 @export var time_controls: TimeControls
@@ -20,6 +21,7 @@ func _ready() -> void:
 	# Initialize controllers
 	composition_controller.initialize(
 		composition,
+		menu_bar,
 		source_view,
 		properties_panel,
 		time_controls,
@@ -28,7 +30,7 @@ func _ready() -> void:
 
 	animation_composer.initialize(
 		composition,
-		viewport_3d.get_animation_player()
+		viewport_3d,
 	)
 
 	get_window().close_requested.connect(_autosave)

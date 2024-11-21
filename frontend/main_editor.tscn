@@ -15,7 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://dtv8qlb6r06l7" path="res://elements/status_bar/status_bar.tscn" id="12_nnb0x"]
 [ext_resource type="PackedScene" uid="uid://bxacget48pliq" path="res://elements/import_dialog/import_dialog.tscn" id="14_6wudy"]
 
-[node name="MainEditor" type="Control" node_paths=PackedStringArray("source_view", "properties_panel", "time_controls", "viewport_3d", "composition_controller", "animation_composer", "import_bvh_dialog")]
+[node name="MainEditor" type="Control" node_paths=PackedStringArray("menu_bar", "source_view", "properties_panel", "time_controls", "viewport_3d", "composition_controller", "animation_composer", "import_bvh_dialog")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -27,6 +27,7 @@ offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_1pk6w")
+menu_bar = NodePath("UIRoot/MarginContainer/PanelContainer/MenuBar")
 source_view = NodePath("UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/SourceView")
 properties_panel = NodePath("UIRoot/VSplitContainer/HSplitContainer/TabContainer/Layer Properties/PropertiesPanel")
 time_controls = NodePath("UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer/TimeControls")
@@ -56,6 +57,10 @@ script = ExtResource("4_of3hi")
 [node name="CompositionController" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("5_opwlq")
+
+[node name="ImportDialog" parent="." instance=ExtResource("14_6wudy")]
+unique_name_in_owner = true
+visible = false
 
 [node name="UIRoot" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -148,7 +153,3 @@ layout_mode = 2
 [node name="StatusBar" parent="UIRoot/VSplitContainer/PanelContainer/MarginContainer/VBoxContainer" instance=ExtResource("12_nnb0x")]
 unique_name_in_owner = true
 layout_mode = 2
-
-[node name="ImportDialog" parent="." instance=ExtResource("14_6wudy")]
-unique_name_in_owner = true
-visible = false

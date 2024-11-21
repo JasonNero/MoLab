@@ -21,7 +21,8 @@ func get_frame_range() -> Array:
 
 func clear() -> void:
 	name = "Untitled"
-	sources.clear()
+	for idx in range(sources.size()):
+		remove_source(sources[0])
 
 func insert_source(source: Source, index: int = 0) -> void:
 	sources.insert(index, source)

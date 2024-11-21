@@ -108,4 +108,3 @@ func _on_inner_panel_gui_input(event: InputEvent) -> void:
 		var frames_delta: float = snappedf(delta / _px_per_frame, 1.0)
 		var new_in_point: float = _drag_start_in_point + frames_delta
 		item_moved.emit(source, new_in_point)
-
