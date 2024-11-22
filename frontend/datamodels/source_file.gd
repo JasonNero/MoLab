@@ -1,6 +1,7 @@
 class_name SourceFile
 extends Source
 
+@export var affects_post_range: bool = true
 @export_category("File Source")
 @export_global_file var filepath: String
 
@@ -17,7 +18,13 @@ func get_properties() -> Dictionary:
 	props["filepath"] = {
 		"type": TYPE_STRING,
 		"value": filepath,
+		"text": "File Path",
 		"hint": PROPERTY_HINT_FILE
+	}
+	props["affects_post_range"] = {
+		"type": TYPE_BOOL,
+		"value": affects_post_range,
+		"text": "Affects Post-Range"
 	}
 
 	return props
@@ -75,26 +82,42 @@ func apply(target_animation: Animation) -> Animation:
 		key_count = trimmed_animation.track_get_key_count(source_track_idx)
 		for key_idx in key_count:
 			var local_time := trimmed_animation.track_get_key_time(source_track_idx, key_idx)
+
+			# Skip keyframes outside the override range
 			if local_time < in_offset_sec or local_time > out_point_sec - in_point_sec - out_offset_sec:
-				# Skip keyframes outside the inner range
 				continue
 
 			var value = trimmed_animation.track_get_key_value(source_track_idx, key_idx)
+			var global_time := local_time + in_point_sec
 
-			# Apply root offset to Hip position
+			# Root/Hip Motion offset
 			if target_track_idx == target_hip_idx:
 				value += hip_offset
 
-			# Offset local_time by source in_point
-			var global_time := local_time + in_point_sec
-
-			# Insert the keyframe
 			target_animation.track_insert_key(
 				target_track_idx,
 				global_time,
 				value,
 				# transition,
 			)
+	# affects_post_range = false
+	if affects_post_range:
+		target_hip_idx = target_animation.find_track(NodePath("%GeneralSkeleton:Hips"), Animation.TYPE_POSITION_3D)
+		hip_offset = Vector3.ZERO
+		if target_hip_idx != -1:
+			# Get the root offset at the end of the trimmed animation
+			hip_offset = trimmed_animation.position_track_interpolate(target_hip_idx, trimmed_animation.length)
+			hip_offset.y = 0  # Ignore vertical offset
+
+			# Now also apply the Hip offset to all following keyframes
+			for key_idx in target_animation.track_get_key_count(target_hip_idx):
+				var key_time := target_animation.track_get_key_time(target_hip_idx, key_idx)
+				if key_time < override_end_sec:
+					continue
+				var key_value: Vector3 = target_animation.track_get_key_value(target_hip_idx, key_idx)
+				var new_value := key_value + hip_offset
+				new_value.y = key_value.y  # Ignore vertical offset
+				target_animation.track_set_key_value(target_hip_idx, key_idx, new_value)
 
 	return target_animation
 

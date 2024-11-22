@@ -70,6 +70,7 @@ size_flags_vertical = 0
 theme_override_styles/panel = ExtResource("1_xhrwv")
 
 [node name="SourceLabel" type="Label" parent="InnerPanel"]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5

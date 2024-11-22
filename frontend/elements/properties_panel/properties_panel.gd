@@ -65,7 +65,7 @@ func set_property_view_value(property: String, value: Variant) -> void:
 func _create_property_control(_name: String, property_info: Dictionary) -> Control:
 	var container = HBoxContainer.new()
 	var label = Label.new()
-	label.text = _name
+	label.text = property_info.get("text", _name)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	container.add_child(label)
 
@@ -112,6 +112,15 @@ func _create_property_control(_name: String, property_info: Dictionary) -> Contr
 			input.value_changed.connect(
 				_on_property_changed.bind(_name)
 			)
+		TYPE_BOOL:
+			input = CheckBox.new()
+			input.button_pressed = property_info.value
+			input.toggled.connect(
+				_on_property_changed.bind(_name)
+			)
+		_:
+			push_error("Unsupported property type: ", property_info.type)
+			return null
 	input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	container.add_child(input)
