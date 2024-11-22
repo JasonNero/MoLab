@@ -24,15 +24,17 @@ func get_animation_frames() -> int:
 func is_valid() -> bool:
 	return out_point > in_point
 
+# TODO: Rework this to use/override Object.get_property_list()
 func get_properties() -> Dictionary:
 	return {
-		"name": {"type": TYPE_STRING, "value": name},
-		"in_point": {"type": TYPE_FLOAT, "value": in_point},
-		"out_point": {"type": TYPE_FLOAT, "value": out_point},
-		"in_offset": {"type": TYPE_FLOAT, "value": in_offset},
-		"out_offset": {"type": TYPE_FLOAT, "value": out_offset}
+		"name": {"type": TYPE_STRING, "value": name, "text": "Name"},
+		"in_point": {"type": TYPE_FLOAT, "value": in_point, "text": "In Point"},
+		"out_point": {"type": TYPE_FLOAT, "value": out_point, "text": "Out Point"},
+		"in_offset": {"type": TYPE_FLOAT, "value": in_offset, "text": "In Offset"},
+		"out_offset": {"type": TYPE_FLOAT, "value": out_offset, "text": "Out Offset"},
 	}
 
+# TODO: Validate properties by overriding Object._validate_property()
 func set_property(property: String, value: Variant) -> void:
 	set(property, value)  # Using built-in setter
 
