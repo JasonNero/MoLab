@@ -1,6 +1,7 @@
 [gd_resource type="SkeletonProfile" format=3 uid="uid://capqta6lfckwq"]
 
 [resource]
+root_bone = &"Hips"
 group_size = 1
 bone_size = 22
 groups/0/group_name = &""
