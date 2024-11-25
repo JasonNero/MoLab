@@ -15,12 +15,10 @@ var source_btn_group: ButtonGroup = ButtonGroup.new()
 
 func _ready() -> void:
 	var add_popup: PopupMenu = add_btn.get_popup()
-	add_popup.add_icon_item(Globals.file_tex, "File Track")
-	add_popup.add_icon_item(Globals.ttm_tex, "TTM Track")
-	add_popup.add_icon_item(Globals.tween_tex, "Tween Track")
+	add_popup.add_icon_item(Globals.file_tex, "File Source")
+	add_popup.add_icon_item(Globals.ml_tex, "ML Source")
 	add_popup.set_item_icon_max_width(0, 16)
 	add_popup.set_item_icon_max_width(1, 16)
-	add_popup.set_item_icon_max_width(2, 16)
 	add_popup.id_pressed.connect(_on_add_btn_pressed)
 
 func setup(sources: Array[Source]) -> void:
@@ -78,7 +76,5 @@ func _on_add_btn_pressed(menu_btn_index: int) -> void:
 		source.out_point = int(animation.length * Globals.FPS)
 		source.animation = animation
 	elif menu_btn_index == 1:
-		source = SourceTTM.new()
-	elif menu_btn_index == 2:
-		source = SourceTween.new()
+		source = SourceML.new()
 	source_added.emit(source)

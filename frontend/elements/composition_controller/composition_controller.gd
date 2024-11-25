@@ -128,6 +128,7 @@ func _validate_source_position(source: Source) -> bool:
 	return source.is_valid()
 
 func _validate_property_change(source: Source, property: String, value: Variant) -> bool:
+	# TODO: Move this to the Source(s)
 	match property:
 		"name":
 			return value.strip_edges().length() > 0
@@ -157,10 +158,6 @@ func _on_view_property_changed(source: Source, property: String, value: Variant)
 	if _validate_property_change(source, property, value):
 		# print("Valid property change: ", property, value)
 		source.set_property(property, value)
-
-		# Mark TTMSource as dirty if needed
-		if source is SourceTTM:
-			source.mark_dirty()
 
 		composition.source_modified.emit(source)
 	else:

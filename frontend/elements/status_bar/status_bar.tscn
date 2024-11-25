@@ -1,8 +1,11 @@
-[gd_scene format=3 uid="uid://dtv8qlb6r06l7"]
+[gd_scene load_steps=2 format=3 uid="uid://dtv8qlb6r06l7"]
+
+[ext_resource type="Script" path="res://elements/status_bar/status_bar.gd" id="1_2xuxa"]
 
 [node name="StatusBar" type="HBoxContainer"]
 size_flags_vertical = 8
 alignment = 2
+script = ExtResource("1_2xuxa")
 
 [node name="SpacerControl" type="Control" parent="."]
 layout_mode = 2
@@ -13,12 +16,14 @@ layout_mode = 2
 text = "Status:"
 
 [node name="StatusLineEdit" type="LineEdit" parent="."]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(400, 2.08165e-12)
 layout_mode = 2
 text = "Processing Layers ..."
 editable = false
 
 [node name="ProgressBar" type="ProgressBar" parent="."]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(200, 2.08165e-12)
 layout_mode = 2
 value = 16.0

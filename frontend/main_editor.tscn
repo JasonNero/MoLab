@@ -1,7 +1,6 @@
-[gd_scene load_steps=15 format=3 uid="uid://bna0c1t5re2pk"]
+[gd_scene load_steps=14 format=3 uid="uid://bna0c1t5re2pk"]
 
 [ext_resource type="Script" path="res://main_editor.gd" id="1_1pk6w"]
-[ext_resource type="Script" path="res://elements/backend_websocket/backend_websocket.gd" id="2_b8832"]
 [ext_resource type="Resource" uid="uid://dam8s43cadnfo" path="res://res/test_composition_with_anim_mixamo.tres" id="2_sqx4j"]
 [ext_resource type="Script" path="res://elements/dcc_websocket/dcc_websocket.gd" id="3_hnnsg"]
 [ext_resource type="Script" path="res://elements/animation_composer/animation_composer.gd" id="4_of3hi"]
@@ -41,10 +40,6 @@ composition = ExtResource("2_sqx4j")
 unique_name_in_owner = true
 wait_time = 120.0
 autostart = true
-
-[node name="BackendWebSocket" type="Node" parent="."]
-unique_name_in_owner = true
-script = ExtResource("2_b8832")
 
 [node name="DCCWebSocket" type="Node" parent="."]
 unique_name_in_owner = true

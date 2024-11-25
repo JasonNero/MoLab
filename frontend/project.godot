@@ -24,10 +24,12 @@ config/icon="res://res/icons/CharacterBody3D.png"
 [autoload]
 
 Globals="*res://globals.gd"
+Backend="*res://elements/backend_websocket/backend_websocket.gd"
 
 [debug]
 
 file_logging/enable_file_logging=true
+settings/stdout/verbose_stdout=true
 
 [display]
 
