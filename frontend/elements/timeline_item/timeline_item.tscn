@@ -11,6 +11,7 @@ in_point = 50
 out_point = 350
 in_offset = 25
 out_offset = 50
+affects_post_range = true
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vjxfu"]
 bg_color = Color(0.278431, 0.470588, 0.811765, 0.501961)

@@ -1,6 +1,8 @@
 class_name BackendWebSocket
 extends Node
 
+signal results_received(data: Dictionary)
+
 # The URL we will connect to.
 @export var websocket_url = "ws://127.0.0.1:8000/register_client"
 
@@ -32,17 +34,9 @@ func _ready():
 	print("Connection established to Backend WebSocket.")
 	set_process(true)
 
-	infer()
-
-func infer():
-	var infer_args = InferenceArgs.new()
-	infer_args.bvh_path = "sample/dummy.bvh"
-	infer_args.text_prompt = "Dance like nobody's watching."
+func infer(infer_args: InferenceArgs):
 	var message_dict = infer_args.to_dict()
-	message_dict["type"] = "infer"
-	print("Sending data...")
 	socket.send_text(JSON.stringify(message_dict))
-
 
 func _process(_delta):
 	# Call this in _process or _physics_process. Data transfer and state updates
@@ -56,7 +50,8 @@ func _process(_delta):
 	# to send and receive data.
 	if state == WebSocketPeer.STATE_OPEN:
 		while socket.get_available_packet_count():
-			print("Got data from Backend:\n", socket.get_packet().get_string_from_utf8())
+			var packet = socket.get_packet().get_string_from_utf8()
+			results_received.emit(JSON.parse_string(packet))
 
 	# WebSocketPeer.STATE_CLOSED means the connection has fully closed.
 	# It is now safe to stop polling.

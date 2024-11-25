@@ -47,7 +47,7 @@ func view_source(source: Source) -> void:
 func set_property_view_value(property: String, value: Variant) -> void:
 	var control = property_controls.get(property)
 	if control:
-		var input = control.get_child(1)  # Get the input control
+		var input = control.get_children()[-1]  # Get the input control
 		input.set_block_signals(true)
 
 		# Handle different control types
@@ -113,10 +113,19 @@ func _create_property_control(_name: String, property_info: Dictionary) -> Contr
 				_on_property_changed.bind(_name)
 			)
 		TYPE_BOOL:
-			input = CheckBox.new()
+			container.remove_child(label)
+			input = CheckButton.new()
+			input.text = property_info.get("text", _name)
 			input.button_pressed = property_info.value
 			input.toggled.connect(
 				_on_property_changed.bind(_name)
+			)
+		TYPE_CALLABLE:
+			container.remove_child(label)
+			input = Button.new()
+			input.text = property_info.text
+			input.pressed.connect(
+				_on_property_changed.bind(true, _name)
 			)
 		_:
 			push_error("Unsupported property type: ", property_info.type)

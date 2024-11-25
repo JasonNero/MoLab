@@ -2,6 +2,7 @@ class_name InferenceArgs
 extends RefCounted
 
 # Properties
+var type: String = "infer"
 var bvh_path: String = ""
 var text_prompt: String = ""
 var packed_motion: Dictionary = {}
@@ -21,6 +22,7 @@ var unpack_mode: String:
 
 func to_dict() -> Dictionary:
     return {
+        "type": type,
         "bvh_path": bvh_path,
         "text_prompt": text_prompt,
         "packed_motion": packed_motion,
@@ -39,15 +41,16 @@ func to_json() -> String:
 static func from_json(json_string: String) -> InferenceArgs:
     var args = InferenceArgs.new()
     var data = JSON.parse_string(json_string)
-    if data.error != OK:
+    if data == null:
         print("Failed to parse JSON: ", data.error_string)
     else:
-        var dict = data.result
-        args.packed_motion = dict.get("packed_motion", {})
-        args.text_prompt = dict.get("text_prompt", "")
-        args.num_samples = dict.get("num_samples", 1)
-        args.jacobian_ik = dict.get("jacobian_ik", false)
-        args.foot_ik = dict.get("foot_ik", false)
-        args.unpack_randomness = dict.get("unpack_randomness", 0.0)
-        args.unpack_mode = dict.get("unpack_mode", "linear")
+        args.type = data.get("type", "infer")
+        args.bvh_path = data.get("bvh_path", "")
+        args.text_prompt = data.get("text_prompt", "")
+        args.packed_motion = data.get("packed_motion", {})
+        args.num_samples = data.get("num_samples", 1)
+        args.jacobian_ik = data.get("jacobian_ik", false)
+        args.foot_ik = data.get("foot_ik", false)
+        args.unpack_randomness = data.get("unpack_randomness", 0.0)
+        args.unpack_mode = data.get("unpack_mode", "linear")
     return args
