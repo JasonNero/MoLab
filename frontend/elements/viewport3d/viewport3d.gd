@@ -52,5 +52,8 @@ func _update_character() -> void:
 	current_char.set_owner(%World)
 	current_skel = current_char.find_child("GeneralSkeleton")
 	current_player = current_char.find_child("AnimationPlayer")
+	if current_player == null:
+		current_player = AnimationPlayer.new()
+		current_skel.get_parent().add_child(current_player)
 	current_player.remove_animation_library("")  # Get rid of the default library
 	animation_player_changed.emit(current_player)

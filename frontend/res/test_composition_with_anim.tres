@@ -2,27 +2,29 @@
 
 [ext_resource type="Script" path="res://datamodels/composition.gd" id="1_haaty"]
 [ext_resource type="Script" path="res://datamodels/source.gd" id="2_oewkt"]
-[ext_resource type="Script" path="res://datamodels/source_bvh.gd" id="4_78oc8"]
+[ext_resource type="Script" path="res://datamodels/source_file.gd" id="4_78oc8"]
 [ext_resource type="Animation" uid="uid://c0wmpl0beea2g" path="res://res/example_inference_animation.tres" id="6_q76e1"]
 
 [sub_resource type="Resource" id="Resource_vtl2b"]
 script = ExtResource("4_78oc8")
-file = "./tango.bvh"
+affects_post_range = null
+filepath = null
 name = "Another Tango"
 in_point = 150
 out_point = 395
 in_offset = 50
-out_offset = 0
+out_offset = null
 animation = ExtResource("6_q76e1")
 
 [sub_resource type="Resource" id="Resource_7eqfw"]
 script = ExtResource("4_78oc8")
-file = "does_not_matter.bvh"
+affects_post_range = null
+filepath = null
 name = "Mixamo Test"
-in_point = 0
+in_point = null
 out_point = 245
-in_offset = 0
-out_offset = 0
+in_offset = null
+out_offset = null
 animation = ExtResource("6_q76e1")
 
 [resource]

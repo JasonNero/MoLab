@@ -48,7 +48,7 @@ func _on_playhead_input(event: InputEvent) -> void:
 func _format_time(time: float) -> String:
 	var minutes = floor(time / 60)
 	var seconds = fmod(time, 60)
-	var frames = int(time * Globals.FPS) % Globals.FPS
+	var frames = int(time * Globals.FPS) % int(Globals.FPS)
 	return "%02d:%02d.%02d" % [minutes, seconds, frames]
 
 func _time_to_pixels(seconds: float) -> float:

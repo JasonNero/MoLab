@@ -1,9 +1,9 @@
 [gd_resource type="BoneMap" load_steps=2 format=3 uid="uid://b8sar1kom7asd"]
 
-[ext_resource type="SkeletonProfile" uid="uid://capqta6lfckwq" path="res://res/example_inference_skeleton_profile.tres" id="1_ik7ip"]
+[ext_resource type="SkeletonProfile" uid="uid://bn0biup4su7i0" path="res://res/condmdi_skeleton_profile.tres" id="1_as3j3"]
 
 [resource]
-profile = ExtResource("1_ik7ip")
+profile = ExtResource("1_as3j3")
 bonemap = null
 bone_map/Hips = &"mixamorig_Hips"
 bone_map/LeftUpLeg = &"mixamorig_LeftUpLeg"

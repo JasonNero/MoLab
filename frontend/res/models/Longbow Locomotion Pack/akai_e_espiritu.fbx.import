@@ -3,7 +3,7 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dpjjl0bpoj5y6"
+uid="uid://cpe6tai0w7cag"
 path="res://.godot/imported/akai_e_espiritu.fbx-8e73e237ec377eef097c157a967306a4.scn"
 
 [deps]
@@ -35,7 +35,10 @@ _subresources={
 "nodes": {
 "PATH:Skeleton3D": {
 "rest_pose/external_animation_library": null,
-"retarget/bone_map": Resource("res://res/models/Longbow Locomotion Pack/akai_e_espiritu_bonemap.tres")
+"rest_pose/selected_animation": "mixamo_com",
+"retarget/bone_map": Resource("res://res/models/mixamo_bonemap.tres"),
+"retarget/remove_tracks/unimportant_positions": false,
+"retarget/rest_fixer/keep_global_rest_on_leftovers": false
 }
 }
 }
