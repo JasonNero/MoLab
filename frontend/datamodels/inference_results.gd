@@ -22,12 +22,11 @@ static func from_json(json_string: String) -> InferenceResults:
     var results = InferenceResults.new()
     var data = JSON.parse_string(json_string)
 
-    if data.error != OK:
-        print("Failed to parse JSON: ", data.error_string)
+    if data == null:
+        print("Failed to parse InferenceResults JSON")
     else:
-        var dict = data.result
-        results.root_positions = dict.get("root_positions", [])
-        results.joint_rotations = dict.get("joint_rotations", [])
-        results.obs_root_positions = dict.get("obs_root_positions", [])
-        results.obs_joint_rotations = dict.get("obs_joint_rotations", [])
+        results.root_positions = data.get("root_positions", [])
+        results.joint_rotations = data.get("joint_rotations", [])
+        results.obs_root_positions = data.get("obs_root_positions", [])
+        results.obs_joint_rotations = data.get("obs_joint_rotations", [])
     return results

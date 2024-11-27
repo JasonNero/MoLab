@@ -15,6 +15,7 @@ out_point = 268
 in_offset = 30
 out_offset = 0
 animation = ExtResource("3_mcplu")
+affects_post_range = true
 
 [sub_resource type="Resource" id="Resource_vtl2b"]
 script = ExtResource("4_u7ds6")
@@ -25,6 +26,7 @@ out_point = 146
 in_offset = 0
 out_offset = 0
 animation = ExtResource("5_1aata")
+affects_post_range = true
 
 [sub_resource type="Resource" id="Resource_7eqfw"]
 script = ExtResource("4_u7ds6")
@@ -35,6 +37,7 @@ out_point = 153
 in_offset = 0
 out_offset = 0
 animation = ExtResource("3_mcplu")
+affects_post_range = true
 
 [resource]
 script = ExtResource("1_orwxn")

@@ -8,8 +8,8 @@ var file_color: Color = Color("#114153")
 var ml_color: Color = Color("#264115")
 # var tween_color: Color = Color("#134137")
 
-# var FPS: int = 20  # HumanML3D
-var FPS: int = 30  # Mixamo
+var FPS: float = 20.0  # HumanML3D
+# var FPS: float = 30.0  # Mixamo
 
 
 func get_source_icon(source: Source) -> Texture2D:

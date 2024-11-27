@@ -42,7 +42,7 @@ static func from_json(json_string: String) -> InferenceArgs:
     var args = InferenceArgs.new()
     var data = JSON.parse_string(json_string)
     if data == null:
-        print("Failed to parse JSON: ", data.error_string)
+        print("Failed to parse InferenceArgs JSON")
     else:
         args.type = data.get("type", "infer")
         args.bvh_path = data.get("bvh_path", "")
