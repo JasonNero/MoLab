@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://bna0c1t5re2pk"]
+[gd_scene load_steps=15 format=3 uid="uid://bna0c1t5re2pk"]
 
 [ext_resource type="Script" path="res://main_editor.gd" id="1_1pk6w"]
 [ext_resource type="Resource" uid="uid://dam8s43cadnfo" path="res://res/test_composition_with_anim_mixamo.tres" id="2_sqx4j"]
@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" uid="uid://ta5cvu80f4ar" path="res://elements/source_view/source_view.tscn" id="10_31fti"]
 [ext_resource type="PackedScene" uid="uid://dtv8qlb6r06l7" path="res://elements/status_bar/status_bar.tscn" id="12_nnb0x"]
 [ext_resource type="PackedScene" uid="uid://bxacget48pliq" path="res://elements/import_dialog/import_dialog.tscn" id="14_6wudy"]
+[ext_resource type="Script" path="res://addons/about_dialog/scripts/about_dialog.gd" id="14_xcio6"]
 
 [node name="MainEditor" type="Control" node_paths=PackedStringArray("menu_bar", "source_view", "properties_panel", "time_controls", "viewport_3d", "composition_controller", "animation_composer", "import_bvh_dialog")]
 layout_mode = 3
@@ -56,6 +57,19 @@ script = ExtResource("5_opwlq")
 [node name="ImportDialog" parent="." instance=ExtResource("14_6wudy")]
 unique_name_in_owner = true
 visible = false
+
+[node name="AboutDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "About MotionLab"
+initial_position = 1
+size = Vector2i(665, 158)
+dialog_text = "MotionLab v0.1.0
+Prototype for \"Layer-based Motion Editing\", developed as part of the Kollani project.
+
+https://ai.hdm-stuttgart.de/research/kollani/"
+script = ExtResource("14_xcio6")
+title_substutions = Array[String](["%name"])
+body_substutions = Array[String](["%name", "%version", "%description"])
 
 [node name="UIRoot" type="VBoxContainer" parent="."]
 layout_mode = 1
