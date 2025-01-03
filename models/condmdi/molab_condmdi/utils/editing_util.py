@@ -209,8 +209,6 @@ def get_keyframes_mask(data, lengths, edit_mode='benchmark_sparse', trans_length
 
     if joints_dim == 22:
         obs_feature_mask = joint_to_full_mask(obs_joint_mask, mode=feature_mode)
-    elif joints_dim == 24:
-        obs_feature_mask = joint_to_full_mask_amass(obs_joint_mask, mode='all')
     else:
         raise NotImplementedError(f"Unknown number of joints: {joints_dim}")
 

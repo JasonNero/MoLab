@@ -98,7 +98,7 @@ class InferenceResults(BaseModel):
 
 def get_jointpos_from_bvh(filepath: Path) -> torch.Tensor:
     """Load a BVH file and convert it to HML3D_abs format."""
-    assert Path(filepath).is_file(), "BVH file not found"
+    assert Path(filepath).is_file(), f"BVH file not found: {filepath}"
 
     animation = BVH.load(filepath)
 
@@ -504,6 +504,7 @@ class MotionInferenceWorker:
             # TODO: Allow supplying a custom length
             n_frames = self.max_frames
             input_motion_normalized = torch.zeros(n_frames, 263)
+            input_joint_mask = np.zeros((n_frames, 22, 1))
             pre_y = pre_xz = pre_rot = None
 
         # (max_frames, 263) -> (nsamples, 263, 1, max_frames)
@@ -551,6 +552,7 @@ class MotionInferenceWorker:
                 obs_joint_mask, mode=infer_config.editable_features
             )
         else:
+            print(f"Using mode {infer_config.edit_mode} to get masks.")
             obs_feature_mask, obs_joint_mask = get_keyframes_mask(
                 data=input_motions,
                 lengths=model_kwargs["y"]["lengths"],
@@ -778,7 +780,7 @@ class MotionInferenceWorker:
                     use_jacobian=infer_config.jacobian_ik,
                 )
                 all_postpro_motions_rot.append(
-                    np.rad2deg(new_anim.rotations.euler(order="xyz"))
+                    np.rad2deg(new_anim.rotations.euler(order="zyx"[::-1])) # see BVH.py:245
                 )
 
         if save_results:
