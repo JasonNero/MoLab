@@ -1,0 +1,47 @@
+[gd_scene load_steps=3 format=3 uid="uid://y22weocw0b"]
+
+[ext_resource type="Script" path="res://addons/about_dialog/scripts/about_dialog.gd" id="1_i8f0b"]
+[ext_resource type="Script" path="res://addons/about_dialog/examples/button_behave.gd" id="2_txd5r"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AboutDialog" type="AcceptDialog" parent="."]
+title = "About About Window"
+initial_position = 1
+size = Vector2i(202, 106)
+dialog_text = "About Window v1.0.0
+This is an about window"
+script = ExtResource("1_i8f0b")
+title_substutions = Array[String](["%name"])
+body_substutions = Array[String](["%name", "%version", "%description"])
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.25098, 0.266667, 0.298039, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -193.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Button" type="Button" parent="CenterContainer" node_paths=PackedStringArray("about_dialog_ref")]
+layout_mode = 2
+text = "Hey whats this?"
+script = ExtResource("2_txd5r")
+about_dialog_ref = NodePath("../../AboutDialog")
