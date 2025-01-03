@@ -4,6 +4,7 @@ signal new_composition_clicked(dict)
 signal open_composition_clicked(dict)
 signal save_composition_clicked(dict)
 signal export_composition_clicked(dict)
+signal about_clicked(dict)
 
 func createShortcut(letter: Key, ctrl: bool = false, shift: bool = false, alt: bool = false) -> Shortcut:
 	var shortcut = Shortcut.new()
@@ -41,7 +42,8 @@ var menuItems = {
 	},
 	'Help': {
 		'About MoLab': {
-			'icon': preload("res://res/icons/CharacterBody3D.png")
+			'icon': preload("res://res/icons/CharacterBody3D.png"),
+			'callback': about_clicked.emit,
 		}
 	}
 }

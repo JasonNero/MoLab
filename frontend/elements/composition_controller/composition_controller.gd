@@ -32,6 +32,7 @@ func _connect_signals() -> void:
 	menu_bar.open_composition_clicked.connect(_on_open_composition_clicked)
 	menu_bar.save_composition_clicked.connect(_on_save_composition_clicked)
 	menu_bar.export_composition_clicked.connect(_on_export_composition_clicked)
+	menu_bar.about_clicked.connect(_on_about_clicked)
 
 	# View signals (user actions)
 	source_view.source_added.connect(_on_view_source_added)
@@ -65,7 +66,7 @@ func _on_open_composition_clicked(_dict) -> void:
 		dialog = FileDialog.new()
 		# dialog.use_native_dialog = true
 		dialog.name = "OpenDialog"
-		dialog.access = FileDialog.ACCESS_FILESYSTEM
+		dialog.access = FileDialog.ACCESS_USERDATA
 		dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 		dialog.add_filter("*.tres,*.res", "Composition")
 		dialog.file_selected.connect(_on_file_dialog_composition_selected)
@@ -79,7 +80,9 @@ func _on_file_dialog_composition_selected(filepath: String) -> void:
 		print("Clearing")
 		composition.clear()
 		composition.name = new_composition.name
-		for source in new_composition.sources:
+		var reversed_sources = new_composition.sources
+		reversed_sources.reverse()
+		for source in reversed_sources:
 			print("Adding source: ", source.name)
 			composition.insert_source(source)
 			composition.source_modified.emit(source)
@@ -107,6 +110,9 @@ func _on_export_composition_clicked(_dict) -> void:
 	dialog.popup_centered(Vector2(600, 400))
 
 	# GLTFIO.save_node_to_file(character_node, "user://exported_scene.gltf")
+
+func _on_about_clicked(_dict) -> void:
+	%AboutDialog.show()
 
 # Source Management Handlers
 func _on_view_source_added(source: Source) -> void:
