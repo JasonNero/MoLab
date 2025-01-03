@@ -143,3 +143,5 @@ molab_condmdi/wandb/
 !molab_condmdi/dataset/HumanML3D/Std.npy
 !molab_condmdi/dataset/HumanML3D/Mean_abs_3d.npy
 !molab_condmdi/dataset/HumanML3D/Std_abs_3d.npy
+
+save/
