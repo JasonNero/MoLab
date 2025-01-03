@@ -1,6 +1,11 @@
-"""Simple blocking client using `websockets`.
+"""Simple MoLab client using `websockets`.
 
 NOTE: Freezes Maya for the duration of the `recv` call.
+
+# Usage:
+1. Copy/Paste into Maya Script Editor
+2. Select Hip Bone of the source skeleton
+3. Run the script and wait for Maya to un-freeze
 """
 
 import itertools
@@ -16,7 +21,7 @@ except ImportError as e:
     print("Please install the `websockets` package for the DCC python!")
     raise e
 
-# TODO: Remove this
+# TODO: Use Mayas user scripts folder instead
 sys.path.append("/Users/jason/repos/MoLab")
 
 if sys.modules.get("maya"):
@@ -27,7 +32,8 @@ reload(motion_io)
 
 
 def infer(data):
-    with connect("ws://localhost:8000/infer", max_size=2**21) as websocket:
+    data["type"] = "infer"
+    with connect("ws://localhost:8000/register_client", max_size=2**21) as websocket:
         print(f"Sending:\n{data}")
         websocket.send(json.dumps(data))
         print("Waiting for response...")
@@ -74,14 +80,13 @@ def infer_by_grid_search(grid: dict[str, list], packed_motion=None):
             name=f"gs{i}_obs",
         )
 
-
-
 ###############################################################################
 
 keyframes = motion_io.extract_keyframes()
 packed_motion = motion_io.pack_keyframes(*keyframes)
 
-test_grid_5a = {
+# Usage with BVH
+bvh_test_grid = {
     "bvh_path": [
         "dataset/HumanML3D/bvh/test/001969_fromjoint100_a_man_walks_forward_then_turns_around_and_walks_back_before_facing_back_and_standing_still.bvh"
     ],
@@ -91,13 +96,16 @@ test_grid_5a = {
     "jacobian_ik": [False],
     "editable_features": ["pos_rot", "pos_rot_vel"],
 }
-test_grid_5b = {
+# infer_by_grid_search(bvh_test_grid, None)
+
+# Usage with packed_motion
+packed_motion_test_grid = {
     "packed_motion": [None],
     "num_samples": [1],
     "foot_ik": [False],
     "jacobian_ik": [False],
-    "editable_features": ["pos_rot", "pos_rot_vel"],
+    "editable_features": ["pos_rot_vel"],
+    "unpack_mode": ["linear"],
+    "unpack_randomness": [0.0],
 }
-
-infer_by_grid_search(test_grid_5a, packed_motion)
-infer_by_grid_search(test_grid_5b, packed_motion)
+infer_by_grid_search(packed_motion_test_grid, packed_motion)
