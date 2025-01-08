@@ -94,19 +94,43 @@ func test():
 				)
 
 				var _basis: Basis = Basis.from_euler(euler_rad, order)  # BVH/Blender says ZYX
-				var quat: Quaternion = _basis.get_rotation_quaternion()
-				var quat2: Quaternion = Quaternion.from_euler(euler_rad)
+				var quat_from_basis: Quaternion = _basis.get_rotation_quaternion()
+				# var quat_from_class: Quaternion = Quaternion.from_euler(euler_rad)  # NOTE: This ignores euler order
+
+				# Cycle Test via Basis.get_euler
+				var euler_cycle_test: Vector3 = _basis.get_euler(order)
+				var euler_cycle_passed: bool = euler_cycle_test.is_equal_approx(euler_rad)
+
+				# Cycle Test via Quaternion.get_euler
+				var quat_cycle_test: Vector3 = quat_from_basis.get_euler(order)
+				var quat_cycle_test_deg: Vector3 = Vector3(
+					rad_to_deg(quat_cycle_test.x),
+					rad_to_deg(quat_cycle_test.y),
+					rad_to_deg(quat_cycle_test.z)
+				)
+				var quat_cycle_passed: bool = quat_cycle_test.is_equal_approx(euler_rad)
+
+				# Cycle Test via a new Basis instance from Quat and Basis.get_euler
+				var full_cycle_test: Vector3 = Basis(quat_from_basis).get_euler(order)
+				var full_cycle_passed: bool = full_cycle_test.is_equal_approx(euler_rad)
+
+				assert(euler_cycle_passed, "Cycle test failed: {0} != {1}".format([euler_cycle_test, euler_rad]))
+				assert(quat_cycle_passed, "Full cycle test failed: {0} != {1}".format([quat_cycle_test, euler_rad]))
+				assert(full_cycle_passed, "Full cycle test failed: {0} != {1}".format([full_cycle_test, euler_rad]))
 
 				if key == 0:
 					print_rich("[u]{0}[/u]".format([joint_name]))
-					print("\tEuler (deg): ", euler_deg)
-					print("\tEuler (rad): ", euler_rad)
-					print("\tQuat (xyzw): ", quat)
-					print("\tQuat2(xyzw): ", quat2)
+					print("\tEuler Input (deg):      ", euler_deg)
+					print("\tEuler Converted (rad):  ", euler_rad)
+					print("\tQuat From Basis (xyzw): ", quat_from_basis)
+					print("\tBack to Euler (rad):    ", euler_cycle_test)
+					print("\tBack to Euler (deg):    ", quat_cycle_test_deg)
+					print_rich("\tEuler Cycle Test: [color={0}[/color]".format(["green]Passed" if euler_cycle_passed else "red]Failed"]))
+					print_rich("\tQuat Cycle Test:  [color={0}[/color]".format(["green]Passed" if quat_cycle_passed else "red]Failed"]))
+					print_rich("\tFull Cycle Test:  [color={0}[/color]".format(["green]Passed" if full_cycle_passed else "red]Failed"]))
 
-				# var quat: Quaternion = Quaternion.from_euler(euler)
 				var time: float = key / Globals.FPS
-				anim.track_insert_key(track_idx_joint, time, quat)
+				anim.track_insert_key(track_idx_joint, time, quat_from_basis)
 
 		animations.append(anim)
 
