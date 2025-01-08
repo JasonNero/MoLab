@@ -53,6 +53,7 @@ func update_animation() -> void:
 	if composition.sources.size() == 0:
 		return
 
+	animation_player.pause()
 	current_animation.resource_name = "latest"
 	current_animation.loop = true
 	current_animation.length = float(composition.get_frame_range()[1]) / Globals.FPS
