@@ -26,7 +26,6 @@ var _joint_order: Array[String] = [
 	"RightHand"
 ]
 
-# var order: int = EULER_ORDER_YZX
 var order: int = EULER_ORDER_ZYX
 
 func results_to_animations(results: InferenceResults) -> Array[Animation]:
@@ -64,8 +63,6 @@ func results_to_animations(results: InferenceResults) -> Array[Animation]:
 
 				var basis: Basis = Basis.from_euler(euler, order)
 				var quat: Quaternion = basis.get_rotation_quaternion()
-
-				# var quat: Quaternion = Quaternion.from_euler(euler)
 				var time: float = key / Globals.FPS
 				anim.track_insert_key(track_idx_joint, time, quat)
 
@@ -95,19 +92,56 @@ func animation_to_packed_motion(anim: Animation) -> Dictionary:
 	var packed_motion: Dictionary = {}
 	for frame in range(frame_count):
 		var frame_data: Array = []
+		var nan_counter: int = 0
 
 		var hip_pos_key: int = anim.track_find_key(hip_pos_track, frame / Globals.FPS, Animation.FIND_MODE_APPROX)
-		var hip_pos: Vector3 = anim.track_get_key_value(hip_pos_track, hip_pos_key)
-		frame_data.append([hip_pos.x, hip_pos.y, hip_pos.z])
+
+		if hip_pos_key == -1:
+			# print("Hip key not found: ", frame)
+			frame_data.append([NAN, NAN, NAN])
+			nan_counter += 1
+		else:
+			var hip_pos: Vector3 = anim.track_get_key_value(hip_pos_track, hip_pos_key)
+			frame_data.append([hip_pos.x, hip_pos.y, hip_pos.z])
 
 		for bone_name in _joint_order:
-			var bone_track: int = anim.find_track(NodePath("%GeneralSkeleton:{0}".format([bone_name])), Animation.TYPE_ROTATION_3D)
-			var bone_key: int = anim.track_find_key(bone_track, frame / Globals.FPS, Animation.FIND_MODE_APPROX)
+			var bone_track: int = anim.find_track(
+				NodePath("%GeneralSkeleton:{0}".format([bone_name])),
+				Animation.TYPE_ROTATION_3D
+			)
+			if bone_track == -1:
+				# print("Bone track not found: ", bone_name)
+				frame_data.append([NAN, NAN, NAN])
+				nan_counter += 1
+				continue
+
+			var bone_key: int = anim.track_find_key(
+				bone_track,
+				frame / Globals.FPS,
+				Animation.FIND_MODE_APPROX  # Basically equal +- floating point error
+			)
+			if bone_key == -1:
+				# print("Bone key not found: ", bone_name)
+				frame_data.append([NAN, NAN, NAN])
+				nan_counter += 1
+				continue
+
 			var quat: Quaternion = anim.track_get_key_value(bone_track, bone_key)
-			var euler: Vector3 = quat.get_euler(order)
+			var euler_rad: Vector3 = quat.get_euler(order)
+			var euler_deg: Vector3 = Vector3(rad_to_deg(euler_rad.x), rad_to_deg(euler_rad.y), rad_to_deg(euler_rad.z))
 
-			frame_data.append([rad_to_deg(euler.x), rad_to_deg(euler.y), rad_to_deg(euler.z)])
+			# NOTE: To be consistent with the template BVH, we sort the rotation values by ZYX,
+			#		this has nothing to do with the euler rotation order.
+			frame_data.append([euler_deg.z, euler_deg.y, euler_deg.x])
 
-		packed_motion[frame] = frame_data
+		if nan_counter == 23:
+			print("Frame {0} has all NaNs".format([frame]))
+			if frame == 0:
+				push_error("First frame has all NaNs! Check the input data.")
+			continue
+		else:
+			if nan_counter > 0:
+				print("Frame {0} has {1} NaNs".format([frame, nan_counter]))
+			packed_motion[frame] = frame_data
 
 	return packed_motion
