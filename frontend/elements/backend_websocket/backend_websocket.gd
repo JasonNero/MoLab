@@ -27,7 +27,11 @@ func _ready():
 
 func infer(infer_args: InferenceArgs):
 	var message_dict = infer_args.to_dict()
-	socket.send_text(JSON.stringify(message_dict))
+	var text = JSON.stringify(message_dict)
+	# Replace nan with NaN to avoid issues with JSON parsing later on
+	text = text.replace("nan", "NaN")
+	print(text)
+	socket.send_text(text)
 
 func _physics_process(_delta: float) -> void:
 	socket.poll()
