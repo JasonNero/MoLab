@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="MotionLab"
+config/name="MoLab Sequencer"
 config/description="Prototype for \"Layer-based Motion Editing\", developed as part of the Kollani project.
 
 https://ai.hdm-stuttgart.de/research/kollani/"

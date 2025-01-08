@@ -34,7 +34,7 @@ import_script/path=""
 _subresources={
 "animations": {
 "sample00_rep00": {
-"save_to_file/enabled": true,
+"save_to_file/enabled": false,
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "res://res/example_inference_animation.tres",
 "settings/loop_mode": 0,

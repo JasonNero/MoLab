@@ -1,0 +1,52 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://chqdjk300h4gi"
+path="res://.godot/imported/condmdi_skeleton.fbx-dc0660633209e8bd6b9482dae7ff6951.scn"
+
+[deps]
+
+source_file="res://res/models/condmdi_skeleton.fbx"
+dest_files=["res://.godot/imported/condmdi_skeleton.fbx-dc0660633209e8bd6b9482dae7ff6951.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=100.0
+nodes/import_as_skeleton_bones=false
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=true
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
+import_script/path=""
+_subresources={
+"nodes": {
+"PATH:_mocap_sample00_rep00_bvh_grp/Skeleton3D": {
+"rest_pose/external_animation_library": null,
+"retarget/bone_map": Object(BoneMap,"resource_local_to_scene":false,"resource_name":"","profile":null,"bonemap":null,"script":null)
+,
+"retarget/bone_renamer/rename_bones": false,
+"retarget/remove_tracks/unimportant_positions": false,
+"retarget/rest_fixer/apply_node_transforms": false,
+"retarget/rest_fixer/keep_global_rest_on_leftovers": false,
+"retarget/rest_fixer/normalize_position_tracks": false,
+"retarget/rest_fixer/overwrite_axis": false,
+"retarget/rest_fixer/reset_all_bone_poses_after_import": false
+}
+}
+}
+fbx/importer=0
+fbx/allow_geometry_helper_nodes=false
+fbx/embedded_image_handling=1

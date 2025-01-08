@@ -1,6 +1,6 @@
 [gd_resource type="BoneMap" load_steps=2 format=3 uid="uid://b8sar1kom7asd"]
 
-[ext_resource type="SkeletonProfile" uid="uid://bn0biup4su7i0" path="res://res/condmdi_skeleton_profile.tres" id="1_as3j3"]
+[ext_resource type="SkeletonProfile" uid="uid://bn0biup4su7i0" path="res://res/models/condmdi_skeleton_profile.tres" id="1_as3j3"]
 
 [resource]
 profile = ExtResource("1_as3j3")

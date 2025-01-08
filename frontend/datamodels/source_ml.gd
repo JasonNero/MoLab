@@ -110,7 +110,8 @@ func process(target_animation: Animation) -> void:
 			for key_idx in to_remove:
 				trimmed_target_anim.track_remove_key(track_idx, key_idx)
 
-		ResourceSaver.save(trimmed_target_anim, "res://debug_trimmed_target_anim.tres")
+		if Globals.DEBUG:
+			ResourceSaver.save(trimmed_target_anim, "res://tmp/debug_trimmed_target_anim.tres")
 
 		var packed_motion = MotionConverter.animation_to_packed_motion(trimmed_target_anim)
 		inference_args.packed_motion = packed_motion

@@ -60,10 +60,10 @@ visible = false
 
 [node name="AboutDialog" type="AcceptDialog" parent="."]
 unique_name_in_owner = true
-title = "About MotionLab"
+title = "About MoLab Sequencer"
 initial_position = 1
 size = Vector2i(665, 158)
-dialog_text = "MotionLab v0.1.0
+dialog_text = "MoLab Sequencer v0.1.0
 Prototype for \"Layer-based Motion Editing\", developed as part of the Kollani project.
 
 https://ai.hdm-stuttgart.de/research/kollani/"
