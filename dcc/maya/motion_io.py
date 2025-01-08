@@ -18,7 +18,16 @@ def get_hierarchy(joint) -> list[str]:
 
 def get_transform_key_at_frame(joint, frame) -> dict[str, list]:
     """Get the keyframe values for the given joint at the given frame.
-    The rotate order is assumed to be XYZ (see get_selected_skeleton).
+    The Euler order is assumed to be XYZ (see get_selected_skeleton).
+
+    NOTE: Rotation keys are returned in as ZYX, not XYZ, not sure why.
+          This has nothing to do with Euler order though, just how it's stored.
+
+    Returns:
+        result: A dictionary with the following keys:
+            - translate: A list of [tX, tY, tZ] values
+            - rotate: A list of [rZ, rY, rX] values (degrees)
+            - scale: A list of [sX, sY, sZ] values
     """
     result = {}
     for attr in ["translate", "rotate", "scale"]:

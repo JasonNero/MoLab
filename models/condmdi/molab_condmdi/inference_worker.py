@@ -163,7 +163,6 @@ def unpack_motion(
         motion[..., 0] = df_x.values
         motion[..., 1] = df_y.values
         motion[..., 2] = df_z.values
-
     elif mode == "step":
         df_x = pd.DataFrame(motion[..., 0]).ffill().bfill().fillna(0)
         df_y = pd.DataFrame(motion[..., 1]).ffill().bfill().fillna(0)
@@ -179,7 +178,11 @@ def unpack_motion(
         motion[:, 0][nan_mask[:, 0]] += pos_noise[nan_mask[:, 0]]
         motion[:, 1:][nan_mask[:, 1:]] += rot_noise[nan_mask[:, 1:]]
 
-    assert np.isnan(motion).sum() == 0, "Unfilled nan values in the motion"
+    if np.isnan(motion).sum() > 0:
+        # The mode/interpolation only modifies the values between two known values,
+        # while the borders stay NaN. This is a problem for inference.
+        # TODO: Replace border values with zeros or better the nearest known value.
+        raise ValueError("Unfilled nan values in the motion.")
 
     # Extract root position and mask
     root_pos = motion[:, 0].copy()
