@@ -5,3 +5,5 @@ export/
 # Ignore macOS .DS_Store files in all subfolders
 **/.DS_Store
 .DS_Store
+
+tmp/

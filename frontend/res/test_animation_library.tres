@@ -1,8 +1,0 @@
-[gd_resource type="AnimationLibrary" load_steps=2 format=3 uid="uid://denm5emgwt33d"]
-
-[ext_resource type="Animation" uid="uid://c0wmpl0beea2g" path="res://res/example_inference_animation.tres" id="1_slf86"]
-
-[resource]
-_data = {
-"example_inference_animation": ExtResource("1_slf86")
-}
