@@ -34,16 +34,21 @@ func apply(target_animation: Animation) -> Animation:
 	var in_offset_sec := float(in_offset) / Globals.FPS
 	var out_offset_sec := float(out_offset) / Globals.FPS
 
-	var override_start_sec := in_point_sec + in_offset_sec
-	var override_end_sec := out_point_sec - out_offset_sec
+	# Local to the animation clip
+	var local_in_sec := in_offset_sec
+	var local_out_sec := out_point_sec - out_offset_sec
 
-	var trimmed_animation := _trim_and_center_animation(in_offset_sec, out_offset_sec)
+	# Global to the full timeline
+	var global_start_sec := in_point_sec + in_offset_sec
+	var global_end_sec := out_point_sec - out_offset_sec
+
+	var trimmed_animation := _trim_and_center_animation(local_in_sec, local_out_sec, animation)
 
 	var target_hip_idx := target_animation.find_track(NodePath("%GeneralSkeleton:Hips"), Animation.TYPE_POSITION_3D)
 	var hip_offset: Vector3 = Vector3.ZERO
 	if target_hip_idx != -1:
 		# Get the root offset at the start of the override range
-		hip_offset = target_animation.position_track_interpolate(target_hip_idx, override_start_sec - 1.0/Globals.FPS)
+		hip_offset = target_animation.position_track_interpolate(target_hip_idx, global_start_sec - 1.0/Globals.FPS)
 		hip_offset.y = 0  # Ignore vertical offset
 
 	for source_track_idx in trimmed_animation.get_track_count():
@@ -61,7 +66,7 @@ func apply(target_animation: Animation) -> Animation:
 		var to_remove := []
 		for key_idx in key_count:
 			var key_time := target_animation.track_get_key_time(target_track_idx, key_idx)
-			if key_time >= override_start_sec and key_time <= override_end_sec:
+			if key_time >= global_start_sec and key_time <= global_end_sec:
 				to_remove.append(key_idx)
 		to_remove.reverse()
 		for key_idx in to_remove:
@@ -101,7 +106,7 @@ func apply(target_animation: Animation) -> Animation:
 			# Now also apply the Hip offset to all following keyframes
 			for key_idx in target_animation.track_get_key_count(target_hip_idx):
 				var key_time := target_animation.track_get_key_time(target_hip_idx, key_idx)
-				if key_time < override_end_sec:
+				if key_time < global_end_sec:
 					continue
 				var key_value: Vector3 = target_animation.track_get_key_value(target_hip_idx, key_idx)
 				var new_value := key_value + hip_offset

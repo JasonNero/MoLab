@@ -48,7 +48,7 @@ func apply(target_animation: Animation) -> Animation:
 
 
 # Trim the source animation to the inner range and let it start at the origin.
-func _trim_and_center_animation(in_offset_sec: float, out_offset_sec: float) -> Animation:
+static func _trim_and_center_animation(local_in_sec: float, local_out_sec: float, animation: Animation) -> Animation:
 	var trimmed_animation := Animation.new()
 
 	# Trimming the animation to the override range
@@ -67,15 +67,19 @@ func _trim_and_center_animation(in_offset_sec: float, out_offset_sec: float) -> 
 		# Copy and offset all keyframes
 		var key_count := animation.track_get_key_count(track_idx)
 		for key_idx in key_count:
-			var original_time := animation.track_get_key_time(track_idx, key_idx)
-			if original_time < in_offset_sec or original_time > animation.length - out_offset_sec:
+			var key_sec := animation.track_get_key_time(track_idx, key_idx)
+			if key_sec < local_in_sec and local_in_sec - key_sec > 0.01:
+				# Skip keyframes outside the override range
+				# The 0.01 is to circumvent floating point errors
+				continue
+			elif key_sec > local_out_sec:
 				# Skip keyframes outside the override range
 				continue
 
 			var value = animation.track_get_key_value(track_idx, key_idx)
 
 			# Begin at trim start
-			var trimmed_time := original_time - in_offset_sec
+			var trimmed_time := key_sec - local_in_sec
 
 			# Insert the keyframe
 			trimmed_animation.track_insert_key(
@@ -110,7 +114,8 @@ func _trim_and_center_animation(in_offset_sec: float, out_offset_sec: float) -> 
 			new_value.y = key_value.y  # Ignore vertical offset
 			trimmed_animation.track_set_key_value(hip_track_idx, key_idx, new_value)
 
-	print("Animation trimmed to range: ", in_offset_sec, " - ", animation.length - out_offset_sec)
+	print("Animation trimmed to range: ", local_in_sec, " - ", local_out_sec)
+	trimmed_animation.length = local_out_sec - local_in_sec
 	return trimmed_animation
 
 
