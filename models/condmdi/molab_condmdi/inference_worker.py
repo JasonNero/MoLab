@@ -156,14 +156,18 @@ def unpack_motion(
     nan_mask = np.isnan(motion)
 
     if mode == "linear":
-        # Pretty sure this can be done using just scipy, but this is fine for now
-        df_x = pd.DataFrame(motion[..., 0]).interpolate(method='linear', axis=0)
-        df_y = pd.DataFrame(motion[..., 1]).interpolate(method='linear', axis=0)
-        df_z = pd.DataFrame(motion[..., 2]).interpolate(method='linear', axis=0)
+        # Use Linear interpolate to fill between known values
+        # Fill the rest with zeros to handle border values and joints without data
+        df_x = pd.DataFrame(motion[..., 0]).interpolate(method='linear', axis=0).fillna(0)
+        df_y = pd.DataFrame(motion[..., 1]).interpolate(method='linear', axis=0).fillna(0)
+        df_z = pd.DataFrame(motion[..., 2]).interpolate(method='linear', axis=0).fillna(0)
         motion[..., 0] = df_x.values
         motion[..., 1] = df_y.values
         motion[..., 2] = df_z.values
     elif mode == "step":
+        # Fill forwards (basically stepped animation)
+        # Fill backwards to get rid of left-border values
+        # Fill the rest with zeros to handle joints without data
         df_x = pd.DataFrame(motion[..., 0]).ffill().bfill().fillna(0)
         df_y = pd.DataFrame(motion[..., 1]).ffill().bfill().fillna(0)
         df_z = pd.DataFrame(motion[..., 2]).ffill().bfill().fillna(0)
@@ -179,10 +183,7 @@ def unpack_motion(
         motion[:, 1:][nan_mask[:, 1:]] += rot_noise[nan_mask[:, 1:]]
 
     if np.isnan(motion).sum() > 0:
-        # The mode/interpolation only modifies the values between two known values,
-        # while the borders stay NaN. This is a problem for inference.
-        # TODO: Replace border values with zeros or better the nearest known value.
-        raise ValueError("Unfilled nan values in the motion.")
+        raise ValueError("Unfilled nan values in the input motion.")
 
     # Extract root position and mask
     root_pos = motion[:, 0].copy()
