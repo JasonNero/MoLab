@@ -7,7 +7,7 @@ enum MODELTYPE {RANDOM_FRAMES, RANDOM_JOINTS}
 @export_placeholder("A person ...") var text: String
 @export var modeltype: MODELTYPE = MODELTYPE.RANDOM_FRAMES
 
-@export_storage var animation_samples: Array[Animation] = []
+@export var animation_samples: Array[Animation] = []
 @export var selected_sample: int = 0
 
 @export_storage var is_dirty: bool = false
@@ -15,7 +15,7 @@ var do_process: bool = false
 var _is_processing: bool = false
 
 
-func _init(_name="untitled", _in_point=0, _out_point=100, _in_offset=0, _out_offset=0, _text="", _modeltype=MODELTYPE.RANDOM_FRAMES) -> void:
+func _init(_name="untitled", _in_point=0, _out_point=196, _in_offset=0, _out_offset=0, _text="", _modeltype=MODELTYPE.RANDOM_FRAMES) -> void:
 	super(_name, _in_point, _out_point, _in_offset, _out_offset)
 	self.text = _text
 	self.modeltype = _modeltype
@@ -39,11 +39,14 @@ func get_properties() -> Dictionary:
 		"hint_string": ",".join(MODELTYPE.keys())
 	}
 
+	var name_hints = []
+	for anim in animation_samples:
+		name_hints.append(anim.resource_name)
 	props["selected_sample"] = {
 		"type": TYPE_INT,
 		"value": selected_sample,
 		"hint": PROPERTY_HINT_ENUM,
-		"hint_string": ",".join(range(animation_samples.size()))
+		"hint_string": ",".join(name_hints)
 	}
 
 	props["do_process"] = {
@@ -67,10 +70,11 @@ func set_property(property: String, value: Variant) -> void:
 func _on_result_received(results: InferenceResults):
 	Backend.results_received.disconnect(_on_result_received)
 	print("Source '", name, "' received results from Backend:")
-	print(results)
+	if Globals.DEBUG:
+		# Dump to Godot log file for debugging
+		print(results)
 
 	animation_samples = MotionConverter.results_to_animations(results)
-	selected_sample = 0
 	animation = animation_samples[selected_sample]
 	is_dirty = false
 	_is_processing = false
@@ -83,11 +87,7 @@ func process(target_animation: Animation) -> void:
 	inference_args.num_samples = 3
 	inference_args.text_prompt = text
 
-	# TODO: Read the input motion from target_animation and _trim_and_center it to the in-out-range
 	if in_offset > 0 or out_offset > 0:
-		# TODO: Implement this
-		# push_error("PackedMotion Input for SourceML via in/out offsets not yet implemented!")
-
 		var in_point_sec := float(in_point) / Globals.FPS
 		var out_point_sec := float(out_point) / Globals.FPS
 		var in_offset_sec := float(in_offset) / Globals.FPS
@@ -130,6 +130,8 @@ func apply(target_animation: Animation) -> Animation:
 		print("Skipping source without animation: ", name)
 		return target_animation
 
+	animation = animation_samples[selected_sample]
+
 	# Source properties are in [frames], Animations in [seconds]
 	var in_point_sec := float(in_point) / Globals.FPS
 	var out_point_sec := float(out_point) / Globals.FPS
@@ -138,24 +140,24 @@ func apply(target_animation: Animation) -> Animation:
 
 	# Local to the animation clip
 	var local_in_sec := in_offset_sec
-	var local_out_sec := out_point_sec - out_offset_sec
+	var local_out_sec := out_point_sec - in_point_sec - out_offset_sec
 
 	# Global to the full timeline
 	var global_start_sec := in_point_sec + in_offset_sec
 	var global_end_sec := out_point_sec - out_offset_sec
 
-	var trimmed_animation := _trim_and_center_animation(local_in_sec, local_out_sec, animation)
-
 	var target_hip_idx := target_animation.find_track(NodePath("%GeneralSkeleton:Hips"), Animation.TYPE_POSITION_3D)
 	var hip_offset: Vector3 = Vector3.ZERO
 	if target_hip_idx != -1:
 		# Get the root offset at the start of the override range
-		hip_offset = target_animation.position_track_interpolate(target_hip_idx, global_start_sec - 1.0/Globals.FPS)
+		hip_offset = target_animation.position_track_interpolate(target_hip_idx, in_point_sec - 1.0/Globals.FPS)
 		hip_offset.y = 0  # Ignore vertical offset
+		if Globals.DEBUG:
+			print("{0} Hip offset (in_range):   {1}".format([name, hip_offset]))
 
-	for source_track_idx in trimmed_animation.get_track_count():
-		var track_type := trimmed_animation.track_get_type(source_track_idx)
-		var track_path := trimmed_animation.track_get_path(source_track_idx)
+	for source_track_idx in animation.get_track_count():
+		var track_type := animation.track_get_type(source_track_idx)
+		var track_path := animation.track_get_path(source_track_idx)
 
 		var target_track_idx := _get_or_create_track(target_animation, track_path, track_type)
 
@@ -175,15 +177,15 @@ func apply(target_animation: Animation) -> Animation:
 			target_animation.track_remove_key(target_track_idx, key_idx)
 
 		# Copy and offset all keyframes
-		key_count = trimmed_animation.track_get_key_count(source_track_idx)
+		key_count = animation.track_get_key_count(source_track_idx)
 		for key_idx in key_count:
-			var local_time := trimmed_animation.track_get_key_time(source_track_idx, key_idx)
+			var local_time := animation.track_get_key_time(source_track_idx, key_idx)
 
 			# Skip keyframes outside the override range
-			if local_time < in_offset_sec or local_time > out_point_sec - in_point_sec - out_offset_sec:
+			if local_time < local_in_sec or local_time > local_out_sec:
 				continue
 
-			var value = trimmed_animation.track_get_key_value(source_track_idx, key_idx)
+			var value = animation.track_get_key_value(source_track_idx, key_idx)
 			var global_time := local_time + in_point_sec
 
 			# Root/Hip Motion offset
@@ -196,23 +198,27 @@ func apply(target_animation: Animation) -> Animation:
 				value,
 				# transition,
 			)
-	# affects_post_range = false
+
+	# Move all following keyframes to continue from where this source ends
 	if affects_post_range:
 		target_hip_idx = target_animation.find_track(NodePath("%GeneralSkeleton:Hips"), Animation.TYPE_POSITION_3D)
-		hip_offset = Vector3.ZERO
+		var post_hip_offset := Vector3.ZERO
 		if target_hip_idx != -1 and target_animation.track_get_key_count(target_hip_idx) > 0:
-			# Get the root offset at the end of the trimmed animation
-			hip_offset = trimmed_animation.position_track_interpolate(target_hip_idx, trimmed_animation.length)
-			hip_offset.y = 0  # Ignore vertical offset
+			# Calculate the offset by comparing two adjacent keyframes
+			# TODO: Double check this, looks sketchy
+			var current_hip_pos = target_animation.position_track_interpolate(target_hip_idx, global_end_sec)
+			post_hip_offset = current_hip_pos - target_animation.position_track_interpolate(target_hip_idx, global_end_sec + 1.0/Globals.FPS)
+			post_hip_offset.y = 0  # Ignore vertical offset
+			if Globals.DEBUG:
+				print("{0} Hip offset (post_range): {1}".format([name, post_hip_offset]))
 
-			# Now also apply the Hip offset to all following keyframes
+			# Propagate the offset to all keyframes after the override range
 			for key_idx in target_animation.track_get_key_count(target_hip_idx):
 				var key_time := target_animation.track_get_key_time(target_hip_idx, key_idx)
 				if key_time < global_end_sec:
 					continue
 				var key_value: Vector3 = target_animation.track_get_key_value(target_hip_idx, key_idx)
-				var new_value := key_value + hip_offset
-				new_value.y = key_value.y  # Ignore vertical offset
+				var new_value := key_value + post_hip_offset
 				target_animation.track_set_key_value(target_hip_idx, key_idx, new_value)
 
 	return target_animation

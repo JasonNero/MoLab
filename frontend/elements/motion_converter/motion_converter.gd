@@ -32,9 +32,11 @@ func results_to_animations(results: InferenceResults) -> Array[Animation]:
 	var animations: Array[Animation] = []
 	var result_count = results.root_positions.size()
 	var key_count = results.root_positions[0].size()
+	var timestamp = Time.get_datetime_string_from_system()
 
 	for variant_idx in range(result_count):
 		var anim = Animation.new()
+		anim.resource_name = "{0}_sample{1}".format([timestamp, variant_idx])
 		anim.length = key_count / Globals.FPS
 
 		var track_idx_hip = anim.add_track(Animation.TrackType.TYPE_POSITION_3D)
@@ -136,8 +138,6 @@ func animation_to_packed_motion(anim: Animation) -> Dictionary:
 
 		if nan_counter == 23:
 			print("Frame {0} has all NaNs".format([frame]))
-			if frame == 0:
-				push_error("First frame has all NaNs! Check the input data.")
 			continue
 		else:
 			if nan_counter > 0:

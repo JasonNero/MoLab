@@ -36,7 +36,7 @@ func apply(target_animation: Animation) -> Animation:
 
 	# Local to the animation clip
 	var local_in_sec := in_offset_sec
-	var local_out_sec := out_point_sec - out_offset_sec
+	var local_out_sec := out_point_sec - in_point_sec - out_offset_sec
 
 	# Global to the full timeline
 	var global_start_sec := in_point_sec + in_offset_sec

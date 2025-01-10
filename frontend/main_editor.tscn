@@ -109,6 +109,7 @@ layout_mode = 2
 character_type = 3
 
 [node name="TabContainer" type="TabContainer" parent="UIRoot/VSplitContainer/HSplitContainer"]
+custom_minimum_size = Vector2(450, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/side_margin = 0

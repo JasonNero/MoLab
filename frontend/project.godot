@@ -36,6 +36,7 @@ file_logging/enable_file_logging=true
 window/size/viewport_width=1920
 window/size/viewport_height=1600
 window/size/initial_position_type=3
+window/energy_saving/keep_screen_on=false
 window/stretch/scale=1.5
 window/vsync/vsync_mode=0
 
