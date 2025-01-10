@@ -32,7 +32,7 @@ func _ready() -> void:
 func update_time(new_time: float) -> void:
 	time_spinbox.value = new_time
 	current_frame = int(new_time * Globals.FPS)
-	frame_spinbox.value = current_frame
+	frame_spinbox.set_value_no_signal(current_frame)
 
 func update_play_state(should_play: bool) -> void:
 	is_playing = should_play

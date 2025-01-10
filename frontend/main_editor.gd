@@ -15,8 +15,7 @@ extends Control
 @export var composition: Composition
 
 func _ready() -> void:
-	if composition == null:
-		composition = load_or_create_composition()
+	composition = load_or_create_composition()
 
 	# Initialize controllers
 	composition_controller.initialize(
@@ -32,8 +31,10 @@ func _ready() -> void:
 		composition,
 		viewport_3d,
 	)
+	var window = get_window()
+	window.close_requested.connect(_autosave)
+	window.title = "MoLab Sequencer v{0}".format([ProjectSettings.get_setting("application/config/version")])
 
-	get_window().close_requested.connect(_autosave)
 	%AutosaveTimer.timeout.connect(_autosave)
 
 func load_or_create_composition() -> Composition:

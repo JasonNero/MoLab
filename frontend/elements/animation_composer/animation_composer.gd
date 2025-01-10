@@ -70,6 +70,7 @@ func update_animation() -> void:
 	if animation_player.has_animation(ANIMATION_NAME):
 		animation_lib.remove_animation(ANIMATION_NAME.split("/")[1])
 	animation_lib.add_animation(ANIMATION_NAME.split("/")[1], current_animation)
+	animation_player.set_assigned_animation(ANIMATION_NAME)
 
 	# Ensure we're at a valid position
 	var current_time := get_current_time()
@@ -80,23 +81,23 @@ func update_animation() -> void:
 func play() -> void:
 	if not animation_player.has_animation(ANIMATION_NAME):
 		update_animation()
-	animation_player.play(ANIMATION_NAME)
+	else:
+		animation_player.play(ANIMATION_NAME)
 
 func pause() -> void:
 	animation_player.pause()
 
 func stop() -> void:
 	animation_player.stop()
-	seek(0)
-
-func seek_frame(frame: int) -> void:
-	seek(float(frame) / Globals.FPS)
 
 func seek(time: float) -> void:
 	if not animation_player.has_animation(ANIMATION_NAME):
 		update_animation()
-	animation_player.seek(time)
-	playback_time_changed.emit(time)
+	else:
+		# TODO: Figure out when and why the AnimationPlayer/Mixer is crashing Godot ...
+		# 		Check if the issue persists in newer versions of Godot
+		animation_player.seek(time, true)
+		playback_time_changed.emit(time)
 
 func get_current_time() -> float:
 	if animation_player.current_animation:
