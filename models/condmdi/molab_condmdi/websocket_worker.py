@@ -1,7 +1,7 @@
 import asyncio
 import json
 import logging
-import sys
+import os
 from pathlib import Path
 
 import websockets
@@ -17,6 +17,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("worker")
 
 worker = None
+
+# Get Gateway WebSocket URL from environment variable or default to 'localhost:8000'
+BACKEND_HOST = os.getenv("GATEWAY_HOST", "localhost")
+BACKEND_PORT = os.getenv("GATEWAY_PORT", "8000")
+uri = f"ws://{BACKEND_HOST}:{BACKEND_PORT}/register_worker"
 
 
 def setup_worker():
@@ -51,6 +56,10 @@ async def worker_logic(uri: str):
     """Connects to the gateway and waits for inference requests."""
     async with websockets.connect(uri) as websocket:
         logger.info("Worker connected to gateway")
+        if __debug__:
+            logger.info("Asserts are enabled!")
+        else:
+            logger.info("Asserts are disabled!")
         try:
             while True:
                 try:
@@ -62,7 +71,7 @@ async def worker_logic(uri: str):
                     try:
                         message = json.loads(message)
                     except json.JSONDecodeError:
-                        logger.error(f"Failed to decode message:\n{message}")
+                        logger.exception(f"Failed to decode message:\n{message}")
                         await websocket.send("Failed to decode message")
                         continue
 
@@ -91,11 +100,6 @@ async def worker_logic(uri: str):
 
 
 def main():
-    if len(sys.argv) > 1:
-        uri = "ws://" + sys.argv[1] + "/register_worker"
-    else:
-        uri = "ws://localhost:8000/register_worker"
-
     setup_worker()
     asyncio.run(worker_logic(uri))
     worker.stop()

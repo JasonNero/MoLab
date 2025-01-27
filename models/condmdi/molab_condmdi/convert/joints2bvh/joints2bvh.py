@@ -28,7 +28,8 @@ class Joint2BVHConvertor:
         :param positions: (N, 22, 3)
         :param filename: Save path for resulting BVH
         :param iterations: iterations for optimizing rotations, 10 is usually enough
-        :param foot_ik: whether to enfore foot inverse kinematics, removing foot slide issue.
+        :param foot_ik: whether to enforce foot inverse kinematics, removing foot slide issue.
+        :param use_jacobian: whether to use JacobianIK solver instead of BasicIK.
         :return:
         '''
         positions = positions[:, re_order]

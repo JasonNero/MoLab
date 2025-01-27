@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv
+
+# CondMDI
+molab_condmdi/body_models/
+molab_condmdi/dataset/HumanML3D/*
+molab_condmdi/kit/
+molab_condmdi/save/
+molab_condmdi/t2m/
+molab_condmdi/wandb/
+
+!molab_condmdi/save/condmdi_random_frames/model000750000.pt
+!molab_condmdi/save/condmdi_random_frames/args.json
+!molab_condmdi/save/condmdi_random_joints/model000750000.pt
+!molab_condmdi/save/condmdi_random_joints/args.json
+
+!molab_condmdi/dataset/HumanML3D/Mean.npy
+!molab_condmdi/dataset/HumanML3D/Std.npy
+!molab_condmdi/dataset/HumanML3D/Mean_abs_3d.npy
+!molab_condmdi/dataset/HumanML3D/Std_abs_3d.npy

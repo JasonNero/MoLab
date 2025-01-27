@@ -6,16 +6,21 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 WORKDIR /app
 
 # Copy the lockfile and `pyproject.toml` into the image
-ADD uv.lock /app/uv.lock
-ADD pyproject.toml /app/pyproject.toml
+COPY uv.lock /app/uv.lock
+COPY pyproject.toml /app/pyproject.toml
 
 # Install dependencies
 RUN uv sync --frozen --no-install-project
 
 # Copy the project into the image
-ADD . /app
+COPY . /app
 
 # Sync the project
 RUN uv sync --frozen
+
+# Place executables in the environment at the front of the path
+ENV PATH="/app/.venv/bin:$PATH"
+
+EXPOSE 8000
 
 CMD [ "python", "molab_backend/main.py"]

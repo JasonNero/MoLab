@@ -168,6 +168,7 @@ def unpack_motion(
         # Fill forwards (basically stepped animation)
         # Fill backwards to get rid of left-border values
         # Fill the rest with zeros to handle joints without data
+        # NOTE: This results in jumpy velocities, not ideal for In-Betweening
         df_x = pd.DataFrame(motion[..., 0]).ffill().bfill().fillna(0)
         df_y = pd.DataFrame(motion[..., 1]).ffill().bfill().fillna(0)
         df_z = pd.DataFrame(motion[..., 2]).ffill().bfill().fillna(0)
