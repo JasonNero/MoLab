@@ -1,27 +1,31 @@
-
-############################################################
-# ! Currently not in use
-# TODO: Fleshen this out for system tests later on
-############################################################
-
 version: '3'
 services:
   backend:
     build: ./backend
     ports:
       - "8000:8000"
+    networks:
+      - app-network
 
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+  # frontend:
+  #   build: ./frontend
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - app-network
 
-  condmdi:
+  worker1:
     build: ./models/condmdi
-    ports:
-      - "5000:5000"
     depends_on:
       - backend
+    environment:
+      GATEWAY_HOST: backend  # Use the service name as the host
+      GATEWAY_PORT: 8000
+    networks:
+      - app-network
 
+networks:
+  app-network:
+    driver: bridge
