@@ -16,7 +16,7 @@ services:
   #   networks:
   #     - app-network
 
-  worker1:
+  worker:
     build: ./models/condmdi
     depends_on:
       - backend
