@@ -25,6 +25,14 @@ services:
       GATEWAY_PORT: 8000
     networks:
       - app-network
+    deploy:
+      mode: replicated
+      replicas: 2  # Number of workers to deploy
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]  # GPU required
+              driver: nvidia
 
 networks:
   app-network:
