@@ -4,6 +4,12 @@ install: ## Install the virtual environments for backend and models
 	@cd backend && uv sync
 	@cd models/condmdi && uv sync
 
+.PHONY: download
+download: ## Download the required models and checkpoints
+	@echo "🚀 Downloading the required checkpoints"
+	@cd models/condmdi/molab_condmdi && uv run bash prepare/download_pretrained.sh
+	@cd models/condmdi/molab_condmdi && uv run bash prepare/download_glove.sh
+
 .PHONY: check
 check: ## Run code quality tools.
 	@echo "🚀 Checking lock file consistency with 'pyproject.toml'"
@@ -44,7 +50,7 @@ run-worker: ## Run the worker
 .PHONY: run-frontend
 run-frontend: ## Run the frontend
 	@echo "🚀 Running the frontend"
-	@cd frontend && echo "TODO"
+	@cd frontend/export && ./molab.dmg
 
 .PHONY: docs-test
 docs-test: ## Test if documentation can be built without warnings or errors
