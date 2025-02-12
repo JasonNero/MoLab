@@ -1,9 +1,4 @@
-# MotionLab
+# MotionLab Sequencer
 
-A quick and rather dirty prototype for "Layer-based Motion Editing".
+A prototype for "Layer-based Motion Editing" using CondMDI for motion generation and inbetweening.
 
-(Project is based off Godots "Control Gallery" example)
-
-Language: GDScript
-
-Renderer: Forward+

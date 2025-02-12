@@ -4,7 +4,7 @@ extends Node
 signal results_received(results: InferenceResults)
 
 # The URL we will connect to.
-@export var websocket_url = "ws://127.0.0.1:8000/register_client"
+@export var websocket_url = ""
 
 # Our WebSocketClient instance.
 var socket := WebSocketPeer.new()
@@ -12,7 +12,18 @@ var timeout_ms := 4000  # 4s
 var _connected := false
 
 func _ready():
-	set_physics_process(false)
+	# TODO: This does not work in Web Export
+	var host = OS.get_environment("GATEWAY_HOST")
+	var port = OS.get_environment("GATEWAY_PORT")
+
+	if host == "":
+		host = "localhost"
+	if port == "":
+		port = "8000"
+
+	websocket_url = "ws://" + host + ":" + port + "/register_client"
+	print("Using Backend: ", websocket_url)
+
 	socket.set_inbound_buffer_size(2**21)
 	socket.set_outbound_buffer_size(2**21)
 	socket.set_max_queued_packets(128)

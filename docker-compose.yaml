@@ -8,9 +8,12 @@ services:
       - app-network
 
   # frontend:
-  #   build: ./frontend
+  #   build: ./frontend/export/html
   #   ports:
-  #     - "3000:3000"
+  #     - "8080:80"
+  #   environment:  # TODO: This is not yet taken into account by Godot!
+  #     GATEWAY_HOST: backend  # Use the service name as the host
+  #     GATEWAY_PORT: 8000
   #   depends_on:
   #     - backend
   #   networks:

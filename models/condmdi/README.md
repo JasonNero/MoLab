@@ -17,15 +17,15 @@ condmdi/
 ├── eval/                 # Evaluation scripts
 ├── model/                # Motion Diffusion Model (MDM) Variants
 ├── notebooks/            # Jupyter notebooks for experiments and demos
-├── prepare/              # Scripts for downloading datasets and pretrained models
+├── prepare/              # Scripts for downloading datasets, models and evaluators
 ├── sample/               # Inference scripts for text-to-motion and motion editing
 ├── save/                 # Directory for model checkpoints
 ├── train/                # Training scripts
 ├── utils/                # Utility functions
 ├── visualize/            # Visualization scripts
 ├── inference_worker.py   # Inference worker
-├── websocket_worker.py   # WebSocket worker calling the inference worker
-├── Dockerfile            # Dockerfile for the inference worker
+├── websocket_worker.py   # WebSocket worker (instantiates inference worker)
+├── Dockerfile            # Dockerfile for a websocket inference worker
 └── README.md             # Project description and setup instructions
 ```
 
@@ -39,19 +39,29 @@ For more information see the original README at the end of this file.
 
 ## Inference
 
-To test the inference you can use the `InferenceWorker` class in `inference_worker.py` or the `WebSocketWorker` class in `websocket_worker.py`. 
+To test the inference you can use the `InferenceWorker` class in `inference_worker.py` or the `WebSocketWorker` class in `websocket_worker.py`.
 
 The `InferenceWorker` class is a wrapper around CondMDI with a simple `infer` method that takes `InferenceArgs` as input and returns the generated motion as `InferenceResult`.
 
-TODO: Add more details on how to use the inference worker.
+### Inference Arguments
 
-## Training
+The most important arguments for the inference worker are:
 
-TODO
+- `text_prompt` should be the motion description (or empty)
+- `packed_motion` contains any supplied keyframes
+- `num_samples` is the number of samples to generate
+- `foot_ik` can be enabled to use a foot ik in postprocessing
+- `editable_features` defines which features are given (pos, rot, vel)
+- `unpack_mode` changes how the input motion sequence is built from the input keys
 
-## Evaluation
+### Inference Results
 
-TODO
+The results of the inference are:
+
+- `root_positions` contains just the root joint positions
+- `joint_rotations` contains all joint rotations
+- `obs_root_positions` contains the input root joint positions
+- `obs_joint_rotations` contains all input joint rotations
 
 ---
 ---
