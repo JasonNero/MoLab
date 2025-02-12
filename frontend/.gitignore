@@ -1,6 +1,8 @@
 # Godot 4+ specific ignores
 .godot/
-export/
+export/html/*
+export/macos/*
+!export/html/Dockerfile
 
 # Ignore macOS .DS_Store files in all subfolders
 **/.DS_Store
