@@ -32,7 +32,7 @@ characters = {
 "SMPL F": ExtResource("2_7tqhv"),
 "SMPL M": ExtResource("3_akrgk")
 }
-character_type = "Geno"
+character_type = "Mixamo Akai"
 
 [node name="SubViewport" type="SubViewport" parent="."]
 handle_input_locally = false

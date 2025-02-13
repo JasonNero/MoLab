@@ -64,8 +64,9 @@ To install the project, follow these steps:
 
 #### Using the Godot App / Frontend
 
-1. Open and build the Godot project in `frontend`
-2. Run the project and check log messages for a successful connection
+1. First download the ["Akai e espiritu" model from Mixamo](https://www.mixamo.com/#/?page=1&query=akai&type=Character) and save it as `frontend/res/models/akai_e_espiritu.fbx`
+2. Open and build the Godot project in `frontend`
+3. Run the project and check log messages for a successful backend connection
 
 For more details please refer to the [documentation](https://JasonNero.github.io/MoLab/).
 
