@@ -8,11 +8,14 @@ export/macos/*
 **/.DS_Store
 .DS_Store
 
-# Mixamo Models that shall not be re-distributed
+# Models that shall not be re-distributed
 res/models/akai_e_espiritu.fbx
 res/models/akai_e_espiritu_0.png
 res/models/Passive_Marker_Man.glb
 res/models/Passive_Marker_Man_MocapSuit02_diffuse.png
+res/models/basicModel_m_re-export.fbx
+res/models/basicModel_f_re-export.fbx
+res/models/basicModel_smpl.mb
 
 # All temporary debug outputs
 tmp/
