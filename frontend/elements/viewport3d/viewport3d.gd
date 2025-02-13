@@ -1,27 +1,14 @@
 class_name Viewport3D
 extends SubViewportContainer
 
-enum CHARACTER {
-	SMPL_FEMALE = 0,
-	SMPL_MALE = 1,
-	LAFAN = 2,
-	MIXAMO_AKAI = 3,
-	MIXAMO_MARKERMAN = 4,
-}
-
 signal character_changed()
 signal animation_player_changed(player: AnimationPlayer)
 
-@export var character_type: CHARACTER = CHARACTER.LAFAN:
+@export var characters: Dictionary
+@export var character_type: String:
 	set(value):
 		character_type = value
 		character_changed.emit()
-
-@export var smpl_f: PackedScene
-@export var smpl_m: PackedScene
-@export var lafan: PackedScene
-@export var mixamo_akai: PackedScene
-@export var mixamo_markerman: PackedScene
 
 var current_player: AnimationPlayer
 var current_char: Node
@@ -36,17 +23,11 @@ func _update_character() -> void:
 	if current_char != null:
 		%World.remove_child(current_char)
 
-	match character_type:
-		CHARACTER.SMPL_FEMALE:
-			current_char = smpl_f.instantiate()
-		CHARACTER.SMPL_MALE:
-			current_char = smpl_m.instantiate()
-		CHARACTER.LAFAN:
-			current_char = lafan.instantiate()
-		CHARACTER.MIXAMO_AKAI:
-			current_char = mixamo_akai.instantiate()
-		CHARACTER.MIXAMO_MARKERMAN:
-			current_char = mixamo_markerman.instantiate()
+	var current_char_scene = characters.get(character_type)
+	if current_char_scene == null:
+		return
+
+	current_char = current_char_scene.instantiate()
 
 	%World.add_child(current_char)
 	current_char.set_owner(%World)
