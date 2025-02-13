@@ -1,0 +1,47 @@
+[remap]
+
+importer="scene"
+importer_version=1
+type="PackedScene"
+uid="uid://cpe6tai0w7cag"
+path="res://.godot/imported/akai_e_espiritu.fbx-05642c60700dd162a446fdebf2863401.scn"
+
+[deps]
+
+source_file="res://res/models/akai_e_espiritu.fbx"
+dest_files=["res://.godot/imported/akai_e_espiritu.fbx-05642c60700dd162a446fdebf2863401.scn"]
+
+[params]
+
+nodes/root_type=""
+nodes/root_name=""
+nodes/apply_root_scale=true
+nodes/root_scale=1.0
+nodes/import_as_skeleton_bones=false
+meshes/ensure_tangents=true
+meshes/generate_lods=true
+meshes/create_shadow_meshes=true
+meshes/light_baking=1
+meshes/lightmap_texel_size=0.2
+meshes/force_disable_compression=false
+skins/use_named_skins=true
+animation/import=true
+animation/fps=30
+animation/trimming=true
+animation/remove_immutable_tracks=true
+animation/import_rest_as_RESET=false
+import_script/path=""
+_subresources={
+"nodes": {
+"PATH:Skeleton3D": {
+"rest_pose/external_animation_library": null,
+"rest_pose/selected_animation": "mixamo_com",
+"retarget/bone_map": Resource("res://res/models/mixamo_bonemap.tres"),
+"retarget/remove_tracks/unimportant_positions": false,
+"retarget/rest_fixer/keep_global_rest_on_leftovers": false
+}
+}
+}
+fbx/importer=0
+fbx/allow_geometry_helper_nodes=false
+fbx/embedded_image_handling=1
