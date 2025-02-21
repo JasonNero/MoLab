@@ -403,10 +403,10 @@ class MotionInferenceWorker:
             #       - "inductor" not supported
             #       - "aot_eager" slows down inference by 20%
             pass
-        elif dist_util.dev().type == "cuda":
-            # NOTE: Compiled Inference Time on 2080Ti:
-            #       - "inductor" speeds up inference by 15%
-            #       - "aot_eager" slows down inference by factor ~2
+        elif (
+            dist_util.dev().type == "cuda"
+            and torch.cuda.get_device_capability()[0] >= 7
+        ):
             self.model.model.compile(backend="inductor")
 
     def stop(self):
