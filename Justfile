@@ -76,4 +76,4 @@ docs-test:
 # Build and serve the documentation
 docs:
   @echo "🚀 Serving documentation"
-  @uv tool run --with mkdocs-material --with mkdocstrings-python --with mkdocs-include-markdown-plugin --with mkdocs-github-admonitions-plugin mkdocs serve
+  @uv tool run --with mkdocs-material --with mkdocstrings-python --with mkdocs-include-markdown-plugin --with mkdocs-github-admonitions-plugin mkdocs serve -a localhost:8001
