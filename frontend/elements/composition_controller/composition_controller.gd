@@ -50,6 +50,9 @@ func _connect_signals() -> void:
 	# Animation signals
 	animation_composer.playback_time_changed.connect(_on_playback_time_changed)
 
+	# Backend signals
+	Backend.results_received.connect(_on_result_received)
+
 func _initialize_views() -> void:
 	properties_panel.setup(composition)
 	source_view.setup(composition)
@@ -190,3 +193,7 @@ func _on_seek_requested(time: float) -> void:
 func _on_playback_time_changed(time: float) -> void:
 	time_controls.update_time(time)
 	source_view.update_playhead(time)
+
+func _on_result_received(results: InferenceResults) -> void:
+	# HACK: Refreshing the source view to update the source's animation
+	composition.set_selected_source(null)

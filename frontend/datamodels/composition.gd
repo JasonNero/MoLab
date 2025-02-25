@@ -36,9 +36,8 @@ func remove_source(source: Source) -> void:
 	source_removed.emit(source)
 
 func set_selected_source(source: Source) -> void:
-	if selected_source != source:
-		selected_source = source
-		selection_changed.emit(source)
+	selected_source = source
+	selection_changed.emit(source)
 
 func get_selected_source() -> Source:
 	return selected_source
