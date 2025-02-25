@@ -7,7 +7,7 @@ After [installing MoLab](installation.md), follow the steps below to get everyth
 First start the backend server:
 
 ```console
-$ make run-backend
+$ just run-backend
 🚀 Running the backend
 ...
 ```
@@ -15,7 +15,7 @@ $ make run-backend
 Then start a worker and wait for it to connect to the backend:
 
 ```console
-$ make run-worker
+$ just run-worker
 🚀 Running the worker
 ...
 ```

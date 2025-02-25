@@ -44,6 +44,8 @@ Follow the steps below to get everything up and running.
 Before you begin, ensure you have the following installed:
 
 - [**uv**](https://docs.astral.sh/uv/) (Python Package Manager)
+- [**just**](https://github.com/casey/just) (Command Runner)
+  - can be installed via `uv tool install rust-just`
 - [**Godot Engine 4**](https://godotengine.org) (For the Frontend)
 
 ### Installation
@@ -51,13 +53,13 @@ Before you begin, ensure you have the following installed:
 To install the project, follow these steps:
 
 1. Clone the repository and navigate to the project root directory
-2. Run `make install` to setup the python environments
-3. Run `make download` to download the required model checkpoints.
+2. Run `just install` to setup the python environments
+3. Run `just download` to download the required model checkpoints.
 
 ### Usage
 
-1. Run `make run-backend` to start the FastAPI server
-2. Run `make run-worker` to start an Inference worker
+1. Run `just run-backend` to start the FastAPI server
+2. Run `just run-worker` to start an Inference worker
 3. Connect to the backend using the Frontend or DCC Plugin
 
 #### Using the Godot App / Frontend

@@ -6,14 +6,16 @@ Before you begin, ensure you have the following installed:
 
 === "macOS and Linux"
     - [**uv**](https://docs.astral.sh/uv/getting-started/installation/) as Python Package Manager
+    - [**just**](https://github.com/casey/just) as Command Runner
+        - can be installed via `uv tool install rust-just`
     - [**Godot Engine 4**](https://godotengine.org) for the Frontend
 
 === "Windows"
     - [**uv**](https://docs.astral.sh/uv/getting-started/installation/) as Python Package Manager
     - [**Godot Engine 4**](https://godotengine.org) for the Frontend
-    - **make** to run the Makefile containing the build tasks
-        - e.g. via `choco install make`
-    - **bash** for the scripts downloading the pretrained models
+    - [**just**](https://github.com/casey/just) as Command Runner
+        - can be installed via `uv tool install rust-just`
+    - **bash** (or any other shell) for the scripts downloading the pretrained models
 
 ## Installing Backend and Worker
 
@@ -27,8 +29,8 @@ Then run the `install` and `download` tasks and wait for the installation to fin
 
 ```console
 cd MoLab
-make install
-make download
+just install
+just download
 ```
 
 Now as both the Python environments and the required model checkpoints are set up, we can continue building the Godot frontend.
