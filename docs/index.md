@@ -1,16 +1,19 @@
-# [Kollani](https://ai.hdm-stuttgart.de/research/kollani/) Motion Lab (MoLab)
+# Welcome to MoLab's documentation!
 
-[![Release](https://img.shields.io/github/v/release/JasonNero/MoLab)](https://img.shields.io/github/v/release/JasonNero/MoLab)
-[![Build status](https://img.shields.io/github/actions/workflow/status/JasonNero/MoLab/main.yml?branch=main)](https://github.com/JasonNero/MoLab/actions/workflows/main.yml?query=branch%3Amain)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/JasonNero/MoLab)](https://img.shields.io/github/commit-activity/m/JasonNero/MoLab)
-[![License](https://img.shields.io/github/license/JasonNero/MoLab)](https://img.shields.io/github/license/JasonNero/MoLab)
+Welcome to the MoLab documentation. Here you will find all the information you need to get started and make the most out of MoLab.
 
-> A toolbox for **human motion generation and inbetweening**, developed during the [Kollani](https://ai.hdm-stuttgart.de/research/kollani/) project.
+## Overview
 
-- **Github repository**: <https://github.com/JasonNero/MoLab/>
-- **Documentation** <https://JasonNero.github.io/MoLab/>
+Motion Lab (MoLab) is an innovative framework that supports producers and animators in the pre-production of character animations through machine learning. Traditional animation and motion capture are often time-consuming or have specific limitations, which is why MoLab envisions translating text descriptions into animated sequences and editing existing sequences. By utilizing the CondMDI model, efficient and consistent generation of movements is enabled. The layer-based concept of the MoLab Sequencer allows for intuitive and non-destructive work with both hand-animated and generated motion sequences.
 
-<p align="center">
-  <img src="assets/MoLab_demo.gif" height="600" />
-</p>
+### Features
 
+- **Text To Motion**: Describe the motion you want to see
+- **In-Betweening**: Input your keyposes and let AI fill the gaps
+- **Motion Composition**: Compose sequences and generate transitions
+
+### Limitations
+
+- Fixed skeleton with 22 joints
+- Maximum sequence length of 196 frames and a fixed framerate of 20 Hz
+- Text conditioning is limited to the entire sequence and the entire body

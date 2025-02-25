@@ -60,10 +60,21 @@ class ModelArgs(
 
 @dataclass
 class InferenceArgs(GenerateOptions, CondSyntOptions, CustomSyntOptions):
-    """Contains Mostly Inference Options:
-    - `GenerateOptions` (Motion Length, Input Text/Action)
-    - `CondSynthOptions` (Edit Mode, Editable Features, Imputate, Reconstruction Guidance)
-    - `CustomSyntOptions` (BVH Path)
+    """Arguments and options for motion inference.
+
+    Attributes:
+        packed_motion: A mapping of frame indices to poses (J+1, 3).
+        num_samples: Override the model `num_samples`. Default is 3.
+        jacobian_ik: Flag to enable or disable Jacobian Inverse Kinematics. Default is False.
+        foot_ik: Flag to enable or disable Foot Inverse Kinematics. Default is False.
+        unpack_randomness: Randomness factor for unpacking. Default is 0.0.
+        unpack_mode: Mode for unpacking. Choices are "step" and "linear". Default is "linear".
+        text_prompt: Input text or action for motion generation.
+        edit_mode: Defines the masking strategy for the BVH input motion.
+        editable_features: Can be used to indicate what features to observe.
+        imputate: Flag to enable or disable imputation/inpainting.
+        reconstruction_guidance: Flag to enable or disable reconstruction guidance.
+        bvh_path: Path to the BVH file.
     """
 
     # A mapping of frame indices to poses (J+1, 3) where J is the number of joints.
@@ -86,9 +97,15 @@ class InferenceArgs(GenerateOptions, CondSyntOptions, CustomSyntOptions):
 
 
 class InferenceResults(BaseModel):
-    """Contains Inference Results. Uses Pydantic for serialization."""
+    """Inference results containing samples and input motions.
 
-    # motions: list  # Technically: list[np.ndarray]
+    Attributes:
+        root_positions: List of root positions.
+        joint_rotations: List of joint rotations.
+        obs_root_positions: List of observed root positions.
+        obs_joint_rotations: List of observed joint rotations.
+    """
+
     root_positions: list
     joint_rotations: list
 

@@ -10,9 +10,8 @@
 - **Documentation** <https://JasonNero.github.io/MoLab/>
 
 <p align="center">
-  <img src="assets/MoLab_demo.gif" height="600" />
+  <img src="docs/assets/MoLab_demo.gif" height="600" />
 </p>
-
 
 ## Features
 
@@ -107,8 +106,8 @@ to discuss what you would like to change.
 The project is funded by the [Ministerium für Wirtschaft, Arbeit und Tourismus Baden-Württemberg](https://wm.baden-wuerttemberg.de/de/startseite) as part of an [investBW](https://invest-bw.de) initiative.
 
 <p align="center">
-  <img src="assets/logo-invest-bw.png" height="90" />
-  <img src="assets/logo-wm.png" height="90" /> 
+  <img src="docs/assets/logo-invest-bw.png" height="90" />
+  <img src="docs/assets/logo-wm.png" height="90" /> 
 </p>
 
 ## Acknowledgements
@@ -118,8 +117,6 @@ We would like to thank the following contributors/projects for the great foundat
 
 ## License
 
-<!-- TODO: Explain sub-licenses, especially CondMDI model -->
-
 This code is distributed under an [MIT LICENSE](LICENSE).
 
-Note that our code depends on other libraries, including CLIP, SMPL, SMPL-X, PyTorch3D, and uses datasets that each have their own respective licenses that must also be followed.
+Note that our code depends on other libraries and pretrained models, including CondMDI, CLIP, SMPL, SMPL-X, PyTorch3D, and uses datasets that each have their own respective licenses that must also be followed.

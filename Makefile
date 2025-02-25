@@ -54,11 +54,11 @@ run-frontend: ## Run the frontend
 
 .PHONY: docs-test
 docs-test: ## Test if documentation can be built without warnings or errors
-	@uv tool run --with mkdocs-material --with mkdocstrings mkdocs build -s
+	@uv tool run --with mkdocs-material --with mkdocstrings-python --with mkdocs-include-markdown-plugin --with mkdocs-github-admonitions-plugin mkdocs build -s
 
 .PHONY: docs
 docs: ## Build and serve the documentation
-	@uv tool run --with mkdocs-material --with mkdocstrings mkdocs serve
+	@uv tool run --with mkdocs-material --with mkdocstrings-python --with mkdocs-include-markdown-plugin --with mkdocs-github-admonitions-plugin mkdocs serve
 
 .PHONY: help
 help:

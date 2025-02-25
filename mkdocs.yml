@@ -5,16 +5,33 @@ site_description: Motion Lab - Human Motion Generation and Inbetweening
 site_author: Jason Schuehlein
 edit_uri: edit/main/docs/
 repo_name: JasonNero/MoLab
-copyright: Maintained by <a href="https://JasonNero.com">Jason Schuehlein</a>.
+copyright: Maintained by <a href="https://github.com/JasonNero">Jason Schuehlein</a>.
 
 nav:
   - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - First Steps: getting-started/first-steps.md
+  - User Guide:
+    - Inference Parameters: usage/inference-parameters.md
+    - MoLab Sequencer: usage/sequencer.md
+    - MoLab Maya Plugin: usage/maya-plugin.md
+  - API Reference:
+    - api-reference.md
+    - Example: api-reference/api-example.md
+  - FAQ: faq.md
+  - Deployment: deployment.md
+
 plugins:
   - search
+  - include-markdown
+  - gh-admonitions
   - mkdocstrings:
       handlers:
         python:
-          paths: [MoLab]
+          options:
+            docstring_style: "google"
+
 theme:
   name: material
   feature:
@@ -36,6 +53,20 @@ theme:
         name: Switch to light mode
   icon:
     repo: fontawesome/brands/github
+  features:
+    - navigation.path
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.sections
+    - navigation.indexes
+    - navigation.tracking
+    - content.code.annotate
+    - toc.follow
+    - navigation.footer
+    - navigation.top
+    - content.code.copy
+    - content.tabs.link
 
 extra:
   social:
@@ -45,5 +76,23 @@ extra:
 markdown_extensions:
   - toc:
       permalink: true
+      anchorlink: true
+      anchorlink_class: "toclink"
   - pymdownx.arithmatex:
       generic: true
+  - admonition
+  - md_in_html
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets:
+  - pymdownx.magiclink:
+  - attr_list:
+  - pymdownx.inlinehilite:
+  - pymdownx.superfences:
+  - markdown.extensions.attr_list:
+  - pymdownx.keys:
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+
