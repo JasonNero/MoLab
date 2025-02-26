@@ -17,20 +17,20 @@ class MoLabClient:
         """
         self.backend_uri = backend_uri
 
-    def infer(self, data):
+    def infer(self, inference_args):
         """
         Sends an inference request to the backend and returns the result.
 
         Args:
-            data (dict): The data to be sent for inference.
+            inference_args (dict): The data to be sent for inference.
 
         Returns:
             dict: The result of the inference.
         """
-        data["type"] = "infer"
+        inference_args["type"] = "infer"
         with connect(f"{self.backend_uri}/register_client", max_size=2**21) as websocket:
-            print(f"Sending inference dict:\n{data}")
-            websocket.send(json.dumps(data))
+            print(f"Sending inference dict:\n{inference_args}")
+            websocket.send(json.dumps(inference_args))
             print("Waiting for response...")
             message = websocket.recv()
             result = json.loads(message)

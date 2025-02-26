@@ -6,9 +6,9 @@ Before you begin, ensure you have the following installed:
 
 === "macOS and Linux"
     - [**uv**](https://docs.astral.sh/uv/getting-started/installation/) as Python Package Manager
+    - [**Godot Engine 4**](https://godotengine.org) for the Frontend
     - [**just**](https://github.com/casey/just) as Command Runner
         - can be installed via `uv tool install rust-just`
-    - [**Godot Engine 4**](https://godotengine.org) for the Frontend
 
 === "Windows"
     - [**uv**](https://docs.astral.sh/uv/getting-started/installation/) as Python Package Manager

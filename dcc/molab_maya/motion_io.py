@@ -1,34 +1,6 @@
 """
 This module provides functions to work with joint hierarchies and keyframe data in Maya.
 It also supplies packing and unpacking of keyframe data.
-
-Functions:
-    get_hierarchy(joint) -> list[str]:
-        Returns the hierarchy of joints starting from the given joint.
-
-    get_transform_key_at_frame(joint, frame) -> dict[str, list]:
-        Retrieves the keyframe values for the given joint at the specified frame.
-
-    get_selected_skeleton():
-        Gets and validates the selected skeleton in Maya.
-
-    extract_keyframes() -> tuple[np.ndarray, np.ndarray]:
-        Extracts keyframes from the selected joint and returns joint positions and rotations.
-
-    pack_keyframes(positions: np.ndarray, rotations: np.ndarray, verbose=False) -> dict[int, list]:
-        Packs the keyframes into a more compact format.
-
-    unpack_motion(packed_motion: dict[int, list]) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        Unpacks the packed motion input and returns joint positions and mask.
-
-    apply_motion(root_pos: np.ndarray, rotations: np.ndarray, joint_mask: Optional[np.ndarray] = None, start_frame: int = 1, name: str = "sample"):
-        Applies the motion data to the skeleton in Maya.
-
-    import_motions(root_positions, joint_rotations, start_frame=1, name="sample"):
-        Imports motions by applying root positions and joint rotations to the skeleton.
-
-    _test():
-        A test function to extract, pack, unpack, and apply keyframes.
 """
 
 from typing import Optional
