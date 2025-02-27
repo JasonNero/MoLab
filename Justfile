@@ -32,7 +32,7 @@ check:
   @cd models/condmdi && uv sync --locked
   @echo "🚀 Checking for obsolete dependencies: Running deptry"
   @cd backend && uv run deptry .
-  @cd models/condmdi && uv run deptry .
+  @cd models/condmdi && uv run deptry -nb .
 
 # Test the code with pytest
 test:
@@ -64,9 +64,9 @@ run-worker:
   @cd models/condmdi && uv run worker
 
 # Run the frontend
-run-frontend:
-  @echo "🚀 Running the frontend"
-  @cd frontend/export && ./molab.dmg
+# run-frontend:
+#   @echo "🚀 Running the frontend"
+#   @cd frontend/export && ./molab.dmg
 
 # Test if documentation can be built without warnings or errors
 docs-test:

@@ -200,4 +200,3 @@ def test_inference(worker: MotionInferenceWorker, use_bvh: bool, use_packed_moti
 
     result = worker.infer(InferenceArgs(**infer_dict))
     assert result is not None
-    return True
