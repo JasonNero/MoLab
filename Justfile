@@ -11,7 +11,8 @@ help:
   @echo "  run-worker     - Run the worker"
   @echo "  run-frontend   - Run the frontend"
   @echo "  docs-test      - Test if documentation can be built"
-  @echo "  docs           - Build and serve the documentation"
+  @echo "  docs           - Build and serve the documentation locally"
+  @echo "  docs-ghdeploy  - Build and serve the documentation on GitHub Pages"
 
 # Install virtual environments for backend and models
 install:
@@ -73,7 +74,13 @@ docs-test:
   @echo "🚀 Testing documentation build"
   @uv tool run --with mkdocs-material --with mkdocstrings-python --with mkdocs-include-markdown-plugin --with mkdocs-github-admonitions-plugin mkdocs build -s
 
-# Build and serve the documentation
+# Build and serve the documentation locally
 docs:
   @echo "🚀 Serving documentation"
   @uv tool run --with mkdocs-material --with mkdocstrings-python --with mkdocs-include-markdown-plugin --with mkdocs-github-admonitions-plugin mkdocs serve -a localhost:8001
+
+# Build and serve the documentation on GitHub Pages
+[confirm]
+docs-ghdeploy:
+  @echo "🚀 Serving documentation"
+  @uv tool run --with mkdocs-material --with mkdocstrings-python --with mkdocs-include-markdown-plugin --with mkdocs-github-admonitions-plugin mkdocs gh-deploy

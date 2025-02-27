@@ -1,0 +1,25 @@
+name: Publish docs via GitHub Pages
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  build:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install just
+        run: uv tool install rust-just
+
+      - name: Deploy docs
+        run: just docs-ghdeploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
