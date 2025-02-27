@@ -8,6 +8,8 @@ jobs:
   build:
     name: Deploy docs
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -20,6 +22,6 @@ jobs:
         run: uv tool install rust-just
 
       - name: Deploy docs
-        run: just docs-ghdeploy
+        run: just --yes docs-ghdeploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

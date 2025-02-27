@@ -83,4 +83,4 @@ docs:
 [confirm]
 docs-ghdeploy:
   @echo "🚀 Serving documentation"
-  @uv tool run --with mkdocs-material --with mkdocstrings-python --with mkdocs-include-markdown-plugin --with mkdocs-github-admonitions-plugin mkdocs gh-deploy
+  @uv tool run --with mkdocs-material --with mkdocstrings-python --with mkdocs-include-markdown-plugin --with mkdocs-github-admonitions-plugin mkdocs gh-deploy --force
