@@ -20,8 +20,8 @@ build-backend = "setuptools.build_meta"
 [project.scripts]
 backend = "molab_backend.main:main"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "black>=24.8.0",
     "deptry>=0.20.0",
     "mypy>=1.11.2",

@@ -32,8 +32,8 @@ build-backend = "setuptools.build_meta"
 [project.scripts]
 worker = "molab_condmdi.websocket_worker:main"
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "black>=24.8.0",
     "blobfile>=3.0.0",
     "deptry>=0.20.0",
