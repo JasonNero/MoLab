@@ -37,7 +37,6 @@ func _on_playhead_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			_dragging_playhead = event.pressed
-			print(event.as_text(), " at ", event.position)
 
 	elif event is InputEventMouseMotion and _dragging_playhead:
 		# Get event position in parent space

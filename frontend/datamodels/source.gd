@@ -114,8 +114,6 @@ static func _trim_and_center_animation(local_in_sec: float, local_out_sec: float
 			new_value.y = key_value.y  # Ignore vertical offset
 			trimmed_animation.track_set_key_value(hip_track_idx, key_idx, new_value)
 
-	if OS.has_feature("debug"):
-		print("Animation trimmed to range: ", local_in_sec, " - ", local_out_sec)
 	trimmed_animation.length = local_out_sec - local_in_sec
 	return trimmed_animation
 
