@@ -8,8 +8,9 @@ signal results_received(results: InferenceResults)
 
 # Our WebSocketClient instance.
 var socket := WebSocketPeer.new()
-var timeout_ms := 4000  # 4s
 var _connected := false
+var retry_delay := 4.0  # 2 seconds delay between retries
+var retry_timer := 0.0
 
 func _ready():
 	# TODO: This does not work in Web Export
@@ -66,6 +67,10 @@ func _physics_process(_delta: float) -> void:
 				var reason = socket.get_close_reason()
 				print("Backend WebSocket closed with code: %d %s" % [code, reason])
 				_connected = false
-			_connect()
+			if retry_timer <= 0.0:
+				_connect()
+				retry_timer = retry_delay
+			else:
+				retry_timer -= _delta
 		_:
 			print("Unhandled Backend WebSocket state: ", state)

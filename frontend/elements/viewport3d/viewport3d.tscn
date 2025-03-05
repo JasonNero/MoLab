@@ -36,7 +36,7 @@ character_type = "Mixamo Akai"
 
 [node name="SubViewport" type="SubViewport" parent="."]
 handle_input_locally = false
-size = Vector2i(1920, 1600)
+size = Vector2i(1920, 1200)
 size_2d_override_stretch = true
 render_target_update_mode = 4
 

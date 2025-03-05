@@ -12,6 +12,6 @@ ok_button_text = "Open"
 mode_overrides_title = false
 file_mode = 0
 access = 2
-filters = PackedStringArray("*.gltf,*.glb;glTF", "*.bvh;Biovision Hierarchy")
+filters = PackedStringArray("*.gltf,*.glb;glTF")
 script = ExtResource("1_p18tr")
 bonemap = ExtResource("2_pa6hu")
