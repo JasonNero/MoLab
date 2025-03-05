@@ -8,6 +8,7 @@ var source_view: SourceView
 var properties_panel: PropertiesPanel
 var time_controls: TimeControls
 var animation_composer: AnimationComposer
+var file_access_web: FileAccessWeb
 
 func initialize(
 	p_composition: Composition,
@@ -53,6 +54,9 @@ func _connect_signals() -> void:
 	# Backend signals
 	Backend.results_received.connect(_on_result_received)
 
+	if OS.get_name() == "Web":
+		file_access_web = FileAccessWeb.new()
+
 func _initialize_views() -> void:
 	properties_panel.setup(composition)
 	source_view.setup(composition)
@@ -63,18 +67,52 @@ func _on_new_composition_clicked(_dict) -> void:
 	composition.clear()
 
 func _on_open_composition_clicked(_dict) -> void:
-	# TODO: Create a FileDialog scene instead
-	var dialog: FileDialog = find_child("OpenDialog")
-	if dialog == null:
-		dialog = FileDialog.new()
-		# dialog.use_native_dialog = true
-		dialog.name = "OpenDialog"
-		dialog.access = FileDialog.ACCESS_USERDATA
-		dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
-		dialog.add_filter("*.tres,*.res", "Composition")
-		dialog.file_selected.connect(_on_file_dialog_composition_selected)
-		add_child(dialog)
-	dialog.popup_centered(Vector2(600, 400))
+	if OS.get_name() == "Web":
+		file_access_web.loaded.connect(_on_file_loaded_web)
+		file_access_web.open("*.tres,*.res")
+	else:
+		# TODO: Create a FileDialog scene instead
+		var dialog: FileDialog = find_child("OpenDialog")
+		if dialog == null:
+			dialog = FileDialog.new()
+			# dialog.use_native_dialog = true
+			dialog.name = "OpenDialog"
+			dialog.access = FileDialog.ACCESS_USERDATA
+			dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+			dialog.add_filter("*.tres,*.res", "Composition")
+			dialog.file_selected.connect(_on_file_dialog_composition_selected)
+			add_child(dialog)
+		dialog.popup_centered(Vector2(600, 400))
+
+func _on_file_loaded_web(file_name: String, file_type: String, base64_data: String) -> void:
+	print("File loaded: ", file_name, file_type)
+	print("Base64: ", base64_data)
+
+	if file_type == "application/x-godot-resource":
+		var data_raw : PackedByteArray = Marshalls.base64_to_raw(base64_data)
+		var data_utf8 = Marshalls.base64_to_utf8(base64_data)
+		print("Raw: ", data_raw)
+		print("UTF8: ", data_utf8)
+
+		var file = FileAccess.open("user://uploaded.tres", FileAccess.WRITE)
+		file.store_buffer(data_raw)
+		file.close()
+
+		var resource = ResourceLoader.load("user://uploaded.tres")
+		print("Resource: ", resource)
+		var new_composition = resource as Composition
+		print("Composition: ", new_composition)
+		if new_composition:
+			composition.clear()
+			composition.name = new_composition.name
+			var reversed_sources = new_composition.sources
+			reversed_sources.reverse()
+			for source in reversed_sources:
+				composition.insert_source(source)
+				composition.source_modified.emit(source)
+	else:
+		push_warning("Invalid file type: ", file_type)
+	file_access_web.loaded.disconnect(_on_file_loaded_web)
 
 func _on_file_dialog_composition_selected(filepath: String) -> void:
 	# TODO: Implement this properly (do I need to reconnect all signals?...)
