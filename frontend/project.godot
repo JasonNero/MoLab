@@ -14,7 +14,7 @@ config/name="MoLab Sequencer"
 config/description="Prototype for \"Layer-based Motion Editing\", developed as part of the Kollani project.
 
 https://ai.hdm-stuttgart.de/research/kollani/"
-config/version="0.1.0"
+config/version="0.1.1"
 config/tags=PackedStringArray("gui")
 run/main_scene="res://main_editor.tscn"
 config/features=PackedStringArray("4.3")

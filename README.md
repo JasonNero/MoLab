@@ -10,7 +10,7 @@
 - **Documentation** <https://JasonNero.github.io/MoLab/>
 
 <div align="center">
-  <img src="assets/MoLab_demo.gif" alt="MoLab Demo" style="max-width: 80%; height: auto;" />
+  <img src="docs/assets/MoLab_demo.gif" alt="MoLab Demo" style="max-width: 80%; height: auto;" />
 </div>
 
 ## Features

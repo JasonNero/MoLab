@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://elements/timeline_item/timeline_item.gd" id="1_l74uu"]
 [ext_resource type="StyleBox" uid="uid://ctipn82ef30o1" path="res://res/style_box_inner.tres" id="1_xhrwv"]
 [ext_resource type="Script" path="res://datamodels/source.gd" id="2_vwreo"]
+[ext_resource type="StyleBox" uid="uid://c5s76rce3vofg" path="res://res/style_box_outter.tres" id="3_uxla6"]
 
 [sub_resource type="Resource" id="Resource_lqbs1"]
 script = ExtResource("2_vwreo")
@@ -12,13 +13,6 @@ out_point = 350
 in_offset = 25
 out_offset = 50
 affects_post_range = true
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vjxfu"]
-bg_color = Color(0.278431, 0.470588, 0.811765, 0.501961)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
 
 [node name="TimelineItem" type="HBoxContainer" node_paths=PackedStringArray("inner_panel", "inner_handle_left", "inner_handle_right", "outter_panel", "outter_handle_left", "outter_handle_right", "source_label")]
 custom_minimum_size = Vector2(700, 28)
@@ -38,7 +32,7 @@ custom_minimum_size = Vector2(0, 31)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_vjxfu")
+theme_override_styles/panel = ExtResource("3_uxla6")
 
 [node name="HandleLeft" type="ReferenceRect" parent="OutterPanel"]
 custom_minimum_size = Vector2(16, 0)
@@ -93,7 +87,7 @@ layout_mode = 1
 anchors_preset = -1
 anchor_bottom = 1.0
 grow_vertical = 2
-mouse_default_cursor_shape = 15
+mouse_default_cursor_shape = 10
 
 [node name="HandleRight" type="ReferenceRect" parent="InnerPanel"]
 custom_minimum_size = Vector2(16, 0)
@@ -104,4 +98,4 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 0
 grow_vertical = 2
-mouse_default_cursor_shape = 15
+mouse_default_cursor_shape = 10
