@@ -9,9 +9,9 @@
 - **Github repository**: <https://github.com/JasonNero/MoLab/>
 - **Documentation** <https://JasonNero.github.io/MoLab/>
 
-<p align="center">
-  <img src="docs/assets/MoLab_demo.gif" height="600" />
-</p>
+<div align="center">
+  <img src="assets/MoLab_demo.gif" alt="MoLab Demo" style="max-width: 80%; height: auto;" />
+</div>
 
 ## Features
 
@@ -29,9 +29,8 @@ MoLab/
 ├── frontend/           # Godot User Interface for MoLab Sequencer
 ├── experiments/        # Notebooks/scripts for experiments and demos
 ├── dcc/                # DCC plugins (Maya, Blender, etc.)
-├── tests/              # System-level tests involving all components
 ├── docs/               # Documentation for the project
-├── Makefile            # Automate build/test tasks across components
+├── Justfile            # Automate build/test tasks across components
 └── README.md           # Project description and setup instructions
 ```
 
@@ -72,8 +71,7 @@ For more details please refer to the [documentation](https://JasonNero.github.io
 
 #### Using the DCC Plugin
 
-See `dcc/infer_from_dcc.py` for an example of how to connect to the backend and infer from the Maya Script Editor.
-Make sure to adapt the backend URI and add the repo source folder to the `sys.path`.
+See `dcc/inference_example.py` for an example of how to connect to the backend and infer from the Maya Script Editor.
 
 For more details please refer to the [documentation](https://JasonNero.github.io/MoLab/).
 
