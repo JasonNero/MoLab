@@ -27,7 +27,6 @@ MoLab/
 ├── models/condmdi/     # CondMDI fork with new features and improvements
 │   └── README.md       # CondMDI model description and usage instructions
 ├── frontend/           # Godot User Interface for MoLab Sequencer
-├── experiments/        # Notebooks/scripts for experiments and demos
 ├── dcc/                # DCC plugins (Maya, Blender, etc.)
 ├── docs/               # Documentation for the project
 ├── Justfile            # Automate build/test tasks across components
