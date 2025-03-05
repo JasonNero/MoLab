@@ -32,12 +32,13 @@ func get_properties() -> Dictionary:
 		"text": "Prompt Text",
 	}
 
-	props["modeltype"] = {
-		"type": TYPE_INT,
-		"value": modeltype,
-		"hint": PROPERTY_HINT_ENUM,
-		"hint_string": ",".join(MODELTYPE.keys())
-	}
+	# TODO: Un-comment once modeltype switching is implemented in the backend/worker
+	# props["modeltype"] = {
+	# 	"type": TYPE_INT,
+	# 	"value": modeltype,
+	# 	"hint": PROPERTY_HINT_ENUM,
+	# 	"hint_string": ",".join(MODELTYPE.keys())
+	# }
 
 	var name_hints = []
 	for anim in animation_samples:
