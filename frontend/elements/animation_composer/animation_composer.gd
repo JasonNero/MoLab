@@ -63,7 +63,7 @@ func update_animation() -> void:
 		var source := composition.sources[i]
 		current_animation = source.apply(current_animation)
 
-	if Globals.DEBUG:
+	if OS.has_feature("debug"):
 		ResourceSaver.save(current_animation, "res://tmp/debug_latest_anim.tres")
 
 	# Update animation player

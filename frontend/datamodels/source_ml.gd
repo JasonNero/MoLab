@@ -71,7 +71,7 @@ func set_property(property: String, value: Variant) -> void:
 func _on_result_received(results: InferenceResults):
 	Backend.results_received.disconnect(_on_result_received)
 	print("Source '", name, "' received results from Backend:")
-	if Globals.DEBUG:
+	if OS.has_feature("debug"):
 		# Dump to Godot log file for debugging
 		print(results)
 
@@ -111,7 +111,7 @@ func process(target_animation: Animation) -> void:
 			for key_idx in to_remove:
 				trimmed_target_anim.track_remove_key(track_idx, key_idx)
 
-		if Globals.DEBUG:
+		if OS.has_feature("debug"):
 			ResourceSaver.save(trimmed_target_anim, "res://tmp/debug_trimmed_target_anim.tres")
 
 		var packed_motion = MotionConverter.animation_to_packed_motion(trimmed_target_anim)
@@ -153,8 +153,6 @@ func apply(target_animation: Animation) -> Animation:
 		# Get the root offset at the start of the override range
 		hip_offset = target_animation.position_track_interpolate(target_hip_idx, in_point_sec - 1.0/Globals.FPS)
 		hip_offset.y = 0  # Ignore vertical offset
-		if Globals.DEBUG:
-			print("{0} Hip offset (in_range):   {1}".format([name, hip_offset]))
 
 	for source_track_idx in animation.get_track_count():
 		var track_type := animation.track_get_type(source_track_idx)
@@ -210,8 +208,6 @@ func apply(target_animation: Animation) -> Animation:
 			var current_hip_pos = target_animation.position_track_interpolate(target_hip_idx, global_end_sec)
 			post_hip_offset = current_hip_pos - target_animation.position_track_interpolate(target_hip_idx, global_end_sec + 1.0/Globals.FPS)
 			post_hip_offset.y = 0  # Ignore vertical offset
-			if Globals.DEBUG:
-				print("{0} Hip offset (post_range): {1}".format([name, post_hip_offset]))
 
 			# Propagate the offset to all keyframes after the override range
 			for key_idx in target_animation.track_get_key_count(target_hip_idx):
