@@ -17,7 +17,7 @@ class MoLabClient:
         """
         self.backend_uri = backend_uri
 
-    def infer(self, inference_args):
+    def infer(self, inference_args) -> dict:
         """
         Sends an inference request to the backend and returns the result.
 

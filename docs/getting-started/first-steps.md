@@ -79,4 +79,4 @@ For further details on how to use the MoLab Maya Plugin, see the [MoLab Maya Plu
 ## Next Steps
 
 Now that you have everything set up, you can start using MoLab to generate animations.
-For more detailed information on how to use the clients, refer to their respective documentations: [MoLab Sequencer](../usage/sequencer.md), [MoLab Maya Plugin](../usage/maya-plugin.md) or [MoLab API](../api-reference.md).
+For more detailed information on how to use the clients, refer to their respective documentations: [MoLab Sequencer](../usage/sequencer.md), [MoLab Maya Plugin](../usage/maya-plugin.md) or [MoLab API](../api-reference/api-example.md).

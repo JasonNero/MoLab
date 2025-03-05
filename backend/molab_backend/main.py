@@ -27,7 +27,7 @@ class WorkerManager:
         self.lock = asyncio.Lock()
         self.next_worker = 0
 
-    async def register(self, websocket: WebSocket):
+    async def register(self, websocket: WebSocket) -> Connection:
         """
         Register a new worker.
 
@@ -60,7 +60,7 @@ class WorkerManager:
             if len(self.workers) > 0:
                 self.next_worker = self.next_worker % len(self.workers)
 
-    async def get_next_worker(self):
+    async def get_next_worker(self) -> Connection:
         """
         Get the next available worker using round-robin scheduling.
 
@@ -78,7 +78,7 @@ class ClientManager:
         self.clients: list[Connection] = []
         self.lock = asyncio.Lock()
 
-    async def register(self, websocket: WebSocket):
+    async def register(self, websocket: WebSocket) -> Connection:
         """
         Register a new client.
 
