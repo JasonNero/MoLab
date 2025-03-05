@@ -80,4 +80,4 @@ Finally, you can either run from the editor or export the project to a standalon
 
 ## Next Steps
 
-See the [First Steps](getting-started/first-steps.md) guide to learn how to spin up the backend and worker, and how connect to the clients.
+See the [First Steps](first-steps.md) guide to learn how to spin up the backend and worker, and how connect to the clients.

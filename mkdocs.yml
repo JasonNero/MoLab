@@ -21,7 +21,6 @@ nav:
     - WebSocket Worker: api-reference/websocket-worker.md
     - Backend: api-reference/backend.md
     - API Usage Example: api-reference/api-example.md
-  - FAQ: faq.md
   - Deployment: deployment.md
 
 plugins:
