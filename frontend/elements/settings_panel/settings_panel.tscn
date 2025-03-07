@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c81twr00tcsm6"]
 
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/properties_box.gd" id="1_inv3v"]
+[ext_resource type="Script" uid="uid://na1jeskv0b3a" path="res://addons/tnowe_extra_controls/elements/properties_box.gd" id="1_inv3v"]
 
 [node name="SettingsPanel" type="MarginContainer"]
 offset_right = 476.0

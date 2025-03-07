@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dtv8qlb6r06l7"]
 
-[ext_resource type="Script" path="res://elements/status_bar/status_bar.gd" id="1_2xuxa"]
+[ext_resource type="Script" uid="uid://23dkls5w83em" path="res://elements/status_bar/status_bar.gd" id="1_2xuxa"]
 
 [node name="StatusBar" type="HBoxContainer"]
 size_flags_vertical = 8

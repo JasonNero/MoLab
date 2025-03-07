@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://b1tn1c80fphqp"]
 
-[ext_resource type="Script" path="res://elements/timeline_item/timeline_item.gd" id="1_l74uu"]
+[ext_resource type="Script" uid="uid://c801j2hga4joe" path="res://elements/timeline_item/timeline_item.gd" id="1_l74uu"]
 [ext_resource type="StyleBox" uid="uid://ctipn82ef30o1" path="res://res/style_box_inner.tres" id="1_xhrwv"]
-[ext_resource type="Script" path="res://datamodels/source.gd" id="2_vwreo"]
+[ext_resource type="Script" uid="uid://bb3j7dkwo1ct6" path="res://datamodels/source.gd" id="2_vwreo"]
 [ext_resource type="StyleBox" uid="uid://c5s76rce3vofg" path="res://res/style_box_outter.tres" id="3_uxla6"]
 
 [sub_resource type="Resource" id="Resource_lqbs1"]

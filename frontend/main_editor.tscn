@@ -1,10 +1,10 @@
 [gd_scene load_steps=14 format=3 uid="uid://bna0c1t5re2pk"]
 
-[ext_resource type="Script" path="res://main_editor.gd" id="1_1pk6w"]
-[ext_resource type="Script" path="res://elements/dcc_websocket/dcc_websocket.gd" id="3_hnnsg"]
-[ext_resource type="Script" path="res://elements/animation_composer/animation_composer.gd" id="4_of3hi"]
+[ext_resource type="Script" uid="uid://c42k30d42414w" path="res://main_editor.gd" id="1_1pk6w"]
+[ext_resource type="Script" uid="uid://dlgrnw8w22j8q" path="res://elements/dcc_websocket/dcc_websocket.gd" id="3_hnnsg"]
+[ext_resource type="Script" uid="uid://ckqxj2vs1jgmu" path="res://elements/animation_composer/animation_composer.gd" id="4_of3hi"]
 [ext_resource type="PackedScene" uid="uid://bmyqi2jgi8j7a" path="res://elements/menu_bar/menu_bar.tscn" id="5_em8n2"]
-[ext_resource type="Script" path="res://elements/composition_controller/composition_controller.gd" id="5_opwlq"]
+[ext_resource type="Script" uid="uid://blkiv701axrc2" path="res://elements/composition_controller/composition_controller.gd" id="5_opwlq"]
 [ext_resource type="PackedScene" uid="uid://ce0hivbcfu6j2" path="res://elements/properties_panel/properties_panel.tscn" id="7_juito"]
 [ext_resource type="PackedScene" uid="uid://dhruddvkpc5q2" path="res://elements/viewport3d/viewport3d.tscn" id="8_8jre6"]
 [ext_resource type="PackedScene" uid="uid://c81twr00tcsm6" path="res://elements/settings_panel/settings_panel.tscn" id="8_72y53"]
@@ -12,7 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://ta5cvu80f4ar" path="res://elements/source_view/source_view.tscn" id="10_31fti"]
 [ext_resource type="PackedScene" uid="uid://dtv8qlb6r06l7" path="res://elements/status_bar/status_bar.tscn" id="12_nnb0x"]
 [ext_resource type="PackedScene" uid="uid://bxacget48pliq" path="res://elements/import_dialog/import_dialog.tscn" id="14_6wudy"]
-[ext_resource type="Script" path="res://addons/about_dialog/scripts/about_dialog.gd" id="14_xcio6"]
+[ext_resource type="Script" uid="uid://btput6s33uhi2" path="res://addons/about_dialog/scripts/about_dialog.gd" id="14_xcio6"]
 
 [node name="MainEditor" type="Control" node_paths=PackedStringArray("menu_bar", "source_view", "properties_panel", "time_controls", "viewport_3d", "composition_controller", "animation_composer", "import_bvh_dialog")]
 layout_mode = 3
@@ -61,7 +61,7 @@ unique_name_in_owner = true
 title = "About MoLab Sequencer"
 initial_position = 1
 size = Vector2i(665, 158)
-dialog_text = "MoLab Sequencer v0.1.0
+dialog_text = "MoLab Sequencer v0.1.1
 Prototype for \"Layer-based Motion Editing\", developed as part of the Kollani project.
 
 https://ai.hdm-stuttgart.de/research/kollani/"

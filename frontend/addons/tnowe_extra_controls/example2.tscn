@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://btm4yjmoym4mt"]
 
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/dock_container.gd" id="1_jgdh4"]
+[ext_resource type="Script" uid="uid://dwuqjxfnjlqvv" path="res://addons/tnowe_extra_controls/elements/dock_container.gd" id="1_jgdh4"]
 
 [sub_resource type="GDScript" id="GDScript_v1ouy"]
 script/source = "extends HBoxContainer

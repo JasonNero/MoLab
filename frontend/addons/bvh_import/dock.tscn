@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cg2rgibnuhxsu"]
 
-[ext_resource type="Script" path="res://addons/bvh_import/main.gd" id="1"]
+[ext_resource type="Script" uid="uid://xk3ax178ovcl" path="res://addons/bvh_import/main.gd" id="1"]
 
 [node name="BVHImport" type="VBoxContainer"]
 anchors_preset = 15

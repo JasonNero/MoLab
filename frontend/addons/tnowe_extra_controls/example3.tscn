@@ -1,9 +1,9 @@
 [gd_scene load_steps=6 format=3 uid="uid://yph70a63ltw3"]
 
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/interpolated_container/interpolated_flow_container.gd" id="1_2xacy"]
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/draggable.gd" id="1_huoov"]
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/interpolated_container/container_quantity_keeper.gd" id="2_eo1o4"]
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/interpolated_container/interpolated_box_container.gd" id="3_w4jrf"]
+[ext_resource type="Script" uid="uid://bl6nbxuar1hoo" path="res://addons/tnowe_extra_controls/elements/interpolated_container/interpolated_flow_container.gd" id="1_2xacy"]
+[ext_resource type="Script" uid="uid://c4n3n3dhpu43g" path="res://addons/tnowe_extra_controls/elements/draggable.gd" id="1_huoov"]
+[ext_resource type="Script" uid="uid://chnwtw30ddnke" path="res://addons/tnowe_extra_controls/elements/interpolated_container/container_quantity_keeper.gd" id="2_eo1o4"]
+[ext_resource type="Script" uid="uid://bwgjobcqa4odn" path="res://addons/tnowe_extra_controls/elements/interpolated_container/interpolated_box_container.gd" id="3_w4jrf"]
 
 [sub_resource type="GDScript" id="GDScript_1nia2"]
 script/source = "extends Button

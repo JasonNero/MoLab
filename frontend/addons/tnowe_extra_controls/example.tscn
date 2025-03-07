@@ -1,14 +1,14 @@
 [gd_scene load_steps=15 format=3 uid="uid://dfsm148biw250"]
 
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/draggable.gd" id="1_eddsv"]
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/scroll_zoom_view.gd" id="1_pmqwv"]
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/view_switcher.gd" id="2_rorhm"]
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/properties_box.gd" id="3_nn7w5"]
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/scale_container.gd" id="4_c4kjh"]
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/max_size_container.gd" id="6_ri1pc"]
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/connection_line.gd" id="9_axav4"]
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/radial_container_theme.gd" id="9_mu2b1"]
-[ext_resource type="Script" path="res://addons/tnowe_extra_controls/elements/radial_container.gd" id="10_i8nra"]
+[ext_resource type="Script" uid="uid://c4n3n3dhpu43g" path="res://addons/tnowe_extra_controls/elements/draggable.gd" id="1_eddsv"]
+[ext_resource type="Script" uid="uid://sagch2th4efj" path="res://addons/tnowe_extra_controls/elements/scroll_zoom_view.gd" id="1_pmqwv"]
+[ext_resource type="Script" uid="uid://csi8csc0v4lq" path="res://addons/tnowe_extra_controls/elements/view_switcher.gd" id="2_rorhm"]
+[ext_resource type="Script" uid="uid://na1jeskv0b3a" path="res://addons/tnowe_extra_controls/elements/properties_box.gd" id="3_nn7w5"]
+[ext_resource type="Script" uid="uid://b58vdms6nc7nt" path="res://addons/tnowe_extra_controls/elements/scale_container.gd" id="4_c4kjh"]
+[ext_resource type="Script" uid="uid://eilf1dygtgi6" path="res://addons/tnowe_extra_controls/elements/max_size_container.gd" id="6_ri1pc"]
+[ext_resource type="Script" uid="uid://bp3lsdjdhl6sy" path="res://addons/tnowe_extra_controls/elements/connection_line.gd" id="9_axav4"]
+[ext_resource type="Script" uid="uid://hf1qg2sivsat" path="res://addons/tnowe_extra_controls/elements/radial_container_theme.gd" id="9_mu2b1"]
+[ext_resource type="Script" uid="uid://dbkbag47r3b1o" path="res://addons/tnowe_extra_controls/elements/radial_container.gd" id="10_i8nra"]
 
 [sub_resource type="GDScript" id="GDScript_43ggq"]
 script/source = "extends Control

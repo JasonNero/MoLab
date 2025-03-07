@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://cyfxysds8uhnx"]
 
-[ext_resource type="Script" path="res://addons/anim_player_refactor/scenes/refactor_dialogue/refactor_dialogue.gd" id="1_nkqdl"]
-[ext_resource type="Script" path="res://addons/anim_player_refactor/scenes/refactor_dialogue/components/anim_player_tree.gd" id="2_7pqfs"]
-[ext_resource type="Script" path="res://addons/anim_player_refactor/scenes/refactor_dialogue/components/node_select.gd" id="3_87x4i"]
+[ext_resource type="Script" uid="uid://pxkov4we3dvr" path="res://addons/anim_player_refactor/scenes/refactor_dialogue/refactor_dialogue.gd" id="1_nkqdl"]
+[ext_resource type="Script" uid="uid://0dpj8ms70txy" path="res://addons/anim_player_refactor/scenes/refactor_dialogue/components/anim_player_tree.gd" id="2_7pqfs"]
+[ext_resource type="Script" uid="uid://d3o2s12xxg4hi" path="res://addons/anim_player_refactor/scenes/refactor_dialogue/components/node_select.gd" id="3_87x4i"]
 
 [node name="RefactorDialogue" type="AcceptDialog"]
 title = "Refactor Animations"

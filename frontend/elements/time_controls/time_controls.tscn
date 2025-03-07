@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=3 uid="uid://ciiwhd2gr2lde"]
 
-[ext_resource type="Script" path="res://elements/time_controls/time_controls.gd" id="1_lga82"]
+[ext_resource type="Script" uid="uid://2g41g72mf1ih" path="res://elements/time_controls/time_controls.gd" id="1_lga82"]
 [ext_resource type="Texture2D" uid="uid://br3fjrbblqywp" path="res://res/icons/PlayBackwards.png" id="1_s6ep1"]
 [ext_resource type="Texture2D" uid="uid://b2a2gegy6yij3" path="res://res/icons/PlayStartBackwards.png" id="2_d8w17"]
 [ext_resource type="Texture2D" uid="uid://cl6uyhyp8i2cx" path="res://res/icons/PlayStart.png" id="4_giyxf"]

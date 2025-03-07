@@ -1,8 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://bxfpen5p2rp70"]
+[gd_scene load_steps=6 format=3 uid="uid://bxfpen5p2rp70"]
 
-[ext_resource type="Script" path="res://debug_scenes/motion_converter_test.gd" id="1_lff0l"]
+[ext_resource type="Script" uid="uid://cmygenjdceh50" path="res://debug_scenes/motion_converter_test.gd" id="1_lff0l"]
 [ext_resource type="PackedScene" uid="uid://cpe6tai0w7cag" path="res://res/models/akai_e_espiritu.fbx" id="2_0706i"]
-[ext_resource type="Animation" path="res://tmp/motion_converter_test_latest.tres" id="3_lt76c"]
 
 [sub_resource type="Animation" id="Animation_cl2wn"]
 resource_name = "Take 001"
@@ -336,9 +335,8 @@ tracks/22/keys = PackedFloat32Array(0, 1, 0, 2.79844e-05, 1.66893e-06, 1)
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_avt1x"]
 _data = {
-"Take 001": SubResource("Animation_cl2wn"),
-"mixamo_com": SubResource("Animation_1odfu"),
-"motion_converter_test_latest": ExtResource("3_lt76c")
+&"Take 001": SubResource("Animation_cl2wn"),
+&"mixamo_com": SubResource("Animation_1odfu")
 }
 
 [node name="Control" type="Node3D"]

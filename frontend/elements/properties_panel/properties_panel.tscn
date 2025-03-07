@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ce0hivbcfu6j2"]
 
-[ext_resource type="Script" path="res://elements/properties_panel/properties_panel.gd" id="1_wb38d"]
+[ext_resource type="Script" uid="uid://dn1fd2xhy7p1k" path="res://elements/properties_panel/properties_panel.gd" id="1_wb38d"]
 
 [node name="PropertiesPanel" type="MarginContainer"]
 offset_right = 88.0

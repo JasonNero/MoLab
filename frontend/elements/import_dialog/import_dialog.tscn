@@ -1,12 +1,12 @@
 [gd_scene load_steps=3 format=3 uid="uid://bxacget48pliq"]
 
-[ext_resource type="Script" path="res://elements/import_dialog/import_dialog.gd" id="1_p18tr"]
+[ext_resource type="Script" uid="uid://btl5upxfqf6ur" path="res://elements/import_dialog/import_dialog.gd" id="1_p18tr"]
 [ext_resource type="BoneMap" uid="uid://b8sar1kom7asd" path="res://res/models/mixamo_bonemap.tres" id="2_pa6hu"]
 
 [node name="ImportDialog" type="FileDialog"]
 title = "Open a File"
 initial_position = 2
-size = Vector2i(676, 400)
+size = Vector2i(705, 400)
 visible = true
 ok_button_text = "Open"
 mode_overrides_title = false
