@@ -15,40 +15,6 @@ Part of the [`InferenceArgs`][models.condmdi.molab_condmdi.inference_worker.Infe
 Values stored as `NaN` indicate sparse keyframes aka missing joint information.
 The `NaN` values are later converted to a joint mask for the inference model.
 
-> [!EXAMPLE]
-> Below is an example of a `packed_motion` dictionary with one keypose
-> on frame `0` and some missing joint rotations.
-> 
-> ```python
-> {
->   "0": [                                    
->     [0.006335, 0.925889, 0.022782],         
->     [-1.848952, 5.855419, -2.209308],       
->     [-2.225391, 0.251401, 2.091639],
->     [-1.218372, -0.323186, 12.9199],
->     [7.476767, 15.311409, 1.712001],
->     [NaN, NaN, NaN],                        
->     [-2.184482, 1.651783, -23.240063],
->     [-2.814711, 1.391872, 20.864488],
->     [4.163708, 2.049498, 16.159805],
->     [NaN, NaN, NaN],
->     [3.729861, -0.337432, 4.422964],
->     [2.408384, -1.4252, 3.27613],
->     [-9.129623, -1.656823, 3.135745],
->     [13.112406, -5.187206, -21.793815],
->     [NaN, NaN, NaN],
->     [-11.362097, -26.660376, 10.556817],
->     [-51.782502, -43.877115, 14.017005],
->     [132.977088, -62.445882, -104.782485],
->     [NaN, NaN, NaN],
->     [10.967079, 12.768552, 5.388521],
->     [67.233545, 46.770885, 23.864491],
->     [-125.065474, 57.771444, -84.861314],
->     [NaN, NaN, NaN],
->   ],
-> }
-> ```
-
 For details on how to pack keyframes, see the [`pack_keyframes`][dcc.molab_maya.motion_io.pack_keyframes] function of the Maya integration below.
 It takes a list of positions and a list of rotations that can contain `NaN` values and converts them to a `packed_motion` dictionary.
 
@@ -66,6 +32,70 @@ Below is the documentation for [`MoLabClient.infer`][dcc.molab_maya.client.MoLab
 - Connect to the backend via WebSocket
 - Send the job and wait for the result
 - Return the result dictionary (see [`InferenceResults`][models.condmdi.molab_condmdi.inference_worker.InferenceResults])
+
+> [!EXAMPLE]
+>
+> Below is a full payload example for the `MoLabClient.infer` method containing two keyposes on frame 0 and 42 as well as a text prompt.
+>
+> ```json
+> {
+>     "packed_motion": {
+>         0: [
+>             [0.0, 0.966035, 0.0],
+>             [-2.461784, 1.602837, 3.02837205],
+>             [-1.15376, -0.314741, -3.40727],
+>             [1.123194, -0.57072, 9.6684651],
+>             [5.430555, 12.008284, 3.450807],
+>             [nan, nan, nan],
+>             [0.699208, 0.478575, -4.624878],
+>             [-0.736858, 0.472722, 8.868751],
+>             [1.046311, 0.36474, 4.513838],
+>             [nan, nan, nan],
+>             [-2.097379, 0.002352, 1.437366],
+>             [6.395149, -0.91336201, -23.965065],
+>             [0.203726, -2.443971, 29.728936],
+>             [0.572847, 0.573686, -19.469958],
+>             [nan, nan, nan],
+>             [-13.751465, 5.598898, -3.18948],
+>             [-67.052628, -7.37833, -6.440387],
+>             [-23.210149, -25.2472202, 7.097196],
+>             [nan, nan, nan],
+>             [7.634399, -1.97200502, -1.282972],
+>             [69.428653, 6.069861, -6.181875],
+>             [10.862561, 27.296937, 3.88993195],
+>             [nan, nan, nan],
+>         ],
+>         42: [
+>             [-0.339078, 0.965653, 2.350223],
+>             [-2.312009, 2.433177, -1.82445502],
+>             [3.73811, -1.674805, -25.165169],
+>             [-8.567456, 1.59987202, 19.844779],
+>             [17.532981, 30.0588684, 19.2560214],
+>             [nan, nan, nan],
+>             [-0.172514997, -1.10521, 10.58829],
+>             [1.696808, -0.023274, 7.59669],
+>             [-2.601748, -8.717805, 7.61317205],
+>             [nan, nan, nan],
+>             [-1.07286802, -0.173289, 5.375921],
+>             [4.720364, -0.666077, -21.613376],
+>             [5.729873, 8.757588, 32.877729],
+>             [-4.825603, 6.19364, -15.489852],
+>             [nan, nan, nan],
+>             [-12.313785, 3.51262305, -3.91042395],
+>             [-60.028995, -1.354013, -10.010531],
+>             [-21.320532, -21.962499, 4.864524],
+>             [nan, nan, nan],
+>             [1.25623, 5.556887, 2.128571],
+>             [49.840547, 17.558537, 0.472948984],
+>             [1.83383397, 29.8473266, 2.299576],
+>             [nan, nan, nan],
+>         ],
+>     },
+>     "text_prompt": "A person walks forward",
+>     "num_samples": 3,
+>     "type": "infer",
+> }
+> ```
 
 ::: dcc.molab_maya.client.MoLabClient.infer
     options:
