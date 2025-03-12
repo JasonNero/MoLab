@@ -26,7 +26,7 @@ It takes a list of positions and a list of rotations that can contain `NaN` valu
 ## Send Job to Backend
 
 Now that we have the `packed_motion` dictionary, we can craft our inference arguments and send them to the backend.
-Below is the documentation for [`MoLabClient.infer`][dcc.molab_maya.client.MoLabClient.infer], which does the following:
+Below is the documentation for [`MoLabQClient.infer`][dcc.molab_maya.qclient.MoLabQClient.infer], which does the following:
 
 - Take a dictionary inference arguments (see [`InferenceArgs`][models.condmdi.molab_condmdi.inference_worker.InferenceArgs])
 - Connect to the backend via WebSocket
@@ -35,7 +35,7 @@ Below is the documentation for [`MoLabClient.infer`][dcc.molab_maya.client.MoLab
 
 > [!EXAMPLE]
 >
-> Below is a full payload example for the `MoLabClient.infer` method containing two keyposes on frame 0 and 42 as well as a text prompt.
+> Below is a full payload example for the `MoLabQClient.infer` method containing two keyposes on frame 0 and 42 as well as a text prompt.
 >
 > ```json
 > {
@@ -97,7 +97,7 @@ Below is the documentation for [`MoLabClient.infer`][dcc.molab_maya.client.MoLab
 > }
 > ```
 
-::: dcc.molab_maya.client.MoLabClient.infer
+::: dcc.molab_maya.qclient.MoLabQClient.infer
     options:
       heading_level: 3
       show_root_heading: true
@@ -108,9 +108,9 @@ The [`InferenceResults`][models.condmdi.molab_condmdi.inference_worker.Inference
 
 For debugging purposes the results also contain the input motion as `obs_root_positions` and `obs_joint_rotations`.
 
-In the [`apply_motion`][dcc.molab_maya.motion_io.apply_motion] function below, we show how to apply the output motion to a character rig in Maya.
+In the [`_apply_motion`][dcc.molab_maya.motion_io._apply_motion] function below, we show how to apply the output motion to a character rig in Maya.
 
-::: dcc.molab_maya.motion_io.apply_motion
+::: dcc.molab_maya.motion_io._apply_motion
     options:
       heading_level: 3
       show_root_heading: true

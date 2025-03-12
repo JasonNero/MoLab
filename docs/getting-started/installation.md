@@ -52,10 +52,10 @@ Finally, you can either run from the editor or export the project to a standalon
 
 === "macOS"
 
-    First install the `websockets` package via `pip` using Maya's Python interpreter, make sure to adapt the path to your Maya version:
+    First install the `qtpy` package via `pip` using Maya's Python interpreter, make sure to adapt the path to your Maya version:
 
     ```console
-    /Applications/Autodesk/maya2024/Maya.app/Contents/bin/mayapy -m pip install websockets
+    /Applications/Autodesk/maya2024/Maya.app/Contents/bin/mayapy -m pip install qtpy
     ```
 
     Then copy the `dcc/molab_maya` folder to the Maya scripts directory, again adapt the path to your Maya version:
@@ -66,10 +66,10 @@ Finally, you can either run from the editor or export the project to a standalon
 
 === "Windows"
 
-    First install the `websockets` package via `pip` using Maya's Python interpreter, make sure to adapt the path to your Maya version:
+    First install the `qtpy` package via `pip` using Maya's Python interpreter, make sure to adapt the path to your Maya version:
 
     ```console
-    "C:\Program Files\Autodesk\Maya2024\bin\mayapy.exe" -m pip install websockets
+    "C:\Program Files\Autodesk\Maya2024\bin\mayapy.exe" -m pip install qtpy
     ```
 
     Then copy the `dcc/molab_maya` folder to the Maya scripts directory, again adapt the path to your Maya version:

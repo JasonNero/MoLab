@@ -49,7 +49,7 @@ You are now ready to start generating and layering animations.
 First add a new "ML Source" via the "Add New Source" Button. Then select the source and type a description into the "Prompt Text" field and hit Enter.
 Finally you can press the "Process" button.
 
-This process will take from 20s to 2min, depending on your available GPU resources. Afterwards you can switch between the generated samples and play them back.
+This process will take from 20s to 2min, depending on your available GPU resources. If you leave the text prompt empty, the inference time will be halved. Afterwards you can switch between the generated samples and play them back.
 
 ![First Inference in MoLab](../assets/MoLab_first_inference.png)
 
@@ -62,17 +62,23 @@ For more details and explanations, see the [MoLab Sequencer documentation](../us
 
 ### MoLab Maya Plugin
 
-Open the `dcc/template.ma` scene in Maya and select the Hip Bone of the Character.
-You should see two keyframes in the timeline as example poses for the inference process.
+First open the `dcc/template.ma` scene in Maya to start with a compatible skeleton and an animation with two keyframes as example poses.
 
 ![MoLab Maya Template](../assets/Maya_template.png)
 
-Now paste the contents of `dcc/inference_example.py` into the Maya Script Editor and adapt the `text_prompt` field to the motion you want to generate.
-Then run the script and wait until Maya unfreezes, this can take from 20s to 2min, depending on your available GPU resources.
+Then load the MoLab Maya Plugin by pasting the contents of `dcc/maya_shelf_script.py` into the Maya Script Editor and running it.
+This will open up a new window with the MoLab Maya Plugin.
 
-Once Maya recovered, you should see a duplicated character for each generated sample and can now inspect the generated animations.
+![MoLab Maya Plugin](../assets/MoLab_maya_plugin.png)
 
-![MoLab Maya Inference](../assets/Maya_inference.png)
+Now select the characters `Hips` joint and press the "Pick" Button in the plugin. This will validate the skeleton and set up the plugin for inference.
+Next, adjust the input range to your desired keyframes and optionally add a prompt text.
+In this example we leave the prompt text empty and do pure in-betweening.
+
+Finally, press the "Generate" Button on the bottom and wait for the inference to finish. Again, this can take from 20s to 2min, depending on your available GPU resources. If you leave the text prompt empty, the inference time will be halved.
+After a while you should see a duplicated character per sample and can now inspect the generated animations.
+
+![MoLab Maya Inference](../assets/MoLab_maya_inference.png)
 
 For further details on how to use the MoLab Maya Plugin, see the [MoLab Maya Plugin documentation](../usage/maya-plugin.md).
 
