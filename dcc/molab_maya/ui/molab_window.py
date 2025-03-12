@@ -23,6 +23,7 @@ class MoLabWindow(QtWidgets.QMainWindow):
         self.connect_signals()
         self.client = MoLabQClient()
         self.client.inference_received.connect(self.on_inference_received)
+        self.client.open()
 
     def connect_signals(self):
         self.grp_advanced.toggled.connect(self.widget_advanced.setVisible)
@@ -31,7 +32,9 @@ class MoLabWindow(QtWidgets.QMainWindow):
         self.btn_generate.pressed.connect(self.on_generate)
 
     def on_backend_changed(self, text):
+        self.client.close()
         self.client.backend_uri = text
+        self.client.open()
 
     def on_pick_skeleton(self):
         try:
