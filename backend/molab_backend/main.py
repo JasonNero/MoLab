@@ -26,6 +26,7 @@ class WorkerManager:
         self.workers: list[Connection] = []
         self.lock = asyncio.Lock()
         self.next_worker = 0
+        self.request_queue = asyncio.Queue()
 
     async def register(self, websocket: WebSocket) -> Connection:
         """
@@ -71,6 +72,15 @@ class WorkerManager:
             worker = self.workers[self.next_worker]
             self.next_worker = (self.next_worker + 1) % len(self.workers)
         return worker
+
+    async def process_requests(self):
+        while True:
+            client, message = await self.request_queue.get()
+            worker = await self.get_next_worker()
+            await worker.websocket.send_json(message)
+            result = await worker.websocket.receive_json()
+            await client.websocket.send_json(result)
+            self.request_queue.task_done()
 
 class ClientManager:
     """Client manager class to manage client connections."""
@@ -123,13 +133,14 @@ async def handle_client_request(client: Connection, message: dict):
         message (dict): The message sent by the client.
     """
     if message["type"] == "infer":
-        worker = await worker_manager.get_next_worker()
-        await worker.websocket.send_json(message)
-        result = await worker.websocket.receive_json()
-        await client.websocket.send_json(result)
+        await worker_manager.request_queue.put((client, message))
     else:
         logger.error(f"Client {client.id} sent unknown message:\n{message}")
         await client.websocket.send_text("Invalid message type")
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(worker_manager.process_requests())
 
 @app.websocket("/register_worker")
 async def register_worker(websocket: WebSocket):
@@ -171,7 +182,7 @@ async def register_client(websocket: WebSocket):
 def main():
     """Main function to run the FastAPI app using Uvicorn."""
     # uvicorn.run(app, host="0.0.0.0", port=8000)
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="localhost", port=8000)
 
 if __name__ == "__main__":
     main()
