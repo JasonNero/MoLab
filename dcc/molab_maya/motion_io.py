@@ -9,7 +9,7 @@ import numpy as np
 import pymel.core as pmc
 
 
-def get_hierarchy(joint) -> list[str]:
+def _get_hierarchy(joint) -> list[str]:
     """This returns the hierarchy just like in the BVH file.
     (Uses a different approach than `pmc.listRelatives(allDescendents=True)`)
     """
@@ -17,11 +17,11 @@ def get_hierarchy(joint) -> list[str]:
     result = [joint]
 
     for child in children:
-        result.extend(get_hierarchy(child))
+        result.extend(_get_hierarchy(child))
     return result
 
 
-def get_transform_key_at_frame(joint, frame) -> dict[str, list]:
+def _get_transform_key_at_frame(joint, frame) -> dict[str, list]:
     """Get the keyframe values for the given joint at the given frame.
     The Euler order is assumed to be XYZ (see get_selected_skeleton).
 
@@ -48,33 +48,54 @@ def get_transform_key_at_frame(joint, frame) -> dict[str, list]:
     return result
 
 
-def get_selected_skeleton():
-    """Get and validate the selected skeleton."""
-    selected_joints = pmc.ls(selection=True, type="joint")
-    assert len(selected_joints) == 1, "Select a single root joint!"
-    joints = get_hierarchy(selected_joints[0])
+def get_selected_skeleton_joints() -> list[str]:
+    """Get and validate the selected skeleton.
 
-    assert len(joints) == 22, f"Expected 22 joints, got {len(joints)}!"
+    Returns:
+        joints: A list of joint names, first joint being the root joint.
+
+    Raises:
+        ValueError: If the selected joint/skeleton is not a valid.
+    """
+    selected_joints = pmc.ls(selection=True, type="joint")
+    if len(selected_joints) != 1:
+        raise ValueError("Select a single root joint!")
+    joints = _get_hierarchy(selected_joints[0])
+
+    if len(joints) != 22:
+        raise ValueError(f"Expected 22 joints, got {len(joints)}!")
     for joint in joints:
-        assert (
-            joint.getAttr("rotateOrder") == 0
-        ), f"Expected `rotateOrder` XYZ in joint: {joint}"
+        if joint.getAttr("rotateOrder") != 0:
+            raise ValueError(f"Expected `rotateOrder` XYZ in joint: {joint}")
 
     return joints
 
 
-def extract_keyframes() -> tuple[np.ndarray, np.ndarray]:
-    """Extract the keyframes from the selected joint.
+def extract_keyframes(
+    joints: list[str], start: Optional[int] = None, end: Optional[int] = None
+) -> tuple[np.ndarray, np.ndarray]:
+    """Extract the keyframes from the supplied joint list.
+
+    Arguments:
+        joints: A list of joint names, first joint should be the root joint.
+        start: The start frame for the keyframe extraction. Defaults to the playback start.
+        end: The end frame for the keyframe extraction. Defaults to the playback end.
 
     Returns:
         positions: (N, 22, 3) array of joint positions
         rotations: (N, 22, 3) array of joint rotations
-    """
-    joints = get_selected_skeleton()
 
+    Raises:
+        ValueError: If the framerange is too large (197 frames max).
+    """
     # Get the start and end frames
-    start = pmc.playbackOptions(query=True, minTime=True)
-    end = pmc.playbackOptions(query=True, maxTime=True)
+    if start is None:
+        start = pmc.playbackOptions(query=True, minTime=True)
+    if end is None:
+        end = pmc.playbackOptions(query=True, maxTime=True)
+
+    if end - start > 197:
+        raise ValueError(f"Framerange too large: {end - start}>197")
 
     print(f"Extracting keyframes of '{joints[0].getParent()}' [{start}-{end}]")
 
@@ -84,7 +105,7 @@ def extract_keyframes() -> tuple[np.ndarray, np.ndarray]:
     for frame in range(int(start), int(end) + 1):
         frame_idx = frame - int(start)
         for joint_idx, joint in enumerate(joints):
-            keyframes = get_transform_key_at_frame(joint, frame)
+            keyframes = _get_transform_key_at_frame(joint, frame)
             positions[frame_idx, joint_idx] = keyframes.get(
                 "translate", np.ones(3) * np.nan
             )
@@ -98,7 +119,16 @@ def extract_keyframes() -> tuple[np.ndarray, np.ndarray]:
 def pack_keyframes(
     positions: np.ndarray, rotations: np.ndarray, verbose=False
 ) -> dict[int, list]:
-    """Pack the keyframes into a more compact format."""
+    """Pack the keyframes into a more compact format.
+
+    Arguments:
+        positions: (N, 22, 3) array of joint positions
+        rotations: (N, 22, 3) array of joint rotations
+        verbose: Whether to print the compacted frames.
+
+    Returns:
+        packed_motion: A dictionary mapping frame indices to packed poses.
+    """
     root_pos = positions[:, 0]
     frame_mask_pos = ~np.isnan(root_pos).any(axis=(1))
     frame_mask_rot = ~np.isnan(rotations).any(axis=(1, 2))
@@ -120,13 +150,25 @@ def pack_keyframes(
     return {frame: packed_motion[frame].tolist() for frame in packed_motion}
 
 
-def extract_and_pack_keyframes() -> dict[int, list]:
-    keyframes = extract_keyframes()
+def extract_and_pack_keyframes(
+    joints: list[str], start: Optional[int] = None, end: Optional[int] = None
+) -> dict[int, list]:
+    """Extract and pack the keyframes from the supplied joint list.
+
+    Arguments:
+        joints: A list of joint names, first joint should be the root joint.
+        start: The start frame for the keyframe extraction. Defaults to the playback start.
+        end: The end frame for the keyframe extraction. Defaults to the playback end.
+
+    Returns:
+        packed_motion: A dictionary mapping frame indices to packed poses.
+    """
+    keyframes = extract_keyframes(joints, start, end)
     return pack_keyframes(*keyframes)
 
 
 def unpack_motion(
-    packed_motion: dict[int, list]
+    packed_motion: dict[str, list],
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Unpack the packed motion input and return the joint positions and mask.
 
@@ -134,11 +176,23 @@ def unpack_motion(
     - A dictionary mapping frame indices to packed poses
     - A packed pose contains the root position followed by all 22 joint rotations
     - Values stored as `nan` indicate sparse keyframes and are converted to a joint mask
+
+    Arguments:
+        packed_motion: A dictionary mapping frame indices to packed poses.
+
+    Returns:
+        root_pos: The root positions for each frame.
+        rotations: The joint rotations for each frame.
+        joint_mask: The mask for each joint and frame.
+
+    Raises:
+        ValueError: If the packed motion does not contain 22 joints + 1 root pos.
     """
     packed_motion = {int(k): np.array(v) for k, v in packed_motion.items()}
 
     # We actually have 22 joints, but are piggybacking the root pos in the first index.
-    assert next(iter(packed_motion.values())).shape[0] == 23, "Expected 22 joints + 1"
+    if next(iter(packed_motion.values())).shape[0] != 23:
+        raise ValueError("Expected 22 joints + 1")
 
     input_frames = np.max(list(packed_motion.keys()))
     motion = np.zeros((input_frames + 1, 22 + 1, 3))
@@ -156,28 +210,36 @@ def unpack_motion(
 
     # Theoretically, this should always hold true, otherwise we would
     # need separate joint and feature masks (which is possible).
-    assert np.all(
-        np.equal(root_mask, joint_mask[:, 0])
-    ), "Root pos mask does not match root rot mask"
+    assert np.all(np.equal(root_mask, joint_mask[:, 0])), (
+        "Root pos mask does not match root rot mask"
+    )
 
     return root_pos, rotations, joint_mask
 
 
-def apply_motion(
+def _apply_motion(
+    skeleton_group: pmc.nodetypes.Transform,
     root_pos: np.ndarray,
     rotations: np.ndarray,
     joint_mask: Optional[np.ndarray] = None,
     start_frame: int = 1,
     name: str = "sample",
 ):
-    # Get the original skeleton group
-    orig_root_grp = get_selected_skeleton()[0].getParent()
+    """Apply the motion to the skeleton.
 
+    Args:
+        skeleton_group: The skeleton group to duplicate and apply the motion to.
+        root_pos: The root positions for each frame.
+        rotations: The joint rotations for each frame.
+        joint_mask: The mask for each joint and frame.
+        start_frame: The starting frame for the motion.
+        name: A prefix for the duplicated skeleton.
+    """
     # Duplicate the source skeleton
-    root_grp = pmc.duplicate(orig_root_grp, name=f"{name}_{orig_root_grp}")
+    root_grp = pmc.duplicate(skeleton_group, name=f"{name}_{skeleton_group}")
     root_grp = pmc.ls(root_grp)[0]
     root_obj = root_grp.listRelatives(children=True, type="joint")[0]
-    joints = get_hierarchy(root_obj)
+    joints = _get_hierarchy(root_obj)
 
     # Get the start and end frames
     start = start_frame
@@ -187,7 +249,7 @@ def apply_motion(
 
     for frame_time in range(start, end + 1):
         frame_idx = frame_time - start
-        for joint_idx, name in enumerate(joints):
+        for joint_idx, joint_name in enumerate(joints):
             # Skip joints that are not part of the mask
             if joint_mask is not None and not joint_mask[frame_idx, joint_idx]:
                 continue
@@ -195,19 +257,19 @@ def apply_motion(
             # Apply root position to the root joint
             if joint_idx == 0:
                 pmc.setKeyframe(
-                    name,
+                    joint_name,
                     time=frame_time,
                     attribute="tx",
                     value=root_pos[frame_idx, 0],
                 )
                 pmc.setKeyframe(
-                    name,
+                    joint_name,
                     time=frame_time,
                     attribute="ty",
                     value=root_pos[frame_idx, 1],
                 )
                 pmc.setKeyframe(
-                    name,
+                    joint_name,
                     time=frame_time,
                     attribute="tz",
                     value=root_pos[frame_idx, 2],
@@ -215,40 +277,45 @@ def apply_motion(
 
             # Apply joint rotations to the all joints
             pmc.setKeyframe(
-                name,
+                joint_name,
                 time=frame_time,
                 attribute="rx",
                 value=rotations[frame_idx, joint_idx, 0],
             )
             pmc.setKeyframe(
-                name,
+                joint_name,
                 time=frame_time,
                 attribute="ry",
                 value=rotations[frame_idx, joint_idx, 1],
             )
             pmc.setKeyframe(
-                name,
+                joint_name,
                 time=frame_time,
                 attribute="rz",
                 value=rotations[frame_idx, joint_idx, 2],
             )
 
 
-def import_motions(root_positions, joint_rotations, start_frame=1, name="sample"):
+def import_motions(
+    skeleton_group: pmc.nodetypes.Transform,
+    root_positions: np.ndarray,
+    joint_rotations: np.ndarray,
+    start_frame=1,
+    name="sample",
+):
+    """Import the inferred motions onto the skeleton.
+
+    Args:
+        root_positions: The root positions for each frame per sample.
+        joint_rotations: The joint rotations for each frame per sample.
+        start_frame: The starting frame for the motion.
+        name: A prefix for the duplicated skeleton.
+    """
     for root_pos, rotations in zip(root_positions, joint_rotations):
-        apply_motion(np.array(root_pos), np.array(rotations), start_frame=start_frame, name=name)
-
-
-###############################################################################
-
-
-def _test():
-    print("Extracting keyframes...")
-    keyframes = extract_keyframes()
-    print("Packing keyframes...")
-    packed_motion = pack_keyframes(*keyframes)
-    # pprint(packed_motion)
-    print("Unpacking motion...")
-    root_pos, rotations, joint_mask = unpack_motion(packed_motion)
-    print("Applying motion...")
-    apply_motion(root_pos, rotations, joint_mask, 1)
+        _apply_motion(
+            skeleton_group,
+            np.array(root_pos),
+            np.array(rotations),
+            start_frame=start_frame,
+            name=name,
+        )
