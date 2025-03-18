@@ -19,4 +19,9 @@ Further options that might be interesting to adjust are:
 - `unpack_randomness`: The randomness applied during unpacking.
 - `editable_features`: The features (joint positions, rotations and velocities) that are extracted from the input motion.
 
+Finally, there are some experimental options:
+
+- `jacobian_ik`: Whether to use Jacobian IK instead of Basic IK.
+- `foot_ik`: Whether to use foot IK.
+
 For an extended list of available parameters see the API Reference, specifically the [InferenceArgs][models.condmdi.molab_condmdi.inference_worker.InferenceArgs] class.
