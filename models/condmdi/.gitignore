@@ -138,7 +138,7 @@ molab_condmdi/glove/
 molab_condmdi/body_models/
 .vscode/
 molab_condmdi/wandb/
-molab_condmdi/notebooks/figures
+molab_condmdi/notebooks/
 
 !molab_condmdi/dataset/HumanML3D/Mean.npy
 !molab_condmdi/dataset/HumanML3D/Std.npy
