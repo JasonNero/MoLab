@@ -119,3 +119,8 @@ We would like to thank the following contributors/projects for the great foundat
 This code is distributed under an [MIT LICENSE](LICENSE).
 
 Note that our code depends on other libraries and pretrained models, including CondMDI, CLIP, SMPL, SMPL-X, PyTorch3D, and uses datasets that each have their own respective licenses that must also be followed.
+
+> [!WARNING]
+> By using the pre-trained models of diffusion-motion-inbetweening (CondMDI), you agree to adhere to the licenses of the respective model checkpoints and datasets.
+> HumanML3D is non-commercial and for research purposes only due to its use of the AMASS dataset. As a result, this project follows the same licensing restrictions and is limited to non-commercial and research purposes only.
+> In order to use the models for commercial purposes, you must train your own models on a dataset that you have the rights to use commercially.
