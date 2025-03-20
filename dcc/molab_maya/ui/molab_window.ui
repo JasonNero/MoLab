@@ -17,6 +17,13 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Skeleton Root</string>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
@@ -34,51 +41,10 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Num Samples</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Skeleton Root</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="2">
-       <widget class="QLineEdit" name="le_backend">
-        <property name="text">
-         <string>ws://localhost:8000</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="le_skeleton">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
+      <item row="3" column="1" colspan="2">
+       <widget class="QLineEdit" name="le_prompt">
         <property name="placeholderText">
-         <string>pick skeleton hip</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Backend URI</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="chkbx_input_motion">
-        <property name="text">
-         <string>Use Input Motion     </string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
+         <string>leave empty for pure in-betweening</string>
         </property>
        </widget>
       </item>
@@ -125,6 +91,40 @@
         </item>
        </layout>
       </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="chkbx_input_motion">
+        <property name="text">
+         <string>Use Input Motion     </string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Backend URI</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Num Samples</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="le_skeleton">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="placeholderText">
+         <string>pick skeleton hip</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="2">
        <widget class="QPushButton" name="btn_pick_skeleton">
         <property name="text">
@@ -132,10 +132,17 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1" colspan="2">
-       <widget class="QLineEdit" name="le_prompt">
-        <property name="placeholderText">
-         <string>leave empty for pure in-betweening</string>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="le_backend">
+        <property name="text">
+         <string>ws://localhost:8000</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="btn_connect">
+        <property name="text">
+         <string>Connect</string>
         </property>
        </widget>
       </item>

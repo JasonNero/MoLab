@@ -1,5 +1,6 @@
 from qtpy.QtCore import QObject, QUrl, Signal
 from qtpy.QtWebSockets import QWebSocket
+from qtpy.QtNetwork import QAbstractSocket
 
 import json
 
@@ -10,6 +11,7 @@ class MoLabQClient(QObject):
     """
     inference_received = Signal(dict)
     connected = Signal()
+    disconnected = Signal()
 
     def __init__(self, backend_uri="ws://localhost:8000"):
         """
@@ -21,6 +23,7 @@ class MoLabQClient(QObject):
         super().__init__()
         self.backend_uri = backend_uri
         self.websocket = QWebSocket()
+        self.websocket.disconnected.connect(self.disconnected.emit)
         self.websocket.connected.connect(self.connected.emit)
         self.websocket.textMessageReceived.connect(self.on_message_received)
 
@@ -48,6 +51,9 @@ class MoLabQClient(QObject):
         print("Sending inference request ...")
         inference_args["type"] = "infer"
         self.websocket.sendTextMessage(json.dumps(inference_args))
+
+    def is_connected(self):
+        return self.websocket.state() == QAbstractSocket.SocketState.ConnectedState
 
     def on_message_received(self, message):
         """

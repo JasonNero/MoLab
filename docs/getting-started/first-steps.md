@@ -71,7 +71,10 @@ This will open up a new window with the MoLab Maya Plugin.
 
 ![MoLab Maya Plugin](../assets/MoLab_maya_plugin.png)
 
-Now select the characters `Hips` joint and press the "Pick" Button in the plugin. This will validate the skeleton and set up the plugin for inference.
+First supply a Backend URI, which should be `ws://localhost:8000` if you are running the backend locally.
+Then press the "Connect" Button to establish a connection to the backend.
+The button should change to "Connected" if the connection was successful.
+Now select the characters `Hips` joint in Maya and press the "Pick" Button in the plugin. This will validate the skeleton and set up the plugin for inference.
 Next, adjust the input range to your desired keyframes and optionally add a prompt text.
 In this example we leave the prompt text empty and do pure in-betweening.
 

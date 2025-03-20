@@ -21,4 +21,3 @@ The basic workflow is as follows:
 There are also advanced options available, which are explained further in the [Inference Parameter Guide](inference-parameters.md).
 
 ![Advanced Options of the MoLab Maya Plugin](../assets/MoLab_maya_plugin_advanced.png)
-

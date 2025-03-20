@@ -20,20 +20,28 @@ class MoLabWindow(QtWidgets.QMainWindow):
         loadUi(ui_path.as_posix(), self)
         self.widget_advanced.setVisible(False)
         self.btn_generate.setEnabled(False)
-        self.connect_signals()
+        self.skeleton_valid = False
         self.client = MoLabQClient()
-        self.client.inference_received.connect(self.on_inference_received)
+        self.connect_signals()
         self.client.open()
 
     def connect_signals(self):
+        self.client.inference_received.connect(self.on_inference_received)
+        self.client.connected.connect(self.on_connect)
+        self.client.disconnected.connect(self.on_disconnect)
+
         self.grp_advanced.toggled.connect(self.widget_advanced.setVisible)
         self.le_backend.textChanged.connect(self.on_backend_changed)
+        self.btn_connect.pressed.connect(self.on_connect_pressed)
         self.btn_pick_skeleton.pressed.connect(self.on_pick_skeleton)
         self.btn_generate.pressed.connect(self.on_generate)
 
-    def on_backend_changed(self, text):
+    def on_backend_changed(self):
         self.client.close()
-        self.client.backend_uri = text
+
+    def on_connect_pressed(self):
+        self.client.close()
+        self.client.backend_uri = self.le_backend.text()
         self.client.open()
 
     def on_pick_skeleton(self):
@@ -41,11 +49,15 @@ class MoLabWindow(QtWidgets.QMainWindow):
             self.joints = motion_io.get_selected_skeleton_joints()
             self.skeleton_group = self.joints[0].getParent()
             self.le_skeleton.setText(self.joints[0].longName())
-            self.btn_generate.setEnabled(True)
+            self.skeleton_valid = True
         except ValueError as e:
             QtWidgets.QMessageBox.warning(self, "Warning", str(e))
-            self.btn_generate.setEnabled(False)
-            return
+            self.skeleton_valid = False
+        self.update_generate_button()
+
+    def update_generate_button(self):
+        generation_enabled = self.skeleton_valid and self.client.is_connected()
+        self.btn_generate.setEnabled(generation_enabled)
 
     def on_generate(self):
         startframe = self.sb_startframe.value()
@@ -75,6 +87,18 @@ class MoLabWindow(QtWidgets.QMainWindow):
         self.btn_generate.setEnabled(False)
         self.btn_generate.setText("Generating, please wait...")
         self.client.infer(inference_args)
+
+    def on_connect(self):
+        print("Connected to MoLab backend!")
+        self.btn_connect.setEnabled(False)
+        self.btn_connect.setText("Connected")
+        self.update_generate_button()
+
+    def on_disconnect(self):
+        print("Disconnected from MoLab backend!")
+        self.btn_connect.setEnabled(True)
+        self.btn_connect.setText("Connect")
+        self.update_generate_button()
 
     def on_inference_received(self, inference_result):
         motion_io.import_motions(
