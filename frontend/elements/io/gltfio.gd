@@ -36,6 +36,7 @@ static func load_animation_from_file(file_path: String, bonemap: BoneMap = null,
 
 	# Remap the animation to the "%GeneralSkeleton" skeleton
 	if do_remap:
+		print("Remapping animation to %GeneralSkeleton")
 		var to_delete: Array[int] = []
 		for track_id in range(anim.get_track_count()):
 			var track_path = anim.track_get_path(track_id) as String
@@ -47,12 +48,11 @@ static func load_animation_from_file(file_path: String, bonemap: BoneMap = null,
 			anim.track_set_path(track_id, "%GeneralSkeleton:" + current_bone)
 
 			if anim.track_get_type(track_id) == Animation.TYPE_POSITION_3D:
-				# Scale root transform by .01 to convert from cm to m
-				# TODO: Make this configurable
+				# TODO: Introduce a position scale factor
 				if current_bone == "Hips":
 					for key in range(anim.track_get_key_count(track_id)):
 						var key_value = anim.track_get_key_value(track_id, key)
-						anim.track_set_key_value(track_id, key, key_value * 0.01)
+						anim.track_set_key_value(track_id, key, key_value)
 				# Only allow the Hips bone to have a position track
 				else:
 					to_delete.append(track_id)
