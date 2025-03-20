@@ -1,6 +1,8 @@
 class_name BackendWebSocket
 extends Node
 
+signal connected()
+signal disconnected()
 signal results_received(results: InferenceResults)
 
 # The URL we will connect to.
@@ -44,6 +46,8 @@ func infer(infer_args: InferenceArgs):
 
 func _connect():
 	# Initiate connection to the given URL.
+	if socket.get_ready_state() != WebSocketPeer.STATE_CLOSED:
+		socket.close()
 	var err = socket.connect_to_url(websocket_url)
 	retry_count += 1
 	if err != OK:
@@ -62,6 +66,7 @@ func _physics_process(_delta: float) -> void:
 				print("Connected to Backend")
 				last_connected = true
 				retry_count = 0
+				connected.emit()
 			while socket.get_available_packet_count():
 				var packet = socket.get_packet().get_string_from_utf8()
 				results_received.emit(InferenceResults.from_json(packet))
@@ -71,6 +76,7 @@ func _physics_process(_delta: float) -> void:
 				var reason = socket.get_close_reason()
 				print("Backend WebSocket closed with code: %d %s" % [code, reason])
 				last_connected = false
+				disconnected.emit()
 
 			if retry_count >= retry_max:
 				print("Backend WebSocket retry limit reached")
