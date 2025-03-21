@@ -17,7 +17,7 @@ dependencies = [
     "pandas>=1.5.1",
     "pydantic>=2.9.2",
     "scipy>=1.10.1",
-    "spacy>=3.7.5",
+    "spacy>=3.7.5, <3.8",
     "torch>=2.4.1",
     "torchaudio>=2.4.1",
     "torchvision>=0.19.1",
@@ -48,11 +48,11 @@ dev = [
 [tool.uv.sources]
 clip = { git = "https://github.com/openai/CLIP.git" }
 torch = [
-  { index = "pytorch-cu118", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+  { index = "pytorch-cu126", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
   { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
 ]
 torchvision = [
-  { index = "pytorch-cu118", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+  { index = "pytorch-cu126", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
   { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
 ]
 
@@ -62,8 +62,8 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [[tool.uv.index]]
-name = "pytorch-cu118"
-url = "https://download.pytorch.org/whl/cu118"
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
 explicit = true
 
 [tool.setuptools]

@@ -6,6 +6,9 @@ services:
       - "8000:8000"
     networks:
       - app-network
+    environment:
+      GATEWAY_HOST: backend  # Use the service name as the host
+      GATEWAY_PORT: 8000
 
   # frontend:
   #   build: ./frontend/export/html

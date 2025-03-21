@@ -61,10 +61,12 @@ unique_name_in_owner = true
 title = "About MoLab Sequencer"
 initial_position = 1
 size = Vector2i(665, 158)
-dialog_text = "MoLab Sequencer v0.1.1
+dialog_text = "MoLab Sequencer v0.2.0
 Prototype for \"Layer-based Motion Editing\", developed as part of the Kollani project.
 
-https://ai.hdm-stuttgart.de/research/kollani/"
+GitHub: https://github.com/JasonNero/MoLab
+Documentation: https://jasonnero.github.io/MoLab/
+Kollani Project: https://ai.hdm-stuttgart.de/research/kollani/"
 script = ExtResource("14_xcio6")
 title_substutions = Array[String](["%name"])
 body_substutions = Array[String](["%name", "%version", "%description"])

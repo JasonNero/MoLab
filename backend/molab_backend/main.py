@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 import uuid
 from dataclasses import dataclass, field
 
@@ -9,6 +10,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("backend")
 
+
 @dataclass
 class Connection:
     """Simple connection class to handle WebSocket connections.
@@ -17,11 +19,14 @@ class Connection:
         websocket (WebSocket): The WebSocket connection for the worker or client.
         id (str): The unique identifier for the connection.
     """
+
     websocket: WebSocket
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
+
 class WorkerManager:
     """Worker manager class to manage worker connections using round-robin scheduling."""
+
     def __init__(self):
         self.workers: list[Connection] = []
         self.lock = asyncio.Lock()
@@ -82,8 +87,10 @@ class WorkerManager:
             await client.websocket.send_json(result)
             self.request_queue.task_done()
 
+
 class ClientManager:
     """Client manager class to manage client connections."""
+
     def __init__(self):
         self.clients: list[Connection] = []
         self.lock = asyncio.Lock()
@@ -119,10 +126,12 @@ class ClientManager:
                 f"Client {client.id} disconnected. Total clients: {len(self.clients)}"
             )
 
+
 worker_manager = WorkerManager()
 client_manager = ClientManager()
 
 app = FastAPI(title="Motion Inference Server")
+
 
 async def handle_client_request(client: Connection, message: dict):
     """
@@ -138,9 +147,11 @@ async def handle_client_request(client: Connection, message: dict):
         logger.error(f"Client {client.id} sent unknown message:\n{message}")
         await client.websocket.send_text("Invalid message type")
 
+
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(worker_manager.process_requests())
+
 
 @app.websocket("/register_worker")
 async def register_worker(websocket: WebSocket):
@@ -162,6 +173,7 @@ async def register_worker(websocket: WebSocket):
     except WebSocketDisconnect:
         await worker_manager.unregister(worker)
 
+
 @app.websocket("/register_client")
 async def register_client(websocket: WebSocket):
     """
@@ -179,10 +191,14 @@ async def register_client(websocket: WebSocket):
     except WebSocketDisconnect:
         await client_manager.unregister(client)
 
+
 def main():
     """Main function to run the FastAPI app using Uvicorn."""
-    # uvicorn.run(app, host="0.0.0.0", port=8000)
-    uvicorn.run(app, host="localhost", port=8000)
+    host = os.getenv("GATEWAY_HOST", "localhost")
+    port = int(os.getenv("GATEWAY_PORT", 8000))
+    logger.info(f"Running server at http://{host}:{port}")
+    uvicorn.run(app, host=host, port=port)
+
 
 if __name__ == "__main__":
     main()
