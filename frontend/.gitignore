@@ -2,6 +2,8 @@
 .godot/
 export/html/*
 export/macos/*
+export/linux/*
+export/win/*
 !export/html/Dockerfile
 
 # Ignore macOS .DS_Store files in all subfolders
