@@ -165,11 +165,8 @@ async def register_worker(websocket: WebSocket):
     worker = await worker_manager.register(websocket)
     try:
         while True:
-            # Ping/Keepalive
-            await websocket.send_text("ping")
+            # Ping/Keepalive done by uvicorn
             await asyncio.sleep(5)
-            # message = await websocket.receive_json()
-            # await handle_worker_request(worker, message)
     except WebSocketDisconnect:
         await worker_manager.unregister(worker)
 
@@ -197,7 +194,7 @@ def main():
     host = os.getenv("GATEWAY_HOST", "localhost")
     port = int(os.getenv("GATEWAY_PORT", 8000))
     logger.info(f"Running server at http://{host}:{port}")
-    uvicorn.run(app, host=host, port=port)
+    uvicorn.run(app, host=host, port=port, ws_ping_interval=30, ws_ping_timeout=240)
 
 
 if __name__ == "__main__":
