@@ -17,7 +17,7 @@ GitHub: https://github.com/JasonNero/MoLab
 Documentation: https://jasonnero.github.io/MoLab/
 Kollani Project: https://ai.hdm-stuttgart.de/research/kollani/
 "
-config/version="0.2.0"
+config/version="0.2.1"
 config/tags=PackedStringArray("gui")
 run/main_scene="res://main_editor.tscn"
 config/features=PackedStringArray("4.4")

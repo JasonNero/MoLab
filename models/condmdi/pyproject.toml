@@ -1,6 +1,6 @@
 [project]
 name = "molab-condmdi"
-version = "0.1.0"
+version = "0.2.1"
 authors = [
   { name="Jason Schühlein", email="schuehlein@hdm-stuttgart.de" },
 ]
