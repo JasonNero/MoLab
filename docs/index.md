@@ -1,7 +1,5 @@
 # Welcome to MoLab's documentation!
 
-Welcome to the MoLab documentation. Here you will find all the information you need to get started and make the most out of MoLab.
-
 <div align="center">
   <img src="assets/MoLab_demo.gif" alt="MoLab Demo" style="max-width: 80%; height: auto;" />
 </div>
@@ -21,3 +19,7 @@ Motion Lab (MoLab) is an innovative framework that supports producers and animat
 - Fixed skeleton with 22 joints
 - Maximum sequence length of 196 frames and a fixed framerate of 20 Hz
 - Text conditioning is limited to the entire sequence and the entire body
+
+## Next Steps
+
+See the [Installation Guide](getting-started/installation.md) to set up the backend and worker components.

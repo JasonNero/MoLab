@@ -2,7 +2,10 @@
 
 After [installing MoLab](installation.md), follow the steps below to get everything up and running.
 
-## Starting the Backend and Worker
+## Starting Backend and Worker
+
+> [!HINT]
+> This will start the backend and worker **locally**. For a distributed setup see the [Deployment Guide](../deployment.md).
 
 First start the backend server:
 
@@ -26,7 +29,7 @@ Now everything is set up and you can connect to the backend using any of the cli
 
 Currently MoLab supports these clients with different use cases:
 
-- **MoLab Sequencer**: The frontend built with Godot
+- **MoLab Sequencer**: The interface built with Godot
     - Aimed at producers and animators
     - Generate animations from text descriptions
     - Layer-based editing and transitions
@@ -36,7 +39,8 @@ Currently MoLab supports these clients with different use cases:
     - Feed key poses and generate in-betweens
 - **MoLab API**: Directly connect to the backend
     - Aimed at developers
-    - Use the API to interact with the backend
+    - Use the API for fine-grained control
+    - Integrate MoLab into your own applications
 
 ### MoLab Sequencer
 
@@ -71,7 +75,7 @@ This will open up a new window with the MoLab Maya Plugin.
 
 ![MoLab Maya Plugin](../assets/MoLab_maya_plugin.png)
 
-First supply a Backend URI, which should be `ws://localhost:8000` if you are running the backend locally.
+First supply a Backend URI, the default is fine since we are running everything locally in this example.
 Then press the "Connect" Button to establish a connection to the backend.
 The button should change to "Connected" if the connection was successful.
 Now select the characters `Hips` joint in Maya and press the "Pick" Button in the plugin. This will validate the skeleton and set up the plugin for inference.
@@ -83,7 +87,7 @@ After a while you should see a duplicated character per sample and can now inspe
 
 ![MoLab Maya Inference](../assets/MoLab_maya_inference.png)
 
-For further details on how to use the MoLab Maya Plugin, see the [MoLab Maya Plugin documentation](../usage/maya-plugin.md).
+For further details on how to use the plugin, see the [MoLab Maya Plugin documentation](../usage/maya-plugin.md).
 
 ## Next Steps
 

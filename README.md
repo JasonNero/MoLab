@@ -3,7 +3,6 @@
 ![License](https://img.shields.io/github/license/JasonNero/MoLab)
 ![GitHub Tag](https://img.shields.io/github/v/tag/JasonNero/MoLab)
 
-
 > A toolbox for **human motion generation and inbetweening**, developed during the [Kollani](https://ai.hdm-stuttgart.de/research/kollani/) project.
 
 - **Github repository**: <https://github.com/JasonNero/MoLab/>
@@ -19,7 +18,12 @@
 - **In-Betweening**: Input your keyposes and let AI fill the gaps
 - **Motion Composition**: Compose sequences and generate transitions
 
-## Overview
+## Getting started
+
+To get started with MoLab, please take a look at the [installation guide](https://jasonnero.github.io/MoLab/getting-started/installation/).
+The [first steps](https://jasonnero.github.io/MoLab/getting-started/first-steps/) page will guide you through the process of starting the components and running your first inference.
+
+## Folder Structure
 
 ```
 MoLab/
@@ -32,66 +36,6 @@ MoLab/
 ├── Justfile            # Automate build/test tasks across components
 └── README.md           # Project description and setup instructions
 ```
-
-## Getting started
-
-Follow the steps below to get everything up and running.
-
-### Prerequisites
-
-Before you begin, ensure you have the following installed:
-
-- [**uv**](https://docs.astral.sh/uv/) (Python Package Manager)
-- [**just**](https://github.com/casey/just) (Command Runner)
-  - can be installed via `uv tool install rust-just`
-- [**Godot Engine 4**](https://godotengine.org) (For the Frontend)
-
-### Installation
-
-To install the project, follow these steps:
-
-1. Clone the repository and navigate to the project root directory
-2. Run `just install` to setup the python environments
-3. Run `just download` to download the required model checkpoints.
-
-### Usage
-
-1. Run `just run-backend` to start the FastAPI server
-2. Run `just run-worker` to start an Inference worker
-3. Connect to the backend using the Frontend or DCC Plugin
-
-#### Using the Godot App / Frontend
-
-1. First download the ["Akai e espiritu" model from Mixamo](https://www.mixamo.com/#/?page=1&query=akai&type=Character) and save it as `frontend/res/models/akai_e_espiritu.fbx`
-2. Open and build the Godot project in `frontend`
-3. Run the project and check log messages for a successful backend connection
-
-For more details please refer to the [documentation](https://JasonNero.github.io/MoLab/).
-
-#### Using the DCC Plugin
-
-See `dcc/inference_example.py` for an example of how to connect to the backend and infer from the Maya Script Editor.
-
-For more details please refer to the [documentation](https://JasonNero.github.io/MoLab/).
-
-> [!WARNING]
-> Currently only Maya is supported.
-> The Blender script is out-of-date and incomplete, feel free to contribute.
-
-## Deploy with Docker
-
-Instead of running backend and worker locally, you can also deploy them using Docker:
-
-```bash
-docker-compose up
-```
-
-This command automatically sets up a container for the backend and worker components, setting up the Python environment (see the components `Dockerfile` for details).
-It then spins up the backend server as well as two worker instances connected via a bridge network.
-Clients can then connect to the exposed port 8000.
-
-Optionally, the Godot Frontend can be served as well, but only with reduced IO features.
-For this, you need to build/export it as HTML first and uncomment the `frontend` segment of the `docker-compose.yaml` file.
 
 ## Contributing
 

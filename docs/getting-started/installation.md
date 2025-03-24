@@ -25,7 +25,7 @@ First clone the MoLab repository:
 git clone https://github.com/JasonNero/MoLab.git
 ```
 
-Then run the `install` and `download` tasks and wait for the installation to finish:
+Then run the `install` task to setup the python environments followed by the `download` task to download the pretrained model checkpoints:
 
 ```console
 cd MoLab
@@ -33,22 +33,25 @@ just install
 just download
 ```
 
-Now as both the Python environments and the required model checkpoints are set up, we can continue building the Godot frontend.
+## Installing a Client
 
-## Building the Frontend
+With the backend and worker set up, you can now install a client to connect to the backend. You have two options here: the frontend built with Godot or the Maya plugin.
+
+### Building the Sequencer
 
 MoLab Sequencer is using Mixamo characters for visualization.
-Due to license restrictions, the frontend does not come with the required 3D character model.
-Therefore, please download the "Akai e espiritu" model from the [Mixamo Website](https://www.mixamo.com/#/?page=1&query=akai&type=Character) and save it under `frontend/res/models/akai_e_espiritu.fbx`.
+Due to license restrictions, this repository does not distribute the required 3D character model.
 
-Now you can open the `frontend` project in Godot and re-import the model by double-clicking the `akai_e_espiritu.fbx` file in the "File System" tab and hitting "Reimport".
+First, please download the "Akai e espiritu" model from the [Mixamo Website](https://www.mixamo.com/#/?page=1&query=akai&type=Character) and save it under `frontend/res/models/akai_e_espiritu.fbx`.
+
+Then you can open the `frontend` project in Godot and re-import the model by double-clicking the `akai_e_espiritu.fbx` file in the "File System" tab and hitting "Reimport".
 
 Finally, you can either run from the editor or export the project to a standalone application.
 
 > [!HINT]
 > You might need to reset any changes to the `akai_e_espiritu.fbx.import` file since Godot might have changed the import settings if you started Godot before downloading the model.
 
-## Installing the Maya Plugin
+### Installing the Maya Plugin
 
 === "macOS"
 
