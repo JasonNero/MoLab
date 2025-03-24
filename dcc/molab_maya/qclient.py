@@ -3,6 +3,7 @@ from qtpy.QtWebSockets import QWebSocket
 from qtpy.QtNetwork import QAbstractSocket
 
 import json
+import os
 
 
 class MoLabQClient(QObject):
@@ -13,7 +14,7 @@ class MoLabQClient(QObject):
     connected = Signal()
     disconnected = Signal()
 
-    def __init__(self, backend_uri="ws://localhost:8000"):
+    def __init__(self, backend_uri=""):
         """
         Initializes the MoLabQClient with the given backend URI.
 
@@ -21,7 +22,12 @@ class MoLabQClient(QObject):
             backend_uri (str): The URI of the MoLab backend server.
         """
         super().__init__()
-        self.backend_uri = backend_uri
+        if backend_uri:
+            self.backend_uri = backend_uri
+        else:
+            host = os.getenv("MOLAB_GATEWAY_HOST", "localhost")
+            port = os.getenv("MOLAB_GATEWAY_PORT", "8000")
+            self.backend_uri = f"ws://{host}:{port}"
         self.websocket = QWebSocket()
         self.websocket.disconnected.connect(self.disconnected.emit)
         self.websocket.connected.connect(self.connected.emit)
