@@ -37,11 +37,11 @@ file_logging/enable_file_logging=true
 [display]
 
 window/size/viewport_width=1920
-window/size/viewport_height=1200
+window/size/viewport_height=1080
 window/size/initial_position_type=3
 window/energy_saving/keep_screen_on=false
-window/stretch/scale=1.5
 window/vsync/vsync_mode=0
+window/stretch/scale.macos=1.5
 
 [editor_plugins]
 
