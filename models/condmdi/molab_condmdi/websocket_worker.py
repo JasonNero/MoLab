@@ -122,8 +122,8 @@ class WebSocketWorker:
 
 def main():
     WebSocketWorker(
-        backend_host=os.getenv("GATEWAY_HOST", "localhost"),
-        backend_port=os.getenv("GATEWAY_PORT", "8000"),
+        backend_host=os.getenv("MOLAB_GATEWAY_HOST", "localhost"),
+        backend_port=os.getenv("MOLAB_GATEWAY_PORT", "8000"),
         checkpoint="random_frames",  # or "random_joints"
     ).run()
 

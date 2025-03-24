@@ -19,8 +19,8 @@ var retry_count := 0
 
 func _ready():
 	# TODO: This does not work in Web Export
-	var host = OS.get_environment("GATEWAY_HOST")
-	var port = OS.get_environment("GATEWAY_PORT")
+	var host = OS.get_environment("MOLAB_GATEWAY_HOST")
+	var port = OS.get_environment("MOLAB_GATEWAY_PORT")
 
 	if host == "":
 		host = "localhost"

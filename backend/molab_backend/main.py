@@ -191,8 +191,8 @@ async def register_client(websocket: WebSocket):
 
 def main():
     """Main function to run the FastAPI app using Uvicorn."""
-    host = os.getenv("GATEWAY_HOST", "localhost")
-    port = int(os.getenv("GATEWAY_PORT", 8000))
+    host = os.getenv("MOLAB_GATEWAY_HOST", "localhost")
+    port = int(os.getenv("MOLAB_GATEWAY_PORT", 8000))
     logger.info(f"Running server at http://{host}:{port}")
     uvicorn.run(app, host=host, port=port, ws_ping_interval=30, ws_ping_timeout=240)
 
