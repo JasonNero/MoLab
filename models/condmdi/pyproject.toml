@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["setuptools >= 61.0"]
+requires = ["setuptools >= 61.0, < 81"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
@@ -44,6 +44,10 @@ dev = [
     "seaborn>=0.13.2",
     "wandb>=0.18.2",
 ]
+
+[tool.uv]
+# setuptools >= 81 removes pkg_resources, which clip's legacy setup.py needs.
+build-constraint-dependencies = ["setuptools < 81"]
 
 [tool.uv.sources]
 clip = { git = "https://github.com/openai/CLIP.git" }
